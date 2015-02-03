@@ -1,0 +1,1 @@
+ruby ../babyruby2js.rb --src=. --target=js-out
