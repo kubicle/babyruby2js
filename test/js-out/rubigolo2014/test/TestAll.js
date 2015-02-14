@@ -1,8 +1,9 @@
 //Translated from  using babyruby2js
 'use strict';
 
+var main = require('./main');
 // Tests all
-window.globals.test_all = true;
+main.test_all = true;
 var TestAi = require('TestAi');
 var TestBoardAnalyser = require('TestBoardAnalyser');
 var TestBreeder = require('TestBreeder');

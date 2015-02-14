@@ -44,7 +44,7 @@ SgfReader.prototype.to_move_list = function () {
         var value = this.nodes[i][1];
         if (name !== 'B' && name !== 'W') {
             if (name !== 'C') {
-                window.globals.log.warn('Unknown property ' + name + '[' + value + '] ignored');
+                main.log.warn('Unknown property ' + name + '[' + value + '] ignored');
             } // comments can be ignored
             continue;
         }
@@ -69,7 +69,7 @@ SgfReader.prototype.get_game_info = function () {
         switch (name) {
         case 'FF':
             if (parseInt(val, 10) < 4) {
-                window.globals.log.warn('SGF version FF[' + val + ']. Not sure we handle it.');
+                main.log.warn('SGF version FF[' + val + ']. Not sure we handle it.');
             }
             break;
         case 'SZ':
@@ -107,7 +107,7 @@ SgfReader.prototype.get_game_info = function () {
             //NOP
             break;
         default: 
-            window.globals.log.info('Unknown property in SGF header: ' + name + '[' + val + ']');
+            main.log.info('Unknown property in SGF header: ' + name + '[' + val + ']');
         }
     }
 };

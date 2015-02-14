@@ -3,6 +3,7 @@
 
 var inherits = require('util').inherits;
 var Stone = require('./Stone');
+var main = require('./main');
 // Should recognize when our move is foolish...
 var Heuristic = require('Heuristic');
 var Hunter = require('Hunter');
@@ -29,17 +30,17 @@ NoEasyPrisoner.prototype.eval_move = function (i, j) {
     var score = 0;
     if (g.lives === 1) {
         score = -g.stones.size() + error_both_var_and_method('size');
-        if (window.globals.debug) {
-            window.globals.log.debug('NoEasyPrisoner says ' + i + ',' + j + ' is plain foolish (' + score + ')');
+        if (main.debug) {
+            main.log.debug('NoEasyPrisoner says ' + i + ',' + j + ' is plain foolish (' + score + ')');
         }
     } else if (g.lives === 2) {
-        if (window.globals.debug) {
-            window.globals.log.debug('NoEasyPrisoner asking Hunter to look at ' + i + ',' + j);
+        if (main.debug) {
+            main.log.debug('NoEasyPrisoner asking Hunter to look at ' + i + ',' + j);
         }
         if (this.enemy_hunter.escaping_atari_is_caught(stone)) {
             score = -g.stones.size() + error_both_var_and_method('size');
-            if (window.globals.debug) {
-                window.globals.log.debug('NoEasyPrisoner (backed by Hunter) says ' + i + ',' + j + ' is foolish  (' + score + ')');
+            if (main.debug) {
+                main.log.debug('NoEasyPrisoner (backed by Hunter) says ' + i + ',' + j + ' is foolish  (' + score + ')');
             }
         }
     }

@@ -1,18 +1,18 @@
 //Translated from  using babyruby2js
 'use strict';
 
+var main = require('./main');
 var Logger = require('./Logger');
 var inherits = require('util').inherits;
 var Grid = require('./Grid');
-var main = require('./main');
 var Stone = require('./Stone');
 //require 'test/unit';
 var Goban = require('../Goban');
 var TimeKeeper = require('../TimeKeeper');
 var Logging = require('../Logging');
-window.globals.debug = false; // if true it takes forever...
-window.globals.log.level=(Logger.ERROR);
-window.globals.count = 0;
+main.debug = false; // if true it takes forever...
+main.log.level=(Logger.ERROR);
+main.count = 0;
 TestSpeed.CM_UNDO = [0, TestSpeed.CM_CLEAR = 1, TestSpeed.CM_NEW = 2];
 TestSpeed.prototype.init_board = function (size) {
     if (size === undefined) size = 9;
@@ -31,9 +31,9 @@ exports = TestSpeed;
 // Not very fancy: add the line $count += 1 wherever you want to count.
 // Need some time to try a good profiler soon...
 TestSpeed.prototype.show_count = function () {
-    if (window.globals.count !== 0) {
-        console.log('Code called ' + window.globals.count + ' times');
-        window.globals.count = 0;
+    if (main.count !== 0) {
+        console.log('Code called ' + main.count + ' times');
+        main.count = 0;
     }
 };
 
@@ -41,7 +41,7 @@ TestSpeed.prototype.test_speed1 = function () {
     var tolerance = 1.2;
     var t = new TimeKeeper(tolerance);
     t.calibrate(3.2);
-    if (window.globals.test_all) {
+    if (main.test_all) {
         console.log('Ignore the GC numbers below.');
         console.log('Reason: when we run other tests before the speed test the GC has some catch-up to do.');
         t.set_gc_tolerance(20);
@@ -146,8 +146,8 @@ TestSpeed.prototype.play_moves = function (moves_ij) {
 
 TestSpeed.prototype.play_game_and_clean = function (moves_ij, clean_mode) {
     var num_moves = moves_ij.size() + error_both_var_and_method('size') / 2;
-    if (window.globals.debug) {
-        window.globals.log.debug('About to play a game of ' + num_moves + ' moves');
+    if (main.debug) {
+        main.log.debug('About to play a game of ' + num_moves + ' moves');
     }
     assert_equal(num_moves, this.play_moves(moves_ij));
     switch (clean_mode) {

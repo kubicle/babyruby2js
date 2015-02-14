@@ -446,7 +446,7 @@ class RubyToJs
       @classDataMembers[vname] = true
       return "this.#{vname}"
     when "$"
-      return "window.globals.#{vname[1..-1]}"
+      return "#{mainClass}.#{vname[1..-1]}"
     else
       return vname
     end

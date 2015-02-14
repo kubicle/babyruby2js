@@ -1,8 +1,8 @@
 //Translated from  using babyruby2js
 'use strict';
 
-var Logger = require('./Logger');
 var main = require('./main');
+var Logger = require('./Logger');
 // require "logger"
 Logger.ERROR = 3;
 Logger.WARNING = 2;
@@ -33,10 +33,10 @@ Logger.prototype.test = function (a, b, c) {
     return a.methA(a + b, 33);
 };
 
-window.globals.log = new Logger(main.STDOUT);
+main.log = new Logger(main.STDOUT);
 // change $log.level to Logger::DEBUG, etc. as you need
-window.globals.log.level=(Logger.DEBUG);
+main.log.level=(Logger.DEBUG);
 // change $debug to true to see all the debug logs
 // NB: note this slows down everything if $debug is true even if the log level is not DEBUG
-window.globals.debug = true;
-window.globals.debug_group = false;
+main.debug = true;
+main.debug_group = false;

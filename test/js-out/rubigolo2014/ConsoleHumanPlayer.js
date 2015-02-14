@@ -30,7 +30,7 @@ ConsoleHumanPlayer.prototype.get_ai_eval = function (i, j) {
     if (this.debug_ai) {
         this.debug_ai.prepare_eval();
         var score = this.debug_ai.eval_move(i, j);
-        return window.globals.log.debug('==> AI would rank this move (' + i + ',' + j + ') as ' + score);
+        return main.log.debug('==> AI would rank this move (' + i + ',' + j + ') as ' + score);
     }
 };
 

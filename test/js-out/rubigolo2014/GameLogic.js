@@ -69,7 +69,7 @@ GameLogic.prototype.load_moves = function (game) {
     } catch (err) {
         this.error_msg('Failed loading moves. Please double check the format of your input.');
         this.error_msg('Error: ' + err.message() + ' (' + err.constructor.name + ')');
-        window.globals.log.error('Error while loading moves:\n' + err + '\n' + err.stack);
+        main.log.error('Error while loading moves:\n' + err + '\n' + err.stack);
         return false;
     }
 };
@@ -197,13 +197,13 @@ GameLogic.prototype.set_log_level = function (cmd) {
         }
         switch (a[0]) {
         case 'group':
-            window.globals.debug_group = flag;
+            main.debug_group = flag;
             break;
         case 'ai':
-            window.globals.debug_ai = flag;
+            main.debug_ai = flag;
             break;
         case 'all':
-            window.globals.debug = window.globals.debug_group = window.globals.debug_ai = flag;
+            main.debug = main.debug_group = main.debug_ai = flag;
             break;
         default: 
             throw new Error(1);

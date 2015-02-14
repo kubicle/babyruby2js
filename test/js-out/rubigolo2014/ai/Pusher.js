@@ -25,8 +25,8 @@ Pusher.prototype.eval_move = function (i, j) {
         return 0;
     }
     var score = 0.33 * (this.enemy_coeff * enemy_inf - this.ally_coeff * ally_inf);
-    if (window.globals.debug) {
-        window.globals.log.debug('Pusher heuristic sees influences ' + ally_inf + ' - ' + enemy_inf + ' at ' + i + ',' + j + ' -> ' + main.strFormat('%.03f', score));
+    if (main.debug) {
+        main.log.debug('Pusher heuristic sees influences ' + ally_inf + ' - ' + enemy_inf + ' at ' + i + ',' + j + ' -> ' + main.strFormat('%.03f', score));
     }
     return score;
 };

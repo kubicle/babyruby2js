@@ -30,8 +30,8 @@ PotentialTerritory.prototype.guess_territories = function () {
     for (var first = 1; first <= 2; first++) {
         this.foresee(this.grids[first], first, 1 - first);
     }
-    if (window.globals.debug) {
-        window.globals.log.debug('\nBLACK first:\n' + this.grids[0] + 'WHITE first:\n' + this.grids[1]);
+    if (main.debug) {
+        main.log.debug('\nBLACK first:\n' + this.grids[0] + 'WHITE first:\n' + this.grids[1]);
     }
     // now merge the result
     for (var j = 1; j <= this.size; j++) {
@@ -49,8 +49,8 @@ PotentialTerritory.prototype.guess_territories = function () {
             this.territory.yx[j][i] = owner / 2.0;
         }
     }
-    if (window.globals.debug) {
-        window.globals.log.debug('\n+1=white, -1=black, 0=no one\n' + this.territory.to_text(function (v) {
+    if (main.debug) {
+        main.log.debug('\n+1=white, -1=black, 0=no one\n' + this.territory.to_text(function (v) {
             if (v === 0) {
                 return '    0';
             } else {
@@ -80,23 +80,23 @@ PotentialTerritory.prototype.foresee = function (grid, first, second) {
     this.enlarge(this.real_grid, this.tmp.copy(this.real_grid), first, second);
     this.enlarge(this.tmp, grid.copy(this.tmp), second, first);
     this.connect_to_borders(grid.yx);
-    if (window.globals.debug) {
-        window.globals.log.debug('after 1st enlarge:\n' + this.grid);
+    if (main.debug) {
+        main.log.debug('after 1st enlarge:\n' + this.grid);
     }
     // for reducing we start from the enlarged grid
     this.reduce(this.reduced_grid.copy(grid));
     this.reduced_yx = this.reduced_grid.yx;
-    if (window.globals.debug) {
-        window.globals.log.debug('after reduce:\n' + grid);
+    if (main.debug) {
+        main.log.debug('after reduce:\n' + grid);
     }
     // now we have the reduced goban, play the enlarge moves again minus the extra
     this.enlarge(this.real_grid, this.tmp.copy(this.real_grid), first, second);
     this.enlarge(this.tmp, grid.copy(this.tmp), second, first);
     this.connect_to_borders(grid.yx);
-    if (window.globals.debug) {
-        window.globals.log.debug('after 2nd enlarge:');
+    if (main.debug) {
+        main.log.debug('after 2nd enlarge:');
     }
-    if (window.globals.debug) {
+    if (main.debug) {
         this.goban.debug_display();
     }
     // passed grid will receive the result (scoring grid)
@@ -108,8 +108,8 @@ PotentialTerritory.prototype.foresee = function (grid, first, second) {
 };
 
 PotentialTerritory.prototype.enlarge = function (in_grid, out_grid, first, second) {
-    if (window.globals.debug) {
-        window.globals.log.debug('enlarge ' + first + ',' + second);
+    if (main.debug) {
+        main.log.debug('enlarge ' + first + ',' + second);
     }
     var in_yx = in_grid.yx;
     var out_yx = out_grid.yx;
@@ -197,8 +197,8 @@ PotentialTerritory.prototype.diagonal_move_ok = function (yx, i, j, first, secon
         if (yx[j + vect[1]][i] === second || yx[j][i + vect[0]] === second) {
             continue;
         }
-        if (window.globals.debug && i === 1 && j === 9) {
-            window.globals.log.debug('diagonal_move_ok: ' + i + ',' + j + ' for ' + first);
+        if (main.debug && i === 1 && j === 9) {
+            main.log.debug('diagonal_move_ok: ' + i + ',' + j + ' for ' + first);
         }
         return true;
     }

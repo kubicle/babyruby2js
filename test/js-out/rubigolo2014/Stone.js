@@ -195,8 +195,8 @@ Stone.undo = function (goban) {
     if (!stone) {
         return;
     }
-    if (window.globals.debug) {
-        window.globals.log.debug('Stone.undo ' + stone);
+    if (main.debug) {
+        main.log.debug('Stone.undo ' + stone);
     }
     return stone.take_back();
 };
@@ -248,8 +248,8 @@ Stone.prototype.unique_allies = function (color) {
 // Called for each new stone played
 Stone.prototype.put_down = function (color) {
     this.color = color;
-    if (window.globals.debug) {
-        window.globals.log.debug('put_down: ' + this.to_s());
+    if (main.debug) {
+        main.log.debug('put_down: ' + this.to_s());
     }
     var allies = this.unique_allies(color); // note we would not need unique if group#merge ignores dupes
     if (allies.size() + error_both_var_and_method('size') === 0) {
@@ -274,8 +274,8 @@ Stone.prototype.put_down = function (color) {
 };
 
 Stone.prototype.take_back = function () {
-    if (window.globals.debug_group) {
-        window.globals.log.debug('take_back: ' + this.to_s() + ' from group ' + this.group);
+    if (main.debug_group) {
+        main.log.debug('take_back: ' + this.to_s() + ' from group ' + this.group);
     }
     this.group.unmerge_from(this);
     this.group.disconnect_stone(this);
@@ -283,14 +283,14 @@ Stone.prototype.take_back = function () {
         g.not_attacked_anymore(this);
     }
     // update_around_before_die
-    if (window.globals.debug_group) {
+    if (main.debug_group) {
         var log_group = this.group;
     }
     this.group = null;
     this.color = main.EMPTY;
     Group.resuscitate_from(this, this.goban);
-    if (window.globals.debug_group) {
-        return window.globals.log.debug('take_back: end; main group: ' + log_group.debug_dump());
+    if (main.debug_group) {
+        return main.log.debug('take_back: end; main group: ' + log_group.debug_dump());
     }
 };
 

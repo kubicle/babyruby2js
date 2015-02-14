@@ -10,7 +10,7 @@ var TimeKeeper = require('TimeKeeper');
 var GameLogic = require('GameLogic');
 var ScoreAnalyser = require('ScoreAnalyser');
 var Ai1Player = require('Ai1Player');
-window.globals.debug_breed = false; // TODO move me somewhere else?
+main.debug_breed = false; // TODO move me somewhere else?
 Breeder.GENERATION_SIZE = 26; // must be even number
 Breeder.MUTATION_RATE = 0.03; // e.g. 0.02 is 2%
 Breeder.WIDE_MUTATION_RATE = 0.1; // how often do we "widely" mutate
@@ -69,19 +69,19 @@ Breeder.prototype.play_game = function (name1, name2, p1, p2) {
     this.play_until_game_ends();
     var score_diff = this.scorer.compute_score_diff(this.goban, Breeder.KOMI);
     // @timer.stop(false) # no exception if it takes longer but an error in the log
-    if (window.globals.debug_breed) {
-        window.globals.log.debug('\n#' + name1 + ':' + p1 + '\nagainst\n#' + name2 + ':' + p2);
+    if (main.debug_breed) {
+        main.log.debug('\n#' + name1 + ':' + p1 + '\nagainst\n#' + name2 + ':' + p2);
     }
-    if (window.globals.debug_breed) {
-        window.globals.log.debug('Distance: ' + main.strFormat('%.02f', p1.distance(p2)));
+    if (main.debug_breed) {
+        main.log.debug('Distance: ' + main.strFormat('%.02f', p1.distance(p2)));
     }
-    if (window.globals.debug_breed) {
-        window.globals.log.debug('Score: ' + score_diff);
+    if (main.debug_breed) {
+        main.log.debug('Score: ' + score_diff);
     }
-    if (window.globals.debug_breed) {
-        window.globals.log.debug('Moves: ' + this.game.history_string());
+    if (main.debug_breed) {
+        main.log.debug('Moves: ' + this.game.history_string());
     }
-    if (window.globals.debug_breed) {
+    if (main.debug_breed) {
         this.goban.console_display();
     }
     return score_diff;
@@ -100,8 +100,8 @@ Breeder.prototype.run = function (num_tournaments, num_match_per_ai) {
 // NB: we only update score for black so komi unbalance does not matter.
 // Sadly this costs us a lot: we need to play twice more games to get score data...
 Breeder.prototype.one_tournament = function (num_match_per_ai) {
-    if (window.globals.debug_breed) {
-        window.globals.log.debug('One tournament starts for ' + this.generation.size + ' AIs');
+    if (main.debug_breed) {
+        main.log.debug('One tournament starts for ' + this.generation.size + ' AIs');
     }
     for (var p1 = 1; p1 <= this.gen_size; p1++) {
         this.score_diff[p1] = 0;
@@ -120,8 +120,8 @@ Breeder.prototype.one_tournament = function (num_match_per_ai) {
             }
             // diff is now -1, 0 or +1
             this.score_diff[p1] += diff;
-            if (window.globals.debug_breed) {
-                window.globals.log.debug('Match #' + p1 + ' against #' + p2 + '; final scores #' + p1 + ':' + this.score_diff[p1] + ', #' + p2 + ':' + this.score_diff[p2]);
+            if (main.debug_breed) {
+                main.log.debug('Match #' + p1 + ' against #' + p2 + '; final scores #' + p1 + ':' + this.score_diff[p1] + ', #' + p2 + ':' + this.score_diff[p2]);
             }
         }
     }
@@ -129,8 +129,8 @@ Breeder.prototype.one_tournament = function (num_match_per_ai) {
 };
 
 Breeder.prototype.reproduction = function () {
-    if (window.globals.debug_breed) {
-        window.globals.log.debug('=== Reproduction time for ' + this.generation.size + ' AI');
+    if (main.debug_breed) {
+        main.log.debug('=== Reproduction time for ' + this.generation.size + ' AI');
     }
     this.picked = new main.Array(this.gen_size, 0);
     this.max_score = Math.max.apply(Math,this.score_diff);
@@ -141,9 +141,9 @@ Breeder.prototype.reproduction = function () {
         var parent2 = this.pick_parent();
         parent1.mate(parent2, this.new_generation[i], this.new_generation[i + 1], Breeder.MUTATION_RATE, Breeder.WIDE_MUTATION_RATE);
     }
-    if (window.globals.debug_breed) {
+    if (main.debug_breed) {
         for (var i = 1; i <= this.gen_size; i++) {
-            window.globals.log.debug('#' + i + ', score ' + this.score_diff[i] + ', picked ' + this.picked[i] + ' times');
+            main.log.debug('#' + i + ', score ' + this.score_diff[i] + ', picked ' + this.picked[i] + ' times');
         }
     }
     // swap new generation to replace old one
@@ -166,10 +166,10 @@ Breeder.prototype.pick_parent = function () {
 };
 
 Breeder.prototype.control = function () {
-    var previous = window.globals.debug_breed;
-    window.globals.debug_breed = false;
+    var previous = main.debug_breed;
+    main.debug_breed = false;
     var num_control_games = 30;
-    window.globals.log.debug('Playing ' + num_control_games * 2 + ' games to measure the current winner against our control AI...');
+    main.log.debug('Playing ' + num_control_games * 2 + ' games to measure the current winner against our control AI...');
     var total_score, num_wins, num_wins_w;
     total_score = num_wins = num_wins_w = 0;
     for (var i = 1; i <= num_control_games; i++) {
@@ -183,26 +183,26 @@ Breeder.prototype.control = function () {
         }
         total_score += score - score_w;
     }
-    window.globals.debug_breed = true;
-    if (window.globals.debug_breed) {
-        window.globals.log.debug('Average score: ' + total_score / num_control_games);
+    main.debug_breed = true;
+    if (main.debug_breed) {
+        main.log.debug('Average score: ' + total_score / num_control_games);
     }
-    if (window.globals.debug_breed) {
-        window.globals.log.debug('Winner genes: ' + this.winner);
+    if (main.debug_breed) {
+        main.log.debug('Winner genes: ' + this.winner);
     }
-    if (window.globals.debug_breed) {
-        window.globals.log.debug('Distance between control and current winner genes: ' + main.strFormat('%.02f', this.control_genes.distance(this.winner)));
+    if (main.debug_breed) {
+        main.log.debug('Distance between control and current winner genes: ' + main.strFormat('%.02f', this.control_genes.distance(this.winner)));
     }
-    if (window.globals.debug_breed) {
-        window.globals.log.debug('Total score of control against current winner: ' + total_score + ' (out of ' + num_control_games * 2 + ' games, control won ' + num_wins + ' as black and ' + num_wins_w + ' as white)');
+    if (main.debug_breed) {
+        main.log.debug('Total score of control against current winner: ' + total_score + ' (out of ' + num_control_games * 2 + ' games, control won ' + num_wins + ' as black and ' + num_wins_w + ' as white)');
     }
-    window.globals.debug_breed = previous;
+    main.debug_breed = previous;
 };
 
 // Play many games AI VS AI to verify black/white balance
 Breeder.prototype.bw_balance_check = function (num_games, size) {
     this.timer.start('bw_balance_check', num_games / 1000.0 * 50, num_games / 1000.0 * 512);
-    window.globals.log.debug('Checking black/white balance by playing ' + num_games + ' games (komi=' + Breeder.KOMI + ')...');
+    main.log.debug('Checking black/white balance by playing ' + num_games + ' games (komi=' + Breeder.KOMI + ')...');
     var total_score, num_wins;
     total_score = num_wins = 0;
     for (var i = 1; i <= num_games; i++) {
@@ -216,12 +216,12 @@ Breeder.prototype.bw_balance_check = function (num_games, size) {
         total_score += score;
     }
     this.timer.stop(false); // size == 9) # if size is not 9 our perf numbers are of course meaningless
-    window.globals.log.debug('Average score of control against itself: ' + total_score / num_games);
-    window.globals.log.debug('Out of ' + num_games + ' games, black won ' + num_wins + ' times');
+    main.log.debug('Average score of control against itself: ' + total_score / num_games);
+    main.log.debug('Out of ' + num_games + ' games, black won ' + num_wins + ' times');
     return num_wins;
 };
 
-if (!window.globals.test_all && !window.globals.test) {
+if (!main.test_all && !main.test) {
     opts = main.Trollop.options(function () {
         var opts;
         opt('size', 'Goban size', {'default':9});

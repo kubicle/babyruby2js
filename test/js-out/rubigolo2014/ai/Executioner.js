@@ -2,6 +2,7 @@
 'use strict';
 
 var inherits = require('util').inherits;
+var main = require('./main');
 // Executioner only preys on enemy groups in atari
 var Heuristic = require('Heuristic');
 
@@ -31,11 +32,11 @@ Executioner.prototype.eval_move = function (i, j) {
     if (threat === 0) {
         return 0;
     }
-    if (window.globals.debug) {
-        window.globals.log.debug('Executioner heuristic found a threat of ' + threat + ' at ' + i + ',' + j);
+    if (main.debug) {
+        main.log.debug('Executioner heuristic found a threat of ' + threat + ' at ' + i + ',' + j);
     }
-    if (window.globals.debug && saving > 0) {
-        window.globals.log.debug('...this would also save ' + saving);
+    if (main.debug && saving > 0) {
+        main.log.debug('...this would also save ' + saving);
     }
     return threat + saving;
 };

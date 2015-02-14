@@ -71,8 +71,8 @@ Connector.prototype.eval_move = function (i, j) {
     default: 
         eval = this.ally_coeff2 * num_allies;
     }
-    if (window.globals.debug) {
-        window.globals.log.debug('Connector gives ' + main.strFormat('%.2f', eval) + ' to ' + i + ',' + j + ' (allies:' + num_allies + ' enemies: ' + num_enemies + ')');
+    if (main.debug) {
+        main.log.debug('Connector gives ' + main.strFormat('%.2f', eval) + ' to ' + i + ',' + j + ' (allies:' + num_allies + ' enemies: ' + num_enemies + ')');
     }
     return eval;
 };

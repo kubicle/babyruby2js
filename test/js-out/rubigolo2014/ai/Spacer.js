@@ -48,8 +48,8 @@ Spacer.prototype.eval_move = function (i, j) {
     if (fill_own_ter > 0) {
         fill_own_ter = 0;
     } // filling up enemy's space is not looked at here
-    if (window.globals.debug && fill_own_ter !== 0) {
-        window.globals.log.debug('Spacer sees potential territory score ' + fill_own_ter + ' in ' + i + ',' + j);
+    if (main.debug && fill_own_ter !== 0) {
+        main.log.debug('Spacer sees potential territory score ' + fill_own_ter + ' in ' + i + ',' + j);
     }
     return fill_own_ter + 1.33 / (total_inf * this.infl_coeff + dc * this.corner_coeff + 1);
 };

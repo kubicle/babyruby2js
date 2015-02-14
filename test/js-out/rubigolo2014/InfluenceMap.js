@@ -57,7 +57,7 @@ InfluenceMap.prototype.build_map = function () {
             }
         }
     }
-    if (window.globals.debug) {
+    if (main.debug) {
         return this.debug_dump();
     }
 };

@@ -2,6 +2,7 @@
 'use strict';
 
 var inherits = require('util').inherits;
+var main = require('./main');
 var Stone = require('./Stone');
 // Saviors rescue ally groups in atari
 var Heuristic = require('Heuristic');
@@ -23,8 +24,8 @@ Savior.prototype.init_color = function () {
 Savior.prototype.eval_move = function (i, j) {
     var stone = this.goban.stone_at(i, j);
     var threat = this.eval_escape(i, j, stone);
-    if (window.globals.debug && threat > 0) {
-        window.globals.log.debug('=> Savior thinks we can save a threat of ' + threat + ' in ' + i + ',' + j);
+    if (main.debug && threat > 0) {
+        main.log.debug('=> Savior thinks we can save a threat of ' + threat + ' in ' + i + ',' + j);
     }
     return threat;
 };
@@ -39,8 +40,8 @@ Savior.prototype.eval_escape = function (i, j, stone) {
             // NB: if more than 1 group in atari, they merge if we play this "savior" stone
             new_threat = g.stones.size() + error_both_var_and_method('size');
         } else if (g.lives === 2) {
-            if (window.globals.debug) {
-                window.globals.log.debug('Savior asking hunter to look at ' + i + ',' + j + ': pre-atari on ' + g);
+            if (main.debug) {
+                main.log.debug('Savior asking hunter to look at ' + i + ',' + j + ': pre-atari on ' + g);
             }
             new_threat = this.enemy_hunter.eval_move(i, j);
         }
@@ -60,15 +61,15 @@ Savior.prototype.eval_escape = function (i, j, stone) {
     } // nothing we can do here
     if (lives_added === 2) {
         // when we get 2 lives from the new stone, get our "consultant hunter" to evaluate if we can escape
-        if (window.globals.debug) {
-            window.globals.log.debug('Savior asking hunter to look at ' + i + ',' + j + ': threat=' + threat + ', lives_added=' + lives_added);
+        if (main.debug) {
+            main.log.debug('Savior asking hunter to look at ' + i + ',' + j + ': threat=' + threat + ', lives_added=' + lives_added);
         }
         Stone.play_at(this.goban, i, j, this.color);
         var is_caught = this.enemy_hunter.escaping_atari_is_caught(stone);
         Stone.undo(this.goban);
         if (is_caught) {
-            if (window.globals.debug) {
-                window.globals.log.debug('Savior giving up on threat of ' + threat + ' in ' + i + ',' + j);
+            if (main.debug) {
+                main.log.debug('Savior giving up on threat of ' + threat + ' in ' + i + ',' + j);
             }
             return 0;
         }

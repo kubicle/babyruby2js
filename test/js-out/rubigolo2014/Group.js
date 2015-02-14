@@ -139,8 +139,8 @@ Group.prototype.all_enemies = function () {
             }
         }
     }
-    if (window.globals.debug_group) {
-        window.globals.log.debug(this + ' has ' + this.all_enemies.size() + error_both_var_and_method('size') + ' enemies');
+    if (main.debug_group) {
+        main.log.debug(this + ' has ' + this.all_enemies.size() + error_both_var_and_method('size') + ' enemies');
     }
     return this.all_enemies;
 };
@@ -161,8 +161,8 @@ Group.prototype.lives_added_by_stone = function (stone) {
             lives += 1;
         } // Using any? or detect makes the code clearer but slower :( // lives += 1 unless life.neighbors.any? { |s| s.group == self and s != stone }
     }
-    if (window.globals.debug_group) {
-        window.globals.log.debug(lives + ' lives added by ' + stone + ' for group ' + this);
+    if (main.debug_group) {
+        main.log.debug(lives + ' lives added by ' + stone + ' for group ' + this);
     }
     return lives;
 };
@@ -170,8 +170,8 @@ Group.prototype.lives_added_by_stone = function (stone) {
 // Connect a new stone or a merged stone to this group
 Group.prototype.connect_stone = function (stone, on_merge) {
     if (on_merge === undefined) on_merge = false;
-    if (window.globals.debug_group) {
-        window.globals.log.debug('Connecting ' + stone + ' to group ' + this + ' (on_merge=' + on_merge + ')');
+    if (main.debug_group) {
+        main.log.debug('Connecting ' + stone + ' to group ' + this + ' (on_merge=' + on_merge + ')');
     }
     this.stones.push(stone);
     this.lives += this.lives_added_by_stone(stone);
@@ -181,8 +181,8 @@ Group.prototype.connect_stone = function (stone, on_merge) {
     if (this.lives < 0) {
         throw new Error('Unexpected error (lives<0 on connect)');
     } // can be 0 if suicide-kill
-    if (window.globals.debug_group) {
-        return window.globals.log.debug('Final group: ' + this);
+    if (main.debug_group) {
+        return main.log.debug('Final group: ' + this);
     }
 };
 
@@ -190,8 +190,8 @@ Group.prototype.connect_stone = function (stone, on_merge) {
 // on_merge must be true for merge or unmerge-related call 
 Group.prototype.disconnect_stone = function (stone, on_merge) {
     if (on_merge === undefined) on_merge = false;
-    if (window.globals.debug_group) {
-        window.globals.log.debug('Disconnecting ' + stone + ' from group ' + this + ' (on_merge=' + on_merge + ')');
+    if (main.debug_group) {
+        main.log.debug('Disconnecting ' + stone + ' from group ' + this + ' (on_merge=' + on_merge + ')');
     }
     // groups of 1 stone become empty groups (->garbage)
     if (this.stones.size() + error_both_var_and_method('size') > 1) {
@@ -204,8 +204,8 @@ Group.prototype.disconnect_stone = function (stone, on_merge) {
         } // can be 0 if suicide-kill
     } else {
         this.goban.garbage_groups.push(this);
-        if (window.globals.debug_group) {
-            window.globals.log.debug('Group going to recycle bin: ' + this);
+        if (main.debug_group) {
+            main.log.debug('Group going to recycle bin: ' + this);
         }
     }
     // we always remove them in the reverse order they came
@@ -226,8 +226,8 @@ Group.prototype.attacked_by = function (stone) {
 // NB: it can never kill anything
 Group.prototype.attacked_by_resuscitated = function (stone) {
     this.lives -= 1;
-    if (window.globals.debug_group) {
-        window.globals.log.debug(this + ' attacked by resuscitated ' + stone);
+    if (main.debug_group) {
+        main.log.debug(this + ' attacked by resuscitated ' + stone);
     }
     if (this.lives < 1) {
         throw new Error('Unexpected error (lives<1 on attack by resucitated)');
@@ -237,8 +237,8 @@ Group.prototype.attacked_by_resuscitated = function (stone) {
 // Stone parameter is just for debug for now
 Group.prototype.not_attacked_anymore = function (stone) {
     this.lives += 1;
-    if (window.globals.debug_group) {
-        return window.globals.log.debug(this + ' not attacked anymore by ' + stone);
+    if (main.debug_group) {
+        return main.log.debug(this + ' not attacked anymore by ' + stone);
     }
 };
 
@@ -247,8 +247,8 @@ Group.prototype.merge = function (subgroup, by_stone) {
     if (subgroup.merged_with === this || subgroup === this || this.color !== subgroup.color) {
         throw new Error('Invalid merge');
     }
-    if (window.globals.debug_group) {
-        window.globals.log.debug('Merging subgroup:' + subgroup + ' to main:' + this);
+    if (main.debug_group) {
+        main.log.debug('Merging subgroup:' + subgroup + ' to main:' + this);
     }
     for (var s, s_array = subgroup.stones, s_ndx = 0; s=s_array[s_ndx], s_ndx < s_array.length; s_ndx++) {
         s.set_group_on_merge(this);
@@ -257,23 +257,23 @@ Group.prototype.merge = function (subgroup, by_stone) {
     subgroup.merged_with=(this);
     subgroup.merged_by=(by_stone);
     this.goban.merged_groups.push(subgroup);
-    if (window.globals.debug_group) {
-        return window.globals.log.debug('After merge: subgroup:' + subgroup + ' main:' + this);
+    if (main.debug_group) {
+        return main.log.debug('After merge: subgroup:' + subgroup + ' main:' + this);
     }
 };
 
 // Reverse of merge
 Group.prototype.unmerge = function (subgroup) {
-    if (window.globals.debug_group) {
-        window.globals.log.debug('Unmerging subgroup:' + subgroup + ' from main:' + this);
+    if (main.debug_group) {
+        main.log.debug('Unmerging subgroup:' + subgroup + ' from main:' + this);
     }
     for (var s, s_array = subgroup.stones, s_ndx = s_array.length - 1; s=s_array[s_ndx], s_ndx >= 0; s_ndx--) {
         this.disconnect_stone(s, true);
         s.set_group_on_merge(subgroup);
     }
     subgroup.merged_by=(subgroup.merged_with=(null));
-    if (window.globals.debug_group) {
-        return window.globals.log.debug('After unmerge: subgroup:' + subgroup + ' main:' + this);
+    if (main.debug_group) {
+        return main.log.debug('After unmerge: subgroup:' + subgroup + ' main:' + this);
     }
 };
 
@@ -287,8 +287,8 @@ Group.prototype.unmerge_from = function (stone) {
 
 // Called when the group has no more life left
 Group.prototype.die_from = function (killer_stone) {
-    if (window.globals.debug_group) {
-        window.globals.log.debug('Group dying: ' + this);
+    if (main.debug_group) {
+        main.log.debug('Group dying: ' + this);
     }
     if (this.lives < 0) {
         throw new Error('Unexpected error (lives<0)');
@@ -301,8 +301,8 @@ Group.prototype.die_from = function (killer_stone) {
     }
     this.killed_by = killer_stone;
     this.goban.killed_groups.push(this);
-    if (window.globals.debug_group) {
-        return window.globals.log.debug('Group dead: ' + this);
+    if (main.debug_group) {
+        return main.log.debug('Group dead: ' + this);
     }
 };
 
@@ -321,8 +321,8 @@ Group.prototype.resuscitate = function () {
 Group.resuscitate_from = function (killer_stone, goban) {
     while (goban.killed_groups[goban.killed_groups.length-1].killed_by === killer_stone) {
         var group = goban.killed_groups.pop();
-        if (window.globals.debug_group) {
-            window.globals.log.debug('taking back ' + killer_stone + ' so we resuscitate ' + group.debug_dump());
+        if (main.debug_group) {
+            main.log.debug('taking back ' + killer_stone + ' so we resuscitate ' + group.debug_dump());
         }
         group.resuscitate();
     }

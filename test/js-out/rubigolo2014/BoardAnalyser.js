@@ -1,8 +1,8 @@
 //Translated from  using babyruby2js
 'use strict';
 
-var Grid = require('./Grid');
 var main = require('./main');
+var Grid = require('./Grid');
 var Group = require('./Group');
 var Void = require('./Void');
 //require 'set';
@@ -52,8 +52,8 @@ Void.prototype.eye_check = function () {
                 g.add_void(this, true);
             }
         }
-        if (window.globals.debug) {
-            return window.globals.log.debug('Color ' + one_color + ' surrounds ' + this + ' (eye)');
+        if (main.debug) {
+            return main.log.debug('Color ' + one_color + ' surrounds ' + this + ' (eye)');
         }
     } else {
         for (var n, n_array = this.groups, n_ndx = 0; n=n_array[n_ndx], n_ndx < n_array.length; n_ndx++) {
@@ -61,8 +61,8 @@ Void.prototype.eye_check = function () {
                 g.add_void(this);
             }
         }
-        if (window.globals.debug) {
-            return window.globals.log.debug(this + ' has to be sorted out...');
+        if (main.debug) {
+            return main.log.debug(this + ' has to be sorted out...');
         }
     }
 };
@@ -103,8 +103,8 @@ exports = BoardAnalyser;
 // Calling this method updates the goban to show the detected result.
 BoardAnalyser.prototype.count_score = function (goban, grid) {
     if (grid === undefined) grid = null;
-    if (window.globals.debug) {
-        window.globals.log.debug('Counting score...');
+    if (main.debug) {
+        main.log.debug('Counting score...');
     }
     this.goban = goban;
     this.scores = [0, 0];
@@ -121,7 +121,7 @@ BoardAnalyser.prototype.count_score = function (goban, grid) {
             this.scores[v.owner] += v.size() + error_both_var_and_method('size');
         }
     }
-    if (window.globals.debug) {
+    if (main.debug) {
         return this.debug_dump();
     }
 };
@@ -165,8 +165,8 @@ BoardAnalyser.prototype.debug_dump = function () {
 
 //private;
 BoardAnalyser.prototype.find_voids = function () {
-    if (window.globals.debug) {
-        window.globals.log.debug('Find voids...');
+    if (main.debug) {
+        main.log.debug('Find voids...');
     }
     var void_code = Grid.ZONE_CODE;
     for (var g, g_array = this.all_groups, g_ndx = 0; g=g_array[g_ndx], g_ndx < g_array.length; g_ndx++) {
@@ -218,8 +218,8 @@ BoardAnalyser.prototype.find_stronger_owners = function () {
         }) === 1) {
             var c = main.indexOf(lives, more_lives);
             v.set_owner(c);
-            if (window.globals.debug) {
-                window.globals.log.debug('It looks like color ' + c + ', with ' + more_lives + ' lives, owns ' + v + ' (this might change once we identify dead groups)');
+            if (main.debug) {
+                main.log.debug('It looks like color ' + c + ', with ' + more_lives + ' lives, owns ' + v + ' (this might change once we identify dead groups)');
             }
         } // make sure we have a winner, not a tie
     }
@@ -276,11 +276,11 @@ BoardAnalyser.prototype.find_dying_groups = function () {
         this.prisoners[color] += taken;
         this.scores[1 - color] += taken;
         g.count_as_dead();
-        if (window.globals.debug) {
-            window.globals.log.debug('Hence ' + g + ' is considered dead (' + taken + ' prisoners; 1st stone ' + stone + ')');
+        if (main.debug) {
+            main.log.debug('Hence ' + g + ' is considered dead (' + taken + ' prisoners; 1st stone ' + stone + ')');
         }
-        if (window.globals.debug) {
-            window.globals.log.debug('eyes:' + g.eyes.size() + error_both_var_and_method('size') + ' owned_voids:' + owned_voids + ' size-voids:' + size);
+        if (main.debug) {
+            main.log.debug('eyes:' + g.eyes.size() + error_both_var_and_method('size') + ' owned_voids:' + owned_voids + ' size-voids:' + size);
         }
     }
 };
@@ -302,8 +302,8 @@ BoardAnalyser.prototype.find_dame_voids = function () {
         }
         if (alive_colors.size() + error_both_var_and_method('size') >= 2) {
             v.set_owner(null);
-            if (window.globals.debug) {
-                window.globals.log.debug('Void ' + v + ' is considered neutral ("dame")');
+            if (main.debug) {
+                main.log.debug('Void ' + v + ' is considered neutral ("dame")');
             }
         }
     }

@@ -32,7 +32,7 @@ function MainServer() {
 exports = MainServer;
 
 MainServer.prototype.start = function () {
-    window.globals.log.info('Starting the server...');
+    main.log.info('Starting the server...');
     console.log('Please open a web browser on http://localhost:' + MainServer.PORT + '/index');
     this.webserver = new main.TCPServer('localhost', MainServer.PORT);
     return loop(function () {
@@ -52,7 +52,7 @@ MainServer.prototype.get_session_and_request = function () {
             this.session = this.webserver.accept();
             // With IE, the first request is empty so we will raise, rescue, close and reopen. Not sure why...
             this.session.recv_nonblock(5, main.Socket.MSG_PEEK); // raises Errno::EWOULDBLOCK if no data
-            window.globals.log.info('Got session: ' + this.session);
+            main.log.info('Got session: ' + this.session);
         }
         var req;
         if (!(req = this.session.gets())) {
@@ -61,23 +61,23 @@ MainServer.prototype.get_session_and_request = function () {
         req = main.URI.decode(req.chop());
     } catch (err) {
         if (err.constructor.name === 'Errno::EWOULDBLOCK' || err.constructor.name === 'Errno::EAGAIN') {
-            window.globals.log.debug('Closing and reopening the session...'); // see comment above about IE
+            main.log.debug('Closing and reopening the session...'); // see comment above about IE
         } else if (err.constructor.name === 'Errno::ECONNRESET' || err.message() === 'Connection dropped') {
-            window.globals.log.info('Connection dropped or timed-out; we will create a new session (no issue)');
+            main.log.info('Connection dropped or timed-out; we will create a new session (no issue)');
         } else {
-            window.globals.log.error('Unexpected error: ' + err.constructor + ', msg:' + err.message());
+            main.log.error('Unexpected error: ' + err.constructor + ', msg:' + err.message());
         } // connection dropped or closed by the remote host
         this.close_session();
         error_unhandled_exp('(retry ...)');
     }
-    if (window.globals.debug) {
-        window.globals.log.debug('Request received: "' + req + '"');
+    if (main.debug) {
+        main.log.debug('Request received: "' + req + '"');
     }
     this.keep_alive = false;
     var r;
     while (('' !== (r = main.strChop(this.session.gets())))) {
-        if (window.globals.debug) {
-            window.globals.log.debug('..."' + r + '"');
+        if (main.debug) {
+            main.log.debug('..."' + r + '"');
         }
         if (/'Connection:[ ]*Keep-Alive'/.test(r)) {
             this.keep_alive = true;
@@ -100,7 +100,7 @@ MainServer.prototype.send_response = function (reply) {
             this.close_session();
         }
     } catch (err) {
-        window.globals.log.error('Unexpected error: ' + err.constructor + ', msg:' + err.message());
+        main.log.error('Unexpected error: ' + err.constructor + ', msg:' + err.message());
         this.close_session(); // always close after error here
     }
 };
@@ -111,8 +111,8 @@ MainServer.prototype.response_header = function (reply) {
     header += ( this.keep_alive ? 'Connection: Keep-Alive\r\n' : 'Connection: close\r\n' );
     header += 'Server: local Ruby\r\n';
     header += 'Content-Type: text/html; charset=UTF-8\r\nContent-Length: ' + reply.length + '\r\n\r\n';
-    if (window.globals.debug) {
-        window.globals.log.debug('Header returned:\r\n' + header);
+    if (main.debug) {
+        main.log.debug('Header returned:\r\n' + header);
     }
     return header;
 };

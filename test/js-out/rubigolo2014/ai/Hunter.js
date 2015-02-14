@@ -53,12 +53,12 @@ Hunter.prototype.eval_move = function (i, j, level) {
             }
             // here we know this is a snapback
             snapback = true;
-            if (window.globals.debug) {
-                window.globals.log.debug('Hunter sees a snapback in ' + stone);
+            if (main.debug) {
+                main.log.debug('Hunter sees a snapback in ' + stone);
             }
         }
-        if (window.globals.debug) {
-            window.globals.log.debug('Hunter (level ' + level + ') looking at ' + i + ',' + j + ' threat on ' + eg);
+        if (main.debug) {
+            main.log.debug('Hunter (level ' + level + ') looking at ' + i + ',' + j + ' threat on ' + eg);
         }
         if (!eg1) {
             eg1 = eg;
@@ -94,8 +94,8 @@ Hunter.prototype.eval_move = function (i, j, level) {
         taken = taken3;
     }
     Stone.undo(this.goban);
-    if (window.globals.debug && taken > 0) {
-        window.globals.log.debug('Hunter found a threat of ' + taken + ' at ' + i + ',' + j);
+    if (main.debug && taken > 0) {
+        main.log.debug('Hunter found a threat of ' + taken + ' at ' + i + ',' + j);
     }
     return taken;
 };
@@ -110,8 +110,8 @@ Hunter.prototype.atari_is_caught = function (g, level) {
     var stone = Stone.play_at(this.goban, last_life.i, last_life.j, g.color); // enemy's escape move
     var is_caught = this.escaping_atari_is_caught(stone, level);
     Stone.undo(this.goban);
-    if (window.globals.debug) {
-        window.globals.log.debug('Hunter: group in atari would be caught: ' + g);
+    if (main.debug) {
+        main.log.debug('Hunter: group in atari would be caught: ' + g);
     }
     return is_caught;
 };
@@ -148,8 +148,8 @@ Hunter.prototype.escaping_atari_is_caught = function (stone, level) {
     var e1 = empties[0]; // need to keep the empties ref since all_lives returns volatile content
     var e2 = empties[1];
     //  recursive descent
-    if (window.globals.debug) {
-        window.globals.log.debug('Enemy has 2 lives left: ' + e1 + ' and ' + e2);
+    if (main.debug) {
+        main.log.debug('Enemy has 2 lives left: ' + e1 + ' and ' + e2);
     }
     return (this.eval_move(e1.i, e1.j, level + 1) > 0 || this.eval_move(e2.i, e2.j, level + 1) > 0);
 };

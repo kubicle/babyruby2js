@@ -29,8 +29,8 @@ exports = TestAi;
 
 // old method; rather use play_and_check below
 TestAi.prototype.let_ai_play = function () {
-    if (window.globals.debug) {
-        window.globals.log.debug('Letting AI play...');
+    if (main.debug) {
+        main.log.debug('Letting AI play...');
     }
     var player = this.players[this.game.cur_color];
     var move = player.get_move();
@@ -51,8 +51,8 @@ TestAi.prototype.check_eval = function (move, color, exp_eval) {
 
 TestAi.prototype.play_and_check = function (exp_move, exp_color, exp_eval) {
     if (exp_eval === undefined) exp_eval = null;
-    if (window.globals.debug) {
-        window.globals.log.debug('Letting AI play...');
+    if (main.debug) {
+        main.log.debug('Letting AI play...');
     }
     var player = this.players[this.game.cur_color];
     if (exp_color !== player.color) {

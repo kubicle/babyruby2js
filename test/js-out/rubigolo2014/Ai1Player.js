@@ -3,6 +3,7 @@
 
 var inherits = require('util').inherits;
 var Heuristic = require('./Heuristic');
+var main = require('./main');
 var Grid = require('./Grid');
 var Stone = require('./Stone');
 // TODO: 
@@ -74,7 +75,7 @@ Ai1Player.prototype.get_move = function () {
     // @timer.start("AI move",0.5,3)
     this.num_moves += 1;
     if (this.num_moves >= this.size * this.size) {
-        window.globals.log.error('Forcing AI pass since we already played ' + this.num_moves);
+        main.log.error('Forcing AI pass since we already played ' + this.num_moves);
         return 'pass';
     } // force pass after too many moves
     this.prepare_eval();
@@ -89,8 +90,8 @@ Ai1Player.prototype.get_move = function () {
             // Keep the best move
             if (score > best_score) {
                 second_best = best_score;
-                if (window.globals.debug) {
-                    window.globals.log.debug('=> ' + Grid.move_as_string(i, j) + ' becomes the best move with ' + score + ' (2nd best is ' + Grid.move_as_string(best_i, best_j) + ' with ' + best_score + ')');
+                if (main.debug) {
+                    main.log.debug('=> ' + Grid.move_as_string(i, j) + ' becomes the best move with ' + score + ' (2nd best is ' + Grid.move_as_string(best_i, best_j) + ' with ' + best_score + ')');
                 }
                 best_score = score;
                 best_i = i;
@@ -99,16 +100,16 @@ Ai1Player.prototype.get_move = function () {
             } else if (score === best_score) {
                 best_num_twin += 1;
                 if (~~(Math.random()*~~(best_num_twin)) === 0) {
-                    if (window.globals.debug) {
-                        window.globals.log.debug('=> ' + Grid.move_as_string(i, j) + ' replaces equivalent best move with ' + score + ' (equivalent best was ' + Grid.move_as_string(best_i, best_j) + ')');
+                    if (main.debug) {
+                        main.log.debug('=> ' + Grid.move_as_string(i, j) + ' replaces equivalent best move with ' + score + ' (equivalent best was ' + Grid.move_as_string(best_i, best_j) + ')');
                     }
                     best_score = score;
                     best_i = i;
                     best_j = j;
                 }
             } else if (score >= second_best) {
-                if (window.globals.debug) {
-                    window.globals.log.debug('=> ' + Grid.move_as_string(i, j) + ' is second best move with ' + score + ' (best is ' + Grid.move_as_string(best_i, best_j) + ' with ' + best_score + ')');
+                if (main.debug) {
+                    main.log.debug('=> ' + Grid.move_as_string(i, j) + ' is second best move with ' + score + ' (best is ' + Grid.move_as_string(best_i, best_j) + ' with ' + best_score + ')');
                 }
                 second_best = score;
             }
@@ -119,8 +120,8 @@ Ai1Player.prototype.get_move = function () {
     if (best_score > this.minimum_score) {
         return Grid.move_as_string(best_i, best_j);
     }
-    if (window.globals.debug) {
-        window.globals.log.debug('AI is passing...');
+    if (main.debug) {
+        main.log.debug('AI is passing...');
     }
     return 'pass';
 };

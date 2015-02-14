@@ -1,9 +1,10 @@
 //Translated from  using babyruby2js
 'use strict';
 
+var main = require('./main');
 var inherits = require('util').inherits;
 //require 'test/unit';
-window.globals.test = true;
+main.test = true;
 var Breeder = require('../Breeder');
 
 /** @class */
