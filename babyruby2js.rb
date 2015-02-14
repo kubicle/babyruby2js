@@ -6,6 +6,7 @@
 # Not handled:
 # - if x = f() changed into if (x = f()) not liked by JSHint; but if (x=f()) is OK
 # - s << str is replaced by s += str (with error if s is a parameter)
+# - << not handled on arrays (use push instead)
 # - chop!
 # - local var declared in "then" or "else" stmt but used after the "if" block
 # - 2 loops using same var for index => dupe decl in JS
@@ -20,6 +21,7 @@
 
 require 'trollop'
 require 'parser/current'
+require_relative 'associator'
 
 INTRO = "//Translated from #{@rubyFile} using babyruby2js\n'use strict';\n\n";
 MAIN_CLASS = "main"
@@ -35,11 +37,14 @@ class RubyToJs
     @stmtDecl = []
     @indent = 0
     @indentSize = 4 # in spaces
+    @exp_comments = ""
+    @exp_deco = ""
     @srcDir = @options.src
     @targetDir = @options.target
     @srcDir += "/" if @srcDir[-1]!="/"
     @targetDir += "/" if @targetDir[-1]!="/"
     enterClass(MAIN_CLASS)
+    enterMethod("")
   end
 
   def translateAll
@@ -99,21 +104,33 @@ class RubyToJs
   end
 
   def translateSrc(srcFile)
-    # root = Parser::CurrentRuby.new.parse(srcFile)
+    # Parse the source and comments
     ast, comments = Parser::CurrentRuby.new.parse_with_comments(srcFile)
-    @commentMap = Parser::Source::Comment.associate(ast, comments)
-    @comments = comments
+    associator = Parser::Source::Comment::Associator.new(ast, comments)
+    @commentMap, @decorative_comment = associator.associate
+
+    @_doneComments = 0
 
     if @options.debug
       puts "#{@rubyFile}:"
       p ast
       puts "\ncomments:"
-      p @commentMap
+      p @commentMap, @decorative_comment
       puts "\n"
     end
     
     @dependencies = {}
     code = stmt(ast)
+
+    #debug
+    if @_doneComments!=comments.length
+      p @_doneComments.to_s + "/" + comments.length.to_s
+      p "map:"
+      @commentMap.each do |k,c|
+        p k, (c.length>0 ? c[0].text : '[]')
+      end
+    end
+
     return INTRO + genDependencies() + code
   end
 
@@ -175,19 +192,35 @@ class RubyToJs
     cr(-1)
   end
 
-  def comments(n)
+  def getComments(n)
+    comments = @commentMap[n.location]
+    #comments = @commentMap[n]
     res = ""
-    @commentMap[n].each do |c|
+    deco = ""
+    comments.each do |c|
       txt = c.text[1..-1]
       txt = txt[1..-1] if txt[0]==" "
-      res << "// #{txt}#{cr}"
+      if @decorative_comment[c]
+        deco << " // #{txt}"
+      else
+        res << "// #{txt}#{cr}"
+      end
+      @_doneComments += 1
     end
-    return res
+    return res, deco
   end
 
   def stmt(n, mustReturn=false)
     code = exp(n, true, mustReturn)
-    return "#{comments(n)}#{localVarDecl()}#{code}"
+    comments, deco = getComments(n)
+    ecomments = edeco = ""
+    if @exp_comments!="" or @exp_deco!=""
+      ecomments = "#{cr}#{@exp_comments}"
+      edeco = @exp_deco
+      @exp_comments = ""
+      @exp_deco = ""
+    end
+    return "#{comments}#{localVarDecl()}#{code}#{deco}#{ecomments}#{edeco}"
   end
 
   def exp(n, isStmt=false, mustReturn=false)
@@ -195,6 +228,11 @@ class RubyToJs
     semi = isStmt ? ";" : ""
     ret = mustReturn ? "return " : ""
     arg0 = n.children[0]
+    if !isStmt
+      comments, deco = getComments(n)
+      @exp_comments << comments
+      @exp_deco << deco
+    end
 
     case n.type
     when :begin
@@ -472,15 +510,19 @@ class RubyToJs
     return "for (#{decl}; #{test}; #{incr}) {#{crb}#{stmt(code)}#{cre}}"
   end
 
-  def newMethod(n, static=false)
+  def enterMethod(methName)
     @parameters = {}
     @localVars = {}
+    @curMethod = methName
+    @classMethods[methName] = true
+  end
+
+  def newMethod(n, static=false)
     i = 0
     i+=1 if static
     methName = n.children[i].to_s
     jsMethName = normalizedMethodName(methName)
-    @curMethod = methName
-    @classMethods[methName] = true
+    enterMethod(methName)
     after = ";"
     if methName == "initialize"
       proto = "#{cr}/** @class */#{cr}function #{@class}("
@@ -507,7 +549,7 @@ class RubyToJs
     if !@private and args.children.length==0 and !@hasYield
       @publicVoidMethods[methName] = @class 
     end
-    return "#{cr}#{proto}) {#{crb}#{defaultValues}#{body}#{cre}}#{after}#{cr}"
+    return "#{proto}) {#{crb}#{defaultValues}#{body}#{cre}}#{after}#{cr}"
   end
 
   def methodArgs(n) #(args (arg :stone) (arg :lives))
@@ -725,14 +767,18 @@ end
 
 opts = Trollop::options do
   opt :src, "Source root directory", :type => :string
+  opt :file, "Source file (optional)", :type => :string
   opt :target, "Target root directory", :type => :string
   opt :debug, "Show debug info", :default => false
 end
-puts "Command line options received: #{opts}"
 
-t = RubyToJs.new(opts)
-if opts.src
-  t.translateAll
+if opts.src or opts.file
+  t = RubyToJs.new(opts)
+  if opts.file
+    t.translateFile(opts.file)
+  else
+    t.translateAll
+  end
 else
-  puts "Usage: --src=<dir> [--debug=1]"
+  puts "Invalid arguments. Use --help or -h for help."
 end
