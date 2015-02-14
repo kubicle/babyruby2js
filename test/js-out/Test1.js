@@ -9,6 +9,7 @@ TestStone.prototype.myfunc = function () {
     f1();
     var b = 2; // second time
     f3(a, b, c()); // param a
+     // param b // param c
     // call f2
     return f1(); // bug1.1 // bug1.2
 };
