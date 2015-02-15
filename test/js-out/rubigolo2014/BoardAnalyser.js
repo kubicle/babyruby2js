@@ -1,4 +1,4 @@
-//Translated from  using babyruby2js
+//Translated from board_analyser.rb using babyruby2js
 'use strict';
 
 var main = require('./main');

@@ -1,4 +1,4 @@
-//Translated from  using babyruby2js
+//Translated from all_heuristics.rb using babyruby2js
 'use strict';
 
 // When creating a new heuristic, remember to add it here.

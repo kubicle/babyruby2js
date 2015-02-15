@@ -1,4 +1,4 @@
-//Translated from  using babyruby2js
+//Translated from test1.rb using babyruby2js
 'use strict';
 
 // comm1

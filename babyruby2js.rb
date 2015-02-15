@@ -1,9 +1,9 @@
 # TODO:
 # - find comments that were not used and dump them too
-# - see if we can get comments at EOL to be attached to previous node
 # - count method on Array
 # - indexOf returns -1 instead of nil for find_index
 # Not handled:
+# - next & return not translated right in callbacks
 # - if x = f() changed into if (x = f()) not liked by JSHint; but if (x=f()) is OK
 # - s << str is replaced by s += str (with error if s is a parameter)
 # - << not handled on arrays (use push instead)
@@ -18,12 +18,13 @@
 # - iterators returned by each, upto, step, etc.
 # - in "case" (switch) a break is generated even if last stmt is return or throw (JSHint complains)
 # - map[:key] => map['key'] instead of map.key (JSHint complains)
+# - .size() called on arrays is not changed into .length
+# - constants added to main class
 
 require 'trollop'
 require 'parser/current'
 require_relative 'associator'
 
-INTRO = "//Translated from #{@rubyFile} using babyruby2js\n'use strict';\n\n";
 MAIN_CLASS = "main"
 
 
@@ -131,7 +132,8 @@ class RubyToJs
       end
     end
 
-    return INTRO + genDependencies() + code
+    intro = "//Translated from #{@rubyFile} using babyruby2js\n'use strict';\n\n"
+    return intro + genDependencies() + code
   end
 
   def genDependencies

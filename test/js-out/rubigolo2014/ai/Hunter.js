@@ -1,4 +1,4 @@
-//Translated from  using babyruby2js
+//Translated from hunter.rb using babyruby2js
 'use strict';
 
 var inherits = require('util').inherits;

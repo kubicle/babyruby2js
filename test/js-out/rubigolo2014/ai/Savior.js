@@ -1,4 +1,4 @@
-//Translated from  using babyruby2js
+//Translated from savior.rb using babyruby2js
 'use strict';
 
 var inherits = require('util').inherits;

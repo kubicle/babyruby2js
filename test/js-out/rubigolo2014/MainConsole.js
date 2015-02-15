@@ -1,4 +1,4 @@
-//Translated from  using babyruby2js
+//Translated from main_console.rb using babyruby2js
 'use strict';
 
 var Grid = require('./Grid');
