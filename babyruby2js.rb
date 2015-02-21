@@ -1,8 +1,8 @@
 # TODO:
 # - find comments that were not used and dump them too
 # - count method on Array
-# - indexOf returns -1 instead of nil for find_index
 # Not handled:
+# - array.size not translated as "length"
 # - next & return not translated right in callbacks
 # - if x = f() changed into if (x = f()) not liked by JSHint; but if (x=f()) is OK
 # - s << str is replaced by s += str (with error if s is a parameter)
@@ -20,6 +20,7 @@
 # - map[:key] => map['key'] instead of map.key (JSHint complains)
 # - .size() called on arrays is not changed into .length
 # - constants added to main class
+# - 0 and "" are true in Ruby and false in JS, hence code like if !a.find_index(...) needs work
 
 require 'trollop'
 require 'parser/current'
@@ -668,8 +669,6 @@ class RubyToJs
       return "#{ret}#{exp(arg0)}.#{methName}(#{exp(n.children[2])})" if n.children.length==3
     when "chop" # "chop!" not handled
       return "#{ret}#{mainClass}.strChop(#{exp(arg0)})"
-    when "find_index"
-      return "#{ret}#{mainClass}.indexOf(#{exp(arg0)}, #{exp(n.children[2])})"
     when "%" #(send (str "%2d") :% (lvar :j))
       return "#{ret}#{mainClass}.strFormat(#{exp(arg0)}, #{exp(n.children[2])})"
     when "chr"
