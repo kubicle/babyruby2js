@@ -673,7 +673,8 @@ class RubyToJs
     when "chop" # "chop!" not handled
       return "#{ret}#{mainClass}.strChop(#{exp(arg0)})"
     when "%" #(send (str "%2d") :% (lvar :j))
-      return "#{ret}#{mainClass}.strFormat(#{exp(arg0)}, #{exp(n.children[2])})"
+      return "#{ret}#{mainClass}.strFormat(#{exp(arg0)}, #{exp(n.children[2])})" if arg0.type==:str
+      return "#{ret}#{exp(arg0)} % #{exp(n.children[2])}" # % operator (modulo) on numbers
     when "chr"
       return "#{ret}String.fromCharCode(#{exp(arg0)})"
     when "ord"

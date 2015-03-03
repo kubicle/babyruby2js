@@ -218,7 +218,7 @@ GameLogic.prototype.set_log_level = function (cmd) {
 //private;
 // ===============================================================================
 GameLogic.prototype.next_player = function () {
-    this.cur_color = main.strFormat((this.cur_color + 1), 2);
+    this.cur_color = (this.cur_color + 1) % 2;
 };
 
 // Always returns false

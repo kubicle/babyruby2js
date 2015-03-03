@@ -156,7 +156,7 @@ Breeder.prototype.reproduction = function () {
 Breeder.prototype.pick_parent = function () {
     while (true) {
         var i = this.pick_index;
-        this.pick_index = main.strFormat((this.pick_index + 1), this.gen_size);
+        this.pick_index = (this.pick_index + 1) % this.gen_size;
         if (Math.random() < this.score_diff[i] / this.max_score) {
             this.picked[i] += 1;
             // $log.debug("Picked parent #{i} (score #{@score_diff[i]})") if $debug_breed

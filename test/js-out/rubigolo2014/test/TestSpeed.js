@@ -139,7 +139,7 @@ TestSpeed.prototype.play_moves = function (moves_ij) {
         }
         Stone.play_at(this.goban, i, j, cur_color);
         move_count += 1;
-        cur_color = main.strFormat((cur_color + 1), 2);
+        cur_color = (cur_color + 1) % 2;
     }
     return move_count;
 };
