@@ -15,7 +15,7 @@ Logger.DEBUG = 0;
 function Logger(stream) {
     this.level = Logger.INFO;
 }
-exports = Logger;
+module.exports = Logger;
 
 Logger.prototype.error = function (msg) {
     console.log('ERROR: ' + msg);

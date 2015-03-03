@@ -5,9 +5,9 @@ var main = require('./main');
 var Grid = require('./Grid');
 var Stone = require('./Stone');
 var Group = require('./Group');
-var Goban = require('Goban');
-var SgfReader = require('SgfReader');
-var HandicapSetter = require('HandicapSetter');
+var Goban = require('./Goban');
+var SgfReader = require('./SgfReader');
+var HandicapSetter = require('./HandicapSetter');
 // GameLogic enforces the game logic.
 //public read-only attribute: goban, komi, cur_color, game_ended, game_ending, who_resigned;
 
@@ -20,7 +20,7 @@ function GameLogic() {
     this.who_resigned = null;
     this.goban = null;
 }
-exports = GameLogic;
+module.exports = GameLogic;
 
 GameLogic.prototype.new_game = function (size, handicap, komi) {
     if (size === undefined) size = null;

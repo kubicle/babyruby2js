@@ -15,7 +15,7 @@ function InfluenceMap(goban) {
         });
     });
 }
-exports = InfluenceMap;
+module.exports = InfluenceMap;
 
 InfluenceMap.prototype.clear = function () {
     for (var j = 1; j <= this.size; j++) {

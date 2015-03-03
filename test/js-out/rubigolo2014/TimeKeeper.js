@@ -13,7 +13,7 @@ function TimeKeeper(tolerance, ratio) {
     this.ratio = ratio;
     return this.set_gc_tolerance(); // in number of times over the expected number or runs
 }
-exports = TimeKeeper;
+module.exports = TimeKeeper;
 
 // Sets the GC runs tolerance
 // I.e. how many times over the expected number of GC run can we tolerate.

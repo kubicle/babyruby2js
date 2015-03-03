@@ -22,7 +22,7 @@ function TestBoardAnalyser(test_name) {
     return main.Test.Unit.TestCase.call(this, test_name);
 }
 inherits(TestBoardAnalyser, main.Test.Unit.TestCase);
-exports = TestBoardAnalyser;
+module.exports = TestBoardAnalyser;
 
 TestBoardAnalyser.prototype.test_small_game = function () {
     this.init_board(9);

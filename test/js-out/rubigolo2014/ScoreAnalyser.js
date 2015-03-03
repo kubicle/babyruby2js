@@ -3,14 +3,14 @@
 
 var main = require('./main');
 var Grid = require('./Grid');
-var BoardAnalyser = require('BoardAnalyser');
+var BoardAnalyser = require('./BoardAnalyser');
 
 /** @class */
 function ScoreAnalyser() {
     this.goban = null;
     this.analyser = new BoardAnalyser();
 }
-exports = ScoreAnalyser;
+module.exports = ScoreAnalyser;
 
 // Compute simple score difference for a AI-AI game (score info not needed)
 ScoreAnalyser.prototype.compute_score_diff = function (goban, komi) {

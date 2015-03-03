@@ -17,7 +17,7 @@ function Genes(map, limits) {
     this.map = map;
     this.limits = limits;
 }
-exports = Genes;
+module.exports = Genes;
 
 Genes.prototype.clone = function () {
     return new Genes(this.map.clone(), this.limits.clone());

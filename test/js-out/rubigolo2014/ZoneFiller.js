@@ -18,7 +18,7 @@ function ZoneFiller(goban, grid) {
     this.yx = grid.yx;
     this.groups = null;
 }
-exports = ZoneFiller;
+module.exports = ZoneFiller;
 
 // "Color" a goban zone.
 // to_replace can be EMPTY or a zone code (but cannot be a real color like BLACK)
@@ -96,7 +96,7 @@ ZoneFiller.prototype._check = function (i, j) {
     }
     if (this.groups && color < 2) {
         var group = this.goban.stone_at(i, j).group;
-        if (group && !main.indexOf(this.groups[color], group)) {
+        if (group && !this.groups[color].find_index(group)) {
             this.groups[color].push(group);
         }
     }

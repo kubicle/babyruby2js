@@ -5,8 +5,8 @@ var inherits = require('util').inherits;
 var Stone = require('./Stone');
 var main = require('./main');
 // Should recognize when our move is foolish...
-var Heuristic = require('Heuristic');
-var Hunter = require('Hunter');
+var Heuristic = require('./Heuristic');
+var Hunter = require('./Hunter');
 
 /** @class */
 function NoEasyPrisoner(player) {
@@ -15,7 +15,7 @@ function NoEasyPrisoner(player) {
     this.enemy_hunter = new Hunter(player, true);
 }
 inherits(NoEasyPrisoner, Heuristic);
-exports = NoEasyPrisoner;
+module.exports = NoEasyPrisoner;
 
 NoEasyPrisoner.prototype.init_color = function () {
     Heuristic.init_color.call(this);

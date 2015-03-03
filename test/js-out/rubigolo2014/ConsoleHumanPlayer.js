@@ -4,7 +4,7 @@
 var inherits = require('util').inherits;
 var Grid = require('./Grid');
 var main = require('./main');
-var Player = require('Player');
+var Player = require('./Player');
 
 /** @class */
 function ConsoleHumanPlayer(goban, color) {
@@ -13,7 +13,7 @@ function ConsoleHumanPlayer(goban, color) {
     this.debug_ai = null;
 }
 inherits(ConsoleHumanPlayer, main.Player);
-exports = ConsoleHumanPlayer;
+module.exports = ConsoleHumanPlayer;
 
 ConsoleHumanPlayer.prototype.get_move = function (color) {
     if (color === undefined) color = this.color;
@@ -47,7 +47,7 @@ ConsoleHumanPlayer.prototype.get_answer = function (valid_ones) {
         if (answer === '') {
             continue;
         }
-        if (valid_ones && !main.indexOf(valid_ones, answer)) {
+        if (valid_ones && !valid_ones.find_index(answer)) {
             console.log('Valid answers: ' + valid_ones.join(','));
             continue;
         }

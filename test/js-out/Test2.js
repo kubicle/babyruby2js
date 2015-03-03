@@ -10,7 +10,7 @@ function Obj(n) {
     this.val = n;
     this.hash = n;
 }
-exports = Obj;
+module.exports = Obj;
 
 Obj.prototype.to_s = function () {
     return 'val=' + this.val;

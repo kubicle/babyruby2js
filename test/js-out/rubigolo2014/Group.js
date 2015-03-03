@@ -3,7 +3,7 @@
 
 var Grid = require('./Grid');
 var main = require('./main');
-var StoneConstants = require('StoneConstants');
+var StoneConstants = require('./StoneConstants');
 // Always require goban instead of stone
 // A group keeps the list of its stones, the updated number of "lives" (empty intersections around),
 // and whatever status information we need to decide what happens to a group (e.g. when a
@@ -32,7 +32,7 @@ function Group(goban, stone, lives, ndx) {
     this.all_enemies = [];
     this.all_lives = []; // $log.debug("New group created #{self}") if $debug_group
 }
-exports = Group;
+module.exports = Group;
 
 Group.prototype.recycle = function (stone, lives) {
     this.stones.clear();
@@ -118,7 +118,7 @@ Group.prototype.all_lives = function () {
             if (life.color !== main.EMPTY) {
                 continue;
             }
-            if (!main.indexOf(this.all_lives, life)) {
+            if (!this.all_lives.find_index(life)) {
                 this.all_lives.push(life);
             }
         }
@@ -134,7 +134,7 @@ Group.prototype.all_enemies = function () {
             if (en.color === main.EMPTY || en.color === this.color) {
                 continue;
             }
-            if (!main.indexOf(this.all_enemies, en.group)) {
+            if (!this.all_enemies.find_index(en.group)) {
                 this.all_enemies.push(en.group);
             }
         }

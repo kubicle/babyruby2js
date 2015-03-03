@@ -6,7 +6,7 @@ var main = require('./main');
 var Stone = require('./Stone');
 // Hunters find threats to struggling enemy groups.
 // Ladder attack fits in here.
-var Heuristic = require('Heuristic');
+var Heuristic = require('./Heuristic');
 
 /** @class */
 function Hunter(player, consultant) {
@@ -14,7 +14,7 @@ function Hunter(player, consultant) {
     return Heuristic.call(this);
 }
 inherits(Hunter, Heuristic);
-exports = Hunter;
+module.exports = Hunter;
 
 Hunter.prototype.eval_move = function (i, j, level) {
     if (level === undefined) level = 1;

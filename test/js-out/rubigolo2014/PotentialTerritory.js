@@ -18,7 +18,7 @@ function PotentialTerritory(goban) {
     this.reduced_grid = new Grid(goban.size);
     this.territory = new Grid(goban.size); // result of evaluation
 }
-exports = PotentialTerritory;
+module.exports = PotentialTerritory;
 
 // Returns the matrix of potential territory.
 // +1: definitely white, -1: definitely black

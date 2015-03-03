@@ -25,7 +25,7 @@ function TestAi(xtest_name) {
     return this.init_board();
 }
 inherits(TestAi, main.Test.Unit.TestCase);
-exports = TestAi;
+module.exports = TestAi;
 
 // old method; rather use play_and_check below
 TestAi.prototype.let_ai_play = function () {

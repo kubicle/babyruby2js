@@ -21,7 +21,7 @@ function TestGameLogic(test_name) {
     return this.init_board();
 }
 inherits(TestGameLogic, main.Test.Unit.TestCase);
-exports = TestGameLogic;
+module.exports = TestGameLogic;
 
 // 3 ways to load the same game with handicap...
 TestGameLogic.prototype.test_handicap = function () {

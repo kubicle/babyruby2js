@@ -4,7 +4,7 @@
 var inherits = require('util').inherits;
 var main = require('./main');
 // Vague idea that playing where we already have influence is moot.
-var Heuristic = require('Heuristic');
+var Heuristic = require('./Heuristic');
 
 /** @class */
 function Spacer(player) {
@@ -13,7 +13,7 @@ function Spacer(player) {
     this.corner_coeff = get_gene('corner', 2.0, 0.0, 8.0);
 }
 inherits(Spacer, Heuristic);
-exports = Spacer;
+module.exports = Spacer;
 
 Spacer.prototype.eval_move = function (i, j) {
     var enemy_inf, ally_inf;

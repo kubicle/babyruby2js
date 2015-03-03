@@ -9,7 +9,7 @@ function Contacts() {
     this.contacts = new main.Array(4);
     return this.contacts.clear();
 }
-exports = Contacts;
+module.exports = Contacts;
 
 Contacts.prototype.clear = function () {
     return this.contacts.clear();
@@ -20,7 +20,7 @@ Contacts.prototype.empty = function () {
 };
 
 Contacts.prototype.push = function (item) {
-    if (main.indexOf(this.contacts, item) === null) {
+    if (this.contacts.find_index(item) === null) {
         return this.contacts.push(item);
     }
 };

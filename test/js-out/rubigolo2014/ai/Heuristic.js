@@ -16,7 +16,7 @@ function Heuristic(player, consultant) {
     this.inf = player.inf;
     this.ter = player.ter;
 }
-exports = Heuristic;
+module.exports = Heuristic;
 
 Heuristic.prototype.init_color = function () {
     // For consultant heuristics we reverse the colors

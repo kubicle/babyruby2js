@@ -11,13 +11,13 @@ var Stone = require('./Stone');
 // - identify all foolish moves (like NoEasyPrisoner but once for all) in a map that all heuristics can use
 // - foresee a poursuit = on attack/defense (and/or use a reverse-killer?)
 // - an eye shape constructor
-var Player = require('Player');
-var Goban = require('Goban');
-var InfluenceMap = require('InfluenceMap');
-var PotentialTerritory = require('PotentialTerritory');
+var Player = require('./Player');
+var Goban = require('./Goban');
+var InfluenceMap = require('./InfluenceMap');
+var PotentialTerritory = require('./PotentialTerritory');
 var AllHeuristics = require('ai/AllHeuristics');
-var TimeKeeper = require('TimeKeeper');
-var Genes = require('Genes');
+var TimeKeeper = require('./TimeKeeper');
+var Genes = require('./Genes');
 //public read-only attribute: goban, inf, ter, enemy_color, genes, last_move_score;
 
 /** @class */
@@ -45,7 +45,7 @@ function Ai1Player(goban, color, genes) {
     return this.prepare_game(this.genes); // @timer = TimeKeeper.new // @timer.calibrate(0.7)
 }
 inherits(Ai1Player, main.Player);
-exports = Ai1Player;
+module.exports = Ai1Player;
 
 Ai1Player.prototype.prepare_game = function (genes) {
     this.genes = genes;

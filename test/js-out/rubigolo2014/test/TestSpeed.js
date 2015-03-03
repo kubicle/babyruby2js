@@ -26,7 +26,7 @@ function TestSpeed(test_name) {
     return this.init_board();
 }
 inherits(TestSpeed, main.Test.Unit.TestCase);
-exports = TestSpeed;
+module.exports = TestSpeed;
 
 // Not very fancy: add the line $count += 1 wherever you want to count.
 // Need some time to try a good profiler soon...

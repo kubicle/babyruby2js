@@ -5,8 +5,8 @@ var inherits = require('util').inherits;
 var main = require('./main');
 var Stone = require('./Stone');
 // Saviors rescue ally groups in atari
-var Heuristic = require('Heuristic');
-var Hunter = require('Hunter');
+var Heuristic = require('./Heuristic');
+var Hunter = require('./Hunter');
 
 /** @class */
 function Savior(player) {
@@ -14,7 +14,7 @@ function Savior(player) {
     this.enemy_hunter = new Hunter(player, true);
 }
 inherits(Savior, Heuristic);
-exports = Savior;
+module.exports = Savior;
 
 Savior.prototype.init_color = function () {
     Heuristic.init_color.call(this);

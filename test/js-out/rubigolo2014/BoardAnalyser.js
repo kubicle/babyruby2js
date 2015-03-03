@@ -6,8 +6,8 @@ var Grid = require('./Grid');
 var Group = require('./Group');
 var Void = require('./Void');
 //require 'set';
-var Goban = require('Goban');
-var ZoneFiller = require('ZoneFiller');
+var Goban = require('./Goban');
+var ZoneFiller = require('./ZoneFiller');
 // Class used by BoardAnalyser class.
 // A void in an empty zone surrounded by (and including) various groups.
 // NB: when a void has a single color around; we call this an eye. Can be discussed...
@@ -27,7 +27,7 @@ function Void(analyser, code, i, j, size, neighbors) {
     this.eye_color = null; // stays nil if not an eye
     this.owner = null;
 }
-exports = Void;
+module.exports = Void;
 
 // Call it once. Populates @eye_color
 // @eye_color stays nil if there is more than 1 color around (not an eye) or full board empty
@@ -98,7 +98,7 @@ function BoardAnalyser() {
     this.voids = [];
     this.all_groups = new main.Set();
 }
-exports = BoardAnalyser;
+module.exports = BoardAnalyser;
 
 // Calling this method updates the goban to show the detected result.
 BoardAnalyser.prototype.count_score = function (goban, grid) {
@@ -216,7 +216,7 @@ BoardAnalyser.prototype.find_stronger_owners = function () {
         if (lives.count(function (l) {
             return l === more_lives;
         }) === 1) {
-            var c = main.indexOf(lives, more_lives);
+            var c = lives.find_index(more_lives);
             v.set_owner(c);
             if (main.debug) {
                 main.log.debug('It looks like color ' + c + ', with ' + more_lives + ' lives, owns ' + v + ' (this might change once we identify dead groups)');

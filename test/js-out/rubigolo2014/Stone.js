@@ -4,7 +4,7 @@
 var main = require('./main');
 var Grid = require('./Grid');
 var Group = require('./Group');
-var StoneConstants = require('StoneConstants');
+var StoneConstants = require('./StoneConstants');
 // Always require goban instead of stone
 // A "stone" stores everything we want to keep track of regarding an intersection on the board.
 // By extension, an empty intersection is also a stone, with a color attribute equals to EMPTY.
@@ -27,7 +27,7 @@ function Stone(goban, i, j, color) {
     this.allies = new main.Array(4);
     this.enemies = new main.Array(4);
 }
-exports = Stone;
+module.exports = Stone;
 
 Stone.prototype.clear = function () {
     this.color = main.EMPTY;
@@ -217,7 +217,7 @@ Stone.prototype.each_enemy = function (ally_color, cb) {
 Stone.prototype.unique_enemies = function (ally_color) {
     this.enemies.clear();
     for (var s, s_array = this.neighbors, s_ndx = 0; s=s_array[s_ndx], s_ndx < s_array.length; s_ndx++) {
-        if (s.color !== main.EMPTY && s.color !== ally_color && !main.indexOf(this.enemies, s.group)) {
+        if (s.color !== main.EMPTY && s.color !== ally_color && !this.enemies.find_index(s.group)) {
             this.enemies.push(s.group);
         }
     }
@@ -238,7 +238,7 @@ Stone.prototype.each_ally = function (ally_color, cb) {
 Stone.prototype.unique_allies = function (color) {
     this.allies.clear();
     for (var s, s_array = this.neighbors, s_ndx = 0; s=s_array[s_ndx], s_ndx < s_array.length; s_ndx++) {
-        if (s.color === color && !main.indexOf(this.allies, s.group)) {
+        if (s.color === color && !this.allies.find_index(s.group)) {
             this.allies.push(s.group);
         }
     }

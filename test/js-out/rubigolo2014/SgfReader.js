@@ -6,7 +6,7 @@ var main = require('./main');
 // (;FF[4]EV[go19.ch.10.4.3]PB[kyy]PW[Olivier Lombart]KM[6.5]SZ[19]
 // SO[http://www.littlegolem.com];B[pd];W[pp];
 // B[ce];W[dc]...;B[tt];W[tt];B[tt];W[aq])
-var Logging = require('Logging');
+var Logging = require('./Logging');
 //public read-only attribute: board_size, komi, handicap, handicap_stones;
 
 /** @class */
@@ -20,7 +20,7 @@ function SgfReader(sgf) {
     this.parse_game_tree(sgf + '');
     return this.get_game_info();
 }
-exports = SgfReader;
+module.exports = SgfReader;
 
 // Raises an exception if we could not convert the format
 SgfReader.prototype.to_move_list = function () {

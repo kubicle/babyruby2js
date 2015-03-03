@@ -14,7 +14,7 @@ function TestScoreAnalyser(test_name) {
     return main.Test.Unit.TestCase.call(this, test_name);
 }
 inherits(TestScoreAnalyser, main.Test.Unit.TestCase);
-exports = TestScoreAnalyser;
+module.exports = TestScoreAnalyser;
 
 TestScoreAnalyser.prototype.init_game = function (size) {
     if (size === undefined) size = 5;

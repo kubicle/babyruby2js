@@ -4,7 +4,7 @@
 var main = require('./main');
 var Grid = require('./Grid');
 var Stone = require('./Stone');
-var StoneConstants = require('StoneConstants');
+var StoneConstants = require('./StoneConstants');
 // A generic grid - a Goban owns a grid
 Grid.COLOR_NAMES = ['black', 'white'];
 Grid.NOTATION_A = ('a').charCodeAt(); // notation origin; could be A or a
@@ -34,7 +34,7 @@ function Grid(size) {
         return new main.Array(size + 2, main.BORDER);
     });
 }
-exports = Grid;
+module.exports = Grid;
 
 Grid.prototype.copy = function (source_grid) {
     if (source_grid.size !== this.size) {

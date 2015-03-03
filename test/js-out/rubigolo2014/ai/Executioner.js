@@ -4,14 +4,14 @@
 var inherits = require('util').inherits;
 var main = require('./main');
 // Executioner only preys on enemy groups in atari
-var Heuristic = require('Heuristic');
+var Heuristic = require('./Heuristic');
 
 /** @class */
 function Executioner(player) {
     return Heuristic.call(this);
 }
 inherits(Executioner, Heuristic);
-exports = Executioner;
+module.exports = Executioner;
 
 Executioner.prototype.eval_move = function (i, j) {
     var stone = this.goban.stone_at(i, j);

@@ -6,7 +6,7 @@ var main = require('./main');
 // Quite a dumb way of "pushing" our influence further...
 // For that reason the coeff are rather low.
 // This should eventually disappear.
-var Heuristic = require('Heuristic');
+var Heuristic = require('./Heuristic');
 
 /** @class */
 function Pusher(player) {
@@ -15,7 +15,7 @@ function Pusher(player) {
     this.enemy_coeff = get_gene('enemy-infl', 0.4, 0.01, 4.0);
 }
 inherits(Pusher, Heuristic);
-exports = Pusher;
+module.exports = Pusher;
 
 Pusher.prototype.eval_move = function (i, j) {
     var inf = this.inf.map[j][i];

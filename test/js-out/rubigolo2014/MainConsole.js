@@ -5,11 +5,11 @@ var Grid = require('./Grid');
 var main = require('./main');
 var ConsoleGame = require('./ConsoleGame');
 //require 'trollop';
-var Logging = require('Logging');
-var GameLogic = require('GameLogic');
-var ScoreAnalyser = require('ScoreAnalyser');
-var Ai1Player = require('Ai1Player');
-var ConsoleHumanPlayer = require('ConsoleHumanPlayer');
+var Logging = require('./Logging');
+var GameLogic = require('./GameLogic');
+var ScoreAnalyser = require('./ScoreAnalyser');
+var Ai1Player = require('./Ai1Player');
+var ConsoleHumanPlayer = require('./ConsoleHumanPlayer');
 // Create game & players
 
 /** @class */
@@ -29,7 +29,7 @@ function ConsoleGame(opts) {
     this.spectator = ( opts.ai() >= 2 ? new ConsoleHumanPlayer(this.goban, -1) : null );
     this.scorer = new ScoreAnalyser();
 }
-exports = ConsoleGame;
+module.exports = ConsoleGame;
 
 // Show prisoner counts during the game  
 ConsoleGame.prototype.show_prisoners = function () {

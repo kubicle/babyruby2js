@@ -24,7 +24,7 @@ function TestPotentialTerritory(test_name) {
     return main.Test.Unit.TestCase.call(this, test_name);
 }
 inherits(TestPotentialTerritory, main.Test.Unit.TestCase);
-exports = TestPotentialTerritory;
+module.exports = TestPotentialTerritory;
 
 TestPotentialTerritory.prototype.potential_to_s = function (grid) {
     return main.strChop(grid.to_text(false, ',', function (v) {

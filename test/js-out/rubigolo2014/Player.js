@@ -8,7 +8,7 @@ function Player(is_human, goban) {
     this.is_human = is_human;
     this.goban = goban;
 }
-exports = Player;
+module.exports = Player;
 
 Player.prototype.set_color = function (color) {
     this.color = color;

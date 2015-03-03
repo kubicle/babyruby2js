@@ -5,7 +5,7 @@ var inherits = require('util').inherits;
 var main = require('./main');
 // Basic: a move that connects 2 of our groups is good.
 // TODO: this could threaten our potential for keeping eyes, review this.
-var Heuristic = require('Heuristic');
+var Heuristic = require('./Heuristic');
 
 /** @class */
 function Connector(player) {
@@ -15,7 +15,7 @@ function Connector(player) {
     this.ally_coeff2 = get_gene('ally-more-enemies', 1.66, 0.01, 3.0);
 }
 inherits(Connector, Heuristic);
-exports = Connector;
+module.exports = Connector;
 
 Connector.prototype.eval_move = function (i, j) {
     // we care a lot if the enemy is able to cut us,

@@ -10,10 +10,10 @@ var MainServer = require('./MainServer');
 // Or a1=0 for 2 human players
 //require 'socket';
 //require 'uri';
-var Logging = require('Logging');
-var GameLogic = require('GameLogic');
-var ScoreAnalyser = require('ScoreAnalyser');
-var Ai1Player = require('Ai1Player');
+var Logging = require('./Logging');
+var GameLogic = require('./GameLogic');
+var ScoreAnalyser = require('./ScoreAnalyser');
+var Ai1Player = require('./Ai1Player');
 // Very simple server that can be used to play a single *local* game
 // using a web browser as GUI.
 MainServer.PORT = 8080;
@@ -29,7 +29,7 @@ function MainServer() {
     this.session = null;
     this.messages = [];
 }
-exports = MainServer;
+module.exports = MainServer;
 
 MainServer.prototype.start = function () {
     main.log.info('Starting the server...');
