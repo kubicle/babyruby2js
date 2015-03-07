@@ -1,0 +1,7 @@
+// Config for babyruby2js (merged with the default config)
+{
+  "src": ".",
+  "target": "js-out",
+  
+  "replacements": {}
+}
