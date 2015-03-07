@@ -54,7 +54,7 @@ SgfReader.prototype.to_move_list = function () {
         moves += this.convert_move(value) + ',';
         expected_player = (( expected_player === 'B' ? 'W' : 'B' ));
     }
-    return main.strChop(moves);
+    return moves.chop();
 };
 
 //private;

@@ -58,7 +58,7 @@ MainServer.prototype.get_session_and_request = function () {
         if (!(req = this.session.gets())) {
             throw new Error('Connection dropped');
         }
-        req = main.URI.decode(req.chop());
+        req = main.URI.decode(req.chop!());
     } catch (err) {
         if (err.constructor.name === 'Errno::EWOULDBLOCK' || err.constructor.name === 'Errno::EAGAIN') {
             main.log.debug('Closing and reopening the session...'); // see comment above about IE
@@ -75,7 +75,7 @@ MainServer.prototype.get_session_and_request = function () {
     }
     this.keep_alive = false;
     var r;
-    while (('' !== (r = main.strChop(this.session.gets())))) {
+    while (('' !== (r = this.session.gets().chop()))) {
         if (main.debug) {
             main.log.debug('..."' + r + '"');
         }

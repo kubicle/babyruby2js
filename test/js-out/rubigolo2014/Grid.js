@@ -146,13 +146,13 @@ Grid.prototype.to_s = function () {
 // So last row (j==size) comes first in image
 Grid.prototype.image = function () {
     if (this.yx[1][1].instance_of(Stone)) {
-        return main.strChop(this.to_text(false, ',', function (s) {
+        return this.to_text(false, ',', function (s) {
             return Grid.color_to_char(s.color);
-        }));
+        }).chop();
     } else {
-        return main.strChop(this.to_text(false, ',', function (c) {
+        return this.to_text(false, ',', function (c) {
             return Grid.color_to_char(c);
-        }));
+        }).chop();
     } // FIXME
 };
 

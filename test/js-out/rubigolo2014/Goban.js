@@ -76,9 +76,9 @@ Goban.prototype.new_group = function (stone, lives) {
 };
 
 Goban.prototype.image = function () {
-    return main.strChop(this.grid.to_text(false, ',', function (s) {
+    return this.grid.to_text(false, ',', function (s) {
         return Grid.COLOR_CHARS[s.color];
-    }));
+    }).chop();
 };
 
 // For debugging only
