@@ -191,10 +191,11 @@ class RubyToJs
     cr(-1)
   end
 
+  # Returns comments of a node, ready for JavaScript format
+  # (a paragraph of heading comments, and a line of decorative comments)
   def getComments(n)
-    comments = @commentMap[n.location]
-    #comments = @commentMap[n]
-    res = ""
+    comments = @commentMap[n.location] # used to be comments = @commentMap[n]
+    paragraph = ""
     deco = ""
     comments.each do |c|
       txt = c.text[1..-1]
@@ -202,11 +203,11 @@ class RubyToJs
       if @decorative_comment[c]
         deco << " // #{txt}"
       else
-        res << "// #{txt}#{cr}"
+        paragraph << "// #{txt}#{cr}"
       end
       @_doneComments += 1
     end
-    return res, deco
+    return paragraph, deco
   end
 
   def stmt(n, mustReturn=false)
