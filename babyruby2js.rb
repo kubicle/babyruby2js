@@ -20,6 +20,7 @@ class RubyToJs
     @indentSize = 4 # in spaces
     @exp_comments = ""
     @exp_deco = ""
+    @showWarnings = true
 
     enterClass(MAIN_CLASS)
     enterMethod("")
@@ -135,7 +136,7 @@ class RubyToJs
     end
 
     intro = "//Translated from #{@rubyFile} using babyruby2js\n'use strict';\n\n"
-    return doReplacements(intro + genDependencies() + code)
+    return doReplacements(intro + genAddedRequire() + code)
   end
 
   def doReplacements(jsCode)
@@ -143,21 +144,6 @@ class RubyToJs
       jsCode = jsCode.gsub(key, val)
     end
     return jsCode
-  end
-
-  def genDependencies
-    res = ""
-    @dependencies.each do |className,val|
-      next if !val
-      if val.is_a?(String)
-        requ = "var #{className} = #{val}"
-      else
-        requ = "var #{className} = require('./#{className}')" #TODO compute path here instead of "."
-      end
-      requ = @replacements[requ] if @replacements[requ]
-      res += "#{requ};#{cr}" if requ != ""
-    end
-    return res
   end
 
   def newClass(name, parent)
@@ -248,6 +234,9 @@ class RubyToJs
     end
 
     case n.type
+    when :send
+      call = "#{methodCall(n,mustReturn)}"
+      call != "" ? "#{call}#{semi}" : "" #e.g. empty require do not generate a lone ";"
     when :begin
       return isStmt ? beginBlock(n, mustReturn) : bracketExp(n)
     when :block
@@ -258,8 +247,6 @@ class RubyToJs
       newMethod(n)
     when :defs
       newMethod(n, true)
-    when :send
-      "#{methodCall(n,mustReturn)}#{semi}"
     when :self
       "#{ret}this#{semi}"
     when :int, :float
@@ -269,7 +256,7 @@ class RubyToJs
     when :nil
       return "null" if !isStmt
       return "#{ret}null#{semi}" if mustReturn
-      return "//NOP"
+      "//NOP"
     when :str
       str = arg0.to_s.gsub(/[\n\r\t']/, "\n"=>"\\n", "\r"=>"\\r", "\t"=>"\\t", "'"=>"\\'")
       "#{ret}'#{str}'#{semi}"
@@ -616,7 +603,7 @@ class RubyToJs
   def genRequire(n, standard=false)
     mod = exp(n)
     if standard
-      res = "//require #{mod}"
+      requ = "//require #{mod}"
     else
       mod = mod[1..-2] if mod.start_with?("'")
       slash = mod.rindex("/")
@@ -624,9 +611,24 @@ class RubyToJs
       mod = slash ? mod[slash+1..-1] : mod
       className = classNameFromFileName(mod)
       @dependencies[className] = false # no need to generate again
-      res = "var #{className} = require('#{path}#{className}')"
+      requ = "var #{className} = require('#{path}#{className}')"
     end
-    res = @replacements[res] if @replacements[res]
+    requ = @replacements[requ] if @replacements[requ]
+    return requ
+  end
+
+  def genAddedRequire
+    res = ""
+    @dependencies.each do |className,val|
+      next if !val
+      if val.is_a?(String)
+        requ = "var #{className} = #{val}"
+      else
+        requ = "var #{className} = require('./#{className}')" #TODO compute path here instead of "."
+      end
+      requ = @replacements[requ] if @replacements[requ]
+      res += "#{requ};#{cr}" if requ != ""
+    end
     return res
   end
 
@@ -733,10 +735,8 @@ class RubyToJs
     when "public"
       @private = false
       return "//public"
-    when "require_relative"
-      return genRequire(n.children[2])
-    when "require"
-      return genRequire(n.children[2], true)
+    when "require","require_relative"
+      return genRequire(n.children[2], methName=="require")
     when "each" # we get here only if each could not be converted to a for loop earlier
       jsMethName = "forEach"
     else #regular method call
