@@ -4,7 +4,7 @@
 var inherits = require('util').inherits;
 var Stone = require('./Stone');
 var main = require('./main');
-//require 'test/unit';
+var assert_equal = main.assert_equal;
 var Logging = require('../Logging');
 var Goban = require('../Goban');
 // NB: for debugging think of using @goban.console_display
@@ -15,10 +15,10 @@ TestStone.prototype.init_board = function () {
 
 /** @class */
 function TestStone(test_name) {
-    main.Test.Unit.TestCase.call(this, test_name);
+    main.TestCase.call(this, test_name);
     return this.init_board();
 }
-inherits(TestStone, main.Test.Unit.TestCase);
+inherits(TestStone, main.TestCase);
 module.exports = TestStone;
 
 TestStone.prototype.how_many_lives = function (i, j) {

@@ -1,0 +1,7 @@
+// Default config for babyruby2js
+{
+  "replacements": {
+    "//require 'test/unit'": "var assert_equal = main.assert_equal",
+    "main.Test.Unit.TestCase": "main.TestCase"
+  }
+}

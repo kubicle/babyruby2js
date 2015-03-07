@@ -6,7 +6,7 @@ var Logger = require('./Logger');
 var inherits = require('util').inherits;
 var Grid = require('./Grid');
 var Stone = require('./Stone');
-//require 'test/unit';
+var assert_equal = main.assert_equal;
 var Goban = require('../Goban');
 var TimeKeeper = require('../TimeKeeper');
 var Logging = require('../Logging');
@@ -22,10 +22,10 @@ TestSpeed.prototype.init_board = function (size) {
 
 /** @class */
 function TestSpeed(test_name) {
-    main.Test.Unit.TestCase.call(this, test_name);
+    main.TestCase.call(this, test_name);
     return this.init_board();
 }
-inherits(TestSpeed, main.Test.Unit.TestCase);
+inherits(TestSpeed, main.TestCase);
 module.exports = TestSpeed;
 
 // Not very fancy: add the line $count += 1 wherever you want to count.

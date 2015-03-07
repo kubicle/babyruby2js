@@ -4,7 +4,7 @@
 var main = require('./main');
 var inherits = require('util').inherits;
 var Grid = require('./Grid');
-//require 'test/unit';
+var assert_equal = main.assert_equal;
 var Logging = require('../Logging');
 var GameLogic = require('../GameLogic');
 var Ai1Player = require('../Ai1Player');
@@ -21,10 +21,10 @@ TestAi.prototype.init_board = function (size, handicap) {
 
 /** @class */
 function TestAi(xtest_name) {
-    main.Test.Unit.TestCase.call(this, xtest_name);
+    main.TestCase.call(this, xtest_name);
     return this.init_board();
 }
-inherits(TestAi, main.Test.Unit.TestCase);
+inherits(TestAi, main.TestCase);
 module.exports = TestAi;
 
 // old method; rather use play_and_check below

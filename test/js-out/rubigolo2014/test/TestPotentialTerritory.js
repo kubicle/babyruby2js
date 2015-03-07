@@ -3,7 +3,7 @@
 
 var inherits = require('util').inherits;
 var main = require('./main');
-//require 'test/unit';
+var assert_equal = main.assert_equal;
 var Logging = require('../Logging');
 var GameLogic = require('../GameLogic');
 var PotentialTerritory = require('../PotentialTerritory');
@@ -21,9 +21,9 @@ TestPotentialTerritory.prototype.init_board = function (size, handicap) {
 
 /** @class */
 function TestPotentialTerritory(test_name) {
-    return main.Test.Unit.TestCase.call(this, test_name);
+    return main.TestCase.call(this, test_name);
 }
-inherits(TestPotentialTerritory, main.Test.Unit.TestCase);
+inherits(TestPotentialTerritory, main.TestCase);
 module.exports = TestPotentialTerritory;
 
 TestPotentialTerritory.prototype.potential_to_s = function (grid) {

@@ -3,7 +3,7 @@
 
 var inherits = require('util').inherits;
 var Group = require('./Group');
-//require 'test/unit';
+var assert_equal = main.assert_equal;
 var Logging = require('../Logging');
 var GameLogic = require('../GameLogic');
 var BoardAnalyser = require('../BoardAnalyser');
@@ -19,9 +19,9 @@ TestBoardAnalyser.prototype.init_board = function (size, handicap) {
 
 /** @class */
 function TestBoardAnalyser(test_name) {
-    return main.Test.Unit.TestCase.call(this, test_name);
+    return main.TestCase.call(this, test_name);
 }
-inherits(TestBoardAnalyser, main.Test.Unit.TestCase);
+inherits(TestBoardAnalyser, main.TestCase);
 module.exports = TestBoardAnalyser;
 
 TestBoardAnalyser.prototype.test_small_game = function () {
