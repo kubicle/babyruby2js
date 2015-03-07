@@ -153,11 +153,11 @@ Group.prototype.lives_added_by_stone = function (stone) {
         if (life.color !== main.EMPTY) {
             continue;
         }
-        if (true !== life.neighbors.forEach(function (s) {
+        if (!(true === life.neighbors.forEach(function (s) {
             if (s.group === this && s !== stone) {
                 error_break_value((true));
             }
-        })) {
+        }))) {
             lives += 1;
         } // Using any? or detect makes the code clearer but slower :( // lives += 1 unless life.neighbors.any? { |s| s.group == self and s != stone }
     }

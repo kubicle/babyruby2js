@@ -121,7 +121,7 @@ class Group
     lives = 0
     stone.neighbors.each do |life|
       next if life.color != EMPTY
-      lives += 1 if true != life.neighbors.each { |s| break(true) if s.group == self and s != stone }
+      lives += 1 unless true == life.neighbors.each { |s| break(true) if s.group == self and s != stone }
       # Using any? or detect makes the code clearer but slower :(
       # lives += 1 unless life.neighbors.any? { |s| s.group == self and s != stone }
     end
