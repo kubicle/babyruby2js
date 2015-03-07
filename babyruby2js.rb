@@ -1,5 +1,6 @@
 require 'trollop'
 require 'parser/current'
+require 'json'
 require_relative 'associator'
 
 MAIN_CLASS = "main"
@@ -9,20 +10,41 @@ class RubyToJs
 
   def initialize(opts)
     @options = opts
+    readConfig
+
     @classes = {}
     @publicVars = {}
-    @publicVoidMethods = {}
+    @publicMethods = {}
     @stmtDecl = []
     @indent = 0
     @indentSize = 4 # in spaces
     @exp_comments = ""
     @exp_deco = ""
-    @srcDir = @options.src
-    @targetDir = @options.target
-    @srcDir += "/" if @srcDir[-1]!="/"
-    @targetDir += "/" if @targetDir[-1]!="/"
+
     enterClass(MAIN_CLASS)
     enterMethod("")
+  end
+
+  def readConfig
+    configFile = File.dirname(__FILE__) + "/config.json"
+    cfg = JSON.parse(File.read(configFile))
+    @replacements = cfg["replacements"]
+    localConfigFile = "./ruby2js.json"
+    puts "Looking for config file #{localConfigFile}..."
+    if File.exists?(localConfigFile)
+      localCfg = JSON.parse(File.read(localConfigFile))
+      @replacements.merge!(localCfg["replacements"])
+      cfg.merge!(localCfg)
+    end
+
+    @srcDir = @options.src ? @options.src : cfg["src"]
+    @targetDir = @options.target ? @options.target : cfg["target"]
+    if (!@srcDir and !@options.file) or !@targetDir
+      puts "Invalid arguments. Use --help or -h for help."
+      exit
+    end
+    @srcDir += "/" if @srcDir[-1]!="/"
+    @targetDir += "/" if @targetDir[-1]!="/"
   end
 
   def translateAll
@@ -52,14 +74,12 @@ class RubyToJs
 
   def translateFile(rubyFile)
     rubyFile += ".rb" if !rubyFile.end_with?(".rb")
-    path, cname = buildJsFilename(rubyFile)
+    path, @rubyFile, cname = buildJsFilename(rubyFile)
     jsFile = "#{@targetDir}#{path}#{cname}.js"
     createTargetDir(@targetDir+path)
-    puts "Translating #{rubyFile} into #{jsFile}..."
-    rubyFile = rubyFile[path.length..-1]
-    @rubyFile = rubyFile
-    srcFile = Parser::Source::Buffer.new(rubyFile)
-    srcFile.source = File.read(@srcDir+path+rubyFile)
+    puts "Translating #{@rubyFile} into #{jsFile}..."
+    srcFile = Parser::Source::Buffer.new(@rubyFile)
+    srcFile.source = File.read(@srcDir+path+@rubyFile)
     jsCode = translateSrc(srcFile)
     File.write(jsFile, jsCode)
     puts "Completed #{jsFile}" if @options.debug
@@ -75,10 +95,15 @@ class RubyToJs
 
   def buildJsFilename(rubyFile)
     slash = rubyFile.rindex("/")
-    path = slash ? rubyFile[0..slash] : "./"
-    mod = slash ? rubyFile[slash+1..-1] : rubyFile
+    if slash
+      path = rubyFile[0..slash]
+      mod = rubyFile[slash+1..-1]
+    else
+      path = "./"
+      mod = rubyFile
+    end
     className = classNameFromFileName(mod)
-    return path, className
+    return path, mod, className
   end
 
   def translateSrc(srcFile)
@@ -110,7 +135,14 @@ class RubyToJs
     end
 
     intro = "//Translated from #{@rubyFile} using babyruby2js\n'use strict';\n\n"
-    return intro + genDependencies() + code
+    return doReplacements(intro + genDependencies() + code)
+  end
+
+  def doReplacements(jsCode)
+    @replacements.each do |key,val|
+      jsCode = jsCode.gsub(key, val)
+    end
+    return jsCode
   end
 
   def genDependencies
@@ -118,10 +150,12 @@ class RubyToJs
     @dependencies.each do |className,val|
       next if !val
       if val.is_a?(String)
-        res += "var #{className} = #{val};#{cr}"
+        requ = "var #{className} = #{val}"
       else
-        res += "var #{className} = require('./#{className}');#{cr}"
+        requ = "var #{className} = require('./#{className}')" #TODO compute path here instead of "."
       end
+      requ = @replacements[requ] if @replacements[requ]
+      res += "#{requ};#{cr}" if requ != ""
     end
     return res
   end
@@ -527,9 +561,7 @@ class RubyToJs
     @indent -= 1
     # if callback was called in body we need to add it as parameter
     proto << (args.children.length ? ", cb" : "cb") if @hasYield
-    if !@private and args.children.length==0 and !@hasYield
-      @publicVoidMethods[methName] = @class 
-    end
+    @publicMethods[methName] = @class if !@private
     return "#{proto}) {#{crb}#{defaultValues}#{body}#{cre}}#{after}#{cr}"
   end
 
@@ -581,15 +613,21 @@ class RubyToJs
     return "(#{exp(n.children[0])})"
   end
 
-  def genRequire(n)
+  def genRequire(n, standard=false)
     mod = exp(n)
-    mod = mod[1..-2] if mod.start_with?("'")
-    slash = mod.rindex("/")
-    path = slash ? mod[0..slash] : "./"
-    mod = slash ? mod[slash+1..-1] : mod
-    className = classNameFromFileName(mod)
-    @dependencies[className] = false # no need to generate again
-    return "var #{className} = require('#{path}#{className}')"
+    if standard
+      res = "//require #{mod}"
+    else
+      mod = mod[1..-2] if mod.start_with?("'")
+      slash = mod.rindex("/")
+      path = slash ? mod[0..slash] : "./"
+      mod = slash ? mod[slash+1..-1] : mod
+      className = classNameFromFileName(mod)
+      @dependencies[className] = false # no need to generate again
+      res = "var #{className} = require('#{path}#{className}')"
+    end
+    res = @replacements[res] if @replacements[res]
+    return res
   end
 
   def classNameFromFileName(fname)
@@ -698,17 +736,24 @@ class RubyToJs
     when "require_relative"
       return genRequire(n.children[2])
     when "require"
-      return "//require #{exp(n.children[2])}"
+      return genRequire(n.children[2], true)
     when "each" # we get here only if each could not be converted to a for loop earlier
       jsMethName = "forEach"
     else #regular method call
       jsMethName = normalizedMethodName(methName)
     end
+
+    userMethod = !objAndMeth
     objAndMeth = "#{ret}#{objScope(arg0, methName)}#{jsMethName}" if !objAndMeth
     #add parameters to method or constructor call
     params = n.children[2..-1].map{|p| exp(p)}.join(", ")
     params << "#{params.length > 0 ? ', ' : ''}#{block}" if block
     return "#{objAndMeth}#{noParamsMethCall(methName)}" if params.length==0 and !block
+    #method call with parameters; check if we know the method
+    if @showWarnings and userMethod and !@classMethods[methName] and !@publicMethods[methName]
+      puts "W02: #{@rubyFile}: #{methName}(...) unknown method"
+      @publicMethods[methName] = true # so we show it only once
+    end
     return "#{objAndMeth}(#{params})"
   end
 
@@ -733,12 +778,15 @@ class RubyToJs
   def noParamsMethCall(methName)
     return "()" if @classMethods[methName] or (methName=="new")
     return "" if @classDataMembers[methName]
-    meth = @publicVoidMethods[methName]
+    meth =  @publicMethods[methName]
     var = @publicVars[methName]
     return "()" if meth and !var
     return "" if var and !meth
     return "() + error_both_var_and_method('#{methName}')" if var and meth
-    puts "W001: #{@rubyFile}: #{methName}() unknown method" if @showWarnings
+    if @showWarnings
+      puts "W01: #{@rubyFile}: #{methName}() unknown no-arg method"
+      @publicMethods[methName] = true # so we show it only once
+    end
     return "()"
   end
 
@@ -746,19 +794,15 @@ end
 
 
 opts = Trollop::options do
-  opt :src, "Source root directory", :type => :string
+  opt :src, "Source root directory (can be in ruby2js.json as well)", :type => :string
   opt :file, "Source file (optional)", :type => :string
-  opt :target, "Target root directory", :type => :string
+  opt :target, "Target root directory (can be in ruby2js.json as well)", :type => :string
   opt :debug, "Show debug info", :default => false
 end
 
-if opts.src or opts.file
-  t = RubyToJs.new(opts)
-  if opts.file
-    t.translateFile(opts.file)
-  else
-    t.translateAll
-  end
+t = RubyToJs.new(opts)
+if opts.file
+  t.translateFile(opts.file)
 else
-  puts "Invalid arguments. Use --help or -h for help."
+  t.translateAll
 end
