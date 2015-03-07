@@ -3,7 +3,8 @@ Basic translator from Ruby to Javascript
 
 # Run the test:
 cd .\test
-ruby ../babyruby2js.rb --src=. --target=js-out
+ruby ../babyruby2js.rb
+(this uses ruby2js.json in test directory for config src & target)
 
 # Translate a single file: (for debugging)
 ruby ../babyruby2js.rb --src=. --target=js-out --debug=1 --file=./test1.rb
