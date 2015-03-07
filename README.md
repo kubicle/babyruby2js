@@ -34,4 +34,5 @@ ruby ../babyruby2js.rb --src=. --target=js-out --debug=1 --file=./test1.rb
 - map[:key] => map['key'] instead of map.key (JSHint complains)
 - .size() called on arrays is not changed into .length
 - 0 and "" are true in Ruby and false in JS, hence code like if !a.find_index(...) needs work
+- for the reason above, we leave find_index untranslated
 - negative index on arrays does not "loop back" from last item
