@@ -1,5 +1,8 @@
 // Default config for babyruby2js
 {
+  "tabSize": 4,
+  "camelCase": false,
+
   "replacements": {
     "//require 'test/unit'": "var assert_equal = main.assert_equal",
     "main.Test.Unit.TestCase": "main.TestCase"
