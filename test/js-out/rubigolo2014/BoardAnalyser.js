@@ -71,7 +71,7 @@ Void.prototype.set_owner = function (color) {
     this.owner = color;
 };
 
-Void.prototype.to_s = function () {
+Void.prototype.toString = function () {
     var s = 'void ' + this.code + ' (' + Grid.color_to_char(this.code) + '/' + this.i + ',' + this.j + '), size ' + this.size;
     for (var color = 1; color <= this.groups.size; color++) {
         s += ', ' + this.groups[color].size + ' ' + Grid.COLOR_NAMES[color] + ' neighbors';

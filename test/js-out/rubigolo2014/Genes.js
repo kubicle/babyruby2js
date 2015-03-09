@@ -27,7 +27,7 @@ Genes.prototype.set_limits = function (limits) {
     this.limits = limits;
 };
 
-Genes.prototype.to_s = function () {
+Genes.prototype.toString = function () {
     var s = '';
     this.map.each_key(function (k) {
         s += k + ':' + main.strFormat('%.02f', this.map[k]) + ', ';

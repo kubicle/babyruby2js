@@ -427,7 +427,7 @@ class RubyToJs
   end
 
   def varName(n)
-    vname = jsName(n.children[0].to_s)
+    vname = jsName(n.children[0].to_s, false)
     case vname[0]
     when "@"
       if vname[1] == "@"
@@ -650,8 +650,12 @@ class RubyToJs
   end
 
   # e.g. "play_at!" => "playAt"
-  def jsName(rubyName)
-    name = rubyName.chomp("?").chomp("!")
+  def jsName(rubyName, method=true)
+    name = rubyName
+    if method
+      name = name.chomp("?").chomp("!")
+      return "toString" if name == "to_s"
+    end
     return name if !@camelCase
     # NB: we want to "preserve" a leading underscore hence using split("_") is awkward
     pos = 1

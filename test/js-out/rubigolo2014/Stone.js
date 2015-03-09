@@ -46,7 +46,7 @@ Stone.prototype.find_neighbors = function () {
     }
 };
 
-Stone.prototype.to_s = function () {
+Stone.prototype.toString = function () {
     if (this.color === main.EMPTY) {
         return 'empty:' + this.as_move();
     } else {

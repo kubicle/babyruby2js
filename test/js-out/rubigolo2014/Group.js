@@ -55,7 +55,7 @@ Group.prototype.clear = function () {
     return this.goban.garbage_groups.push(this);
 };
 
-Group.prototype.to_s = function () {
+Group.prototype.toString = function () {
     var s = '{group #' + this.ndx + ' of ' + this.stones.size() + error_both_var_and_method('size') + ' ' + Grid.color_name(this.color) + ' stones [';
     for (var stone, stone_array = this.stones, stone_ndx = 0; stone=stone_array[stone_ndx], stone_ndx < stone_array.length; stone_ndx++) {
         s += stone.as_move() + ',';
