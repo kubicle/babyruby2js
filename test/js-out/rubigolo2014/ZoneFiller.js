@@ -10,7 +10,7 @@ var main = require('./main');
 function ZoneFiller(goban, grid) {
     if (grid === undefined) grid = null;
     if (!grid) {
-        grid = goban.scoring_grid.convert(goban.grid);
+        grid = goban.scoringGrid.convert(goban.grid);
     }
     // $log.debug("ZoneFiller.new \n"+grid.to_s) if $debug
     this.goban = goban;
@@ -24,7 +24,7 @@ module.exports = ZoneFiller;
 // to_replace can be EMPTY or a zone code (but cannot be a real color like BLACK)
 // neighbors, if given should be an array of n arrays, with n == number of colors
 // if neighbors are not given, we do simple "coloring"
-ZoneFiller.prototype.fill_with_color = function (start_i, start_j, to_replace, color, neighbors) {
+ZoneFiller.prototype.fillWithColor = function (start_i, start_j, to_replace, color, neighbors) {
     if (neighbors === undefined) neighbors = null;
     // $log.debug("fill #{start_i} #{start_j}; replace #{to_replace} with #{color}") if $debug
     if (this.yx[start_j][start_i] !== to_replace) {
@@ -95,8 +95,8 @@ ZoneFiller.prototype._check = function (i, j) {
         return true;
     }
     if (this.groups && color < 2) {
-        var group = this.goban.stone_at(i, j).group;
-        if (group && !this.groups[color].find_index(group)) {
+        var group = this.goban.stoneAt(i, j).group;
+        if (group && !this.groups[color].findIndex(group)) {
             this.groups[color].push(group);
         }
     }

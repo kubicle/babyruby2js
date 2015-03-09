@@ -12,7 +12,7 @@ function Obj(n) {
 }
 module.exports = Obj;
 
-Obj.prototype.to_s = function () {
+Obj.prototype.toS = function () {
     return 'val=' + this.val;
 };
 
