@@ -9,6 +9,6 @@ var Hunter = require('./Hunter');
 var Connector = require('./Connector');
 var Pusher = require('./Pusher');
 var NoEasyPrisoner = require('./NoEasyPrisoner');
-Heuristic.allHeuristics = function () {
+Heuristic.all_heuristics = function () {
     return [Spacer, Executioner, Savior, Hunter, Connector, Pusher, NoEasyPrisoner];
 };

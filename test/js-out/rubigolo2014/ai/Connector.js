@@ -10,21 +10,21 @@ var Heuristic = require('./Heuristic');
 /** @class */
 function Connector(player) {
     Heuristic.call(this);
-    this.infl_coeff = getGene('infl', 0.07, 0.01, 0.5);
-    this.ally_coeff1 = getGene('ally-1enemy', 0.33, 0.01, 1.0);
-    this.ally_coeff2 = getGene('ally-more-enemies', 1.66, 0.01, 3.0);
+    this.infl_coeff = get_gene('infl', 0.07, 0.01, 0.5);
+    this.ally_coeff1 = get_gene('ally-1enemy', 0.33, 0.01, 1.0);
+    this.ally_coeff2 = get_gene('ally-more-enemies', 1.66, 0.01, 3.0);
 }
 inherits(Connector, Heuristic);
 module.exports = Connector;
 
-Connector.prototype.evalMove = function (i, j) {
+Connector.prototype.eval_move = function (i, j) {
     // we care a lot if the enemy is able to cut us,
     // and even more if by connecting we cut them...
     // TODO: the opposite heuristic - a cutter; and make both more clever.
-    var stone = this.goban.stoneAt(i, j);
-    var enemies = stone.uniqueEnemies(this.color);
+    var stone = this.goban.stone_at(i, j);
+    var enemies = stone.unique_enemies(this.color);
     var num_enemies = enemies.size() + error_both_var_and_method('size');
-    var allies = stone.uniqueAllies(this.color);
+    var allies = stone.unique_allies(this.color);
     var num_allies = allies.size() + error_both_var_and_method('size');
     if (num_allies < 2) {
         return 0;

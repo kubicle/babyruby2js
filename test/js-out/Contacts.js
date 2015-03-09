@@ -20,7 +20,7 @@ Contacts.prototype.empty = function () {
 };
 
 Contacts.prototype.push = function (item) {
-    if (this.contacts.findIndex(item) === null) {
+    if (this.contacts.find_index(item) === null) {
         return this.contacts.push(item);
     }
 };

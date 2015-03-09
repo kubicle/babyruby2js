@@ -11,14 +11,14 @@ function TimeKeeper(tolerance, ratio) {
     if (ratio === undefined) ratio = 1.0;
     this.tolerance = tolerance;
     this.ratio = ratio;
-    return this.setGcTolerance(); // in number of times over the expected number or runs
+    return this.set_gc_tolerance(); // in number of times over the expected number or runs
 }
 module.exports = TimeKeeper;
 
 // Sets the GC runs tolerance
 // I.e. how many times over the expected number of GC run can we tolerate.
 // Note this number is increased using the general tolerance percentage give at init.
-TimeKeeper.prototype.setGcTolerance = function (num_runs) {
+TimeKeeper.prototype.set_gc_tolerance = function (num_runs) {
     if (num_runs === undefined) num_runs = 10;
     this.gc_tolerance = num_runs * this.tolerance;
 };
@@ -30,10 +30,10 @@ TimeKeeper.prototype.calibrate = function (expected) {
     for (var i = 1; i <= 2000; i++) {
         var m = {};
         for (var n = 1; n <= 100; n++) {
-            m[n.toS()] = n;
+            m[n.to_s()] = n;
         }
         for (var n = 1; n <= 1000; n++) {
-            m[n.modulo(100).toS()] += 1;
+            m[n.modulo(100).to_s()] += 1;
         }
     }
     var duration = Date.now() - t0;
@@ -58,11 +58,11 @@ TimeKeeper.prototype.stop = function (raise_if_overlimit) {
     if (raise_if_overlimit === undefined) raise_if_overlimit = true;
     this.duration = Date.now() - this.t0;
     this.num_gc = main.GC.count() - this.gc0;
-    console.log(' => ' + this.resultReport());
-    return this.checkLimits(raise_if_overlimit);
+    console.log(' => ' + this.result_report());
+    return this.check_limits(raise_if_overlimit);
 };
 
-TimeKeeper.prototype.resultReport = function () {
+TimeKeeper.prototype.result_report = function () {
     var s = '';
     s += 'Measuring "' + this.task_name + '":';
     s += ' time: ' + main.strFormat('%.02f', this.duration) + 's (expected ' + main.strFormat('%.02f', this.expected_time) + ' hence ' + main.strFormat('%.02f', (this.duration / this.expected_time * 100)) + '%)';
@@ -70,7 +70,7 @@ TimeKeeper.prototype.resultReport = function () {
 };
 
 //private;
-TimeKeeper.prototype.checkLimits = function (raise_if_overlimit) {
+TimeKeeper.prototype.check_limits = function (raise_if_overlimit) {
     if (this.duration > this.expected_time * this.tolerance) {
         var msg1 = 'Duration over limit: ' + this.duration;
         if (raise_if_overlimit) {
