@@ -3,7 +3,6 @@
 
 var main = require('../main');
 var Genes = require('./Genes');
-var Breeder = require('./Breeder');
 //require 'trollop';
 var Logging = require('./Logging');
 var TimeKeeper = require('./TimeKeeper');

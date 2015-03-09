@@ -518,6 +518,7 @@ class RubyToJs
     enterMethod(methName)
     after = ";"
     if methName == "initialize"
+      @dependencies[@class] = false
       proto = "#{cr}/** @class */#{cr}function #{@class}("
       after = "#{cr}module.exports = #{@class};"
       parent = @curClass[:parent]

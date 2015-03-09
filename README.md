@@ -37,3 +37,4 @@ ruby ../babyruby2js.rb --src=. --target=js-out --debug=1 --file=./test1.rb
 - 0 and "" are true in Ruby and false in JS, hence code like if !a.find_index(...) needs work
 - for the reason above, we leave find_index untranslated
 - negative index on arrays does not "loop back" from last item
+- only 1 class exported per file

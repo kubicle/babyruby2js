@@ -4,7 +4,6 @@
 var main = require('../main');
 var Grid = require('./Grid');
 var Stone = require('./Stone');
-var MainServer = require('./MainServer');
 // Exemple of URL to start a new game:
 // http://localhost:8080/newGame?size=9&players=2&ai=1&handicap=5
 // Or a1=0 for 2 human players

@@ -1,7 +1,6 @@
 //Translated from test2.rb using babyruby2js
 'use strict';
 
-var Obj = require('./Obj');
 var m = {};
 //public read-only attribute: hash;
 

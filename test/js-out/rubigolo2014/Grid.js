@@ -2,7 +2,6 @@
 'use strict';
 
 var main = require('../main');
-var Grid = require('./Grid');
 var Stone = require('./Stone');
 var StoneConstants = require('./StoneConstants');
 // A generic grid - a Goban owns a grid

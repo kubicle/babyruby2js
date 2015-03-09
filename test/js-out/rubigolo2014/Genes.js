@@ -1,7 +1,6 @@
 //Translated from genes.rb using babyruby2js
 'use strict';
 
-var Genes = require('./Genes');
 var main = require('../main');
 //require 'yaml';
 Genes.SMALL_MUTATION_AMOUNT = 0.05; // e.g. 0.05 -> plus or minus 5%
