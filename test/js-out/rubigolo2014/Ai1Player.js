@@ -2,8 +2,8 @@
 'use strict';
 
 var inherits = require('util').inherits;
-var Heuristic = require('./Heuristic');
-var main = require('./main');
+var Heuristic = require('ai/Heuristic');
+var main = require('../main');
 var Grid = require('./Grid');
 var Stone = require('./Stone');
 // TODO: 

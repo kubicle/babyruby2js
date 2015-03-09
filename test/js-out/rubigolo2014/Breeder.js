@@ -1,7 +1,7 @@
 //Translated from breeder.rb using babyruby2js
 'use strict';
 
-var main = require('./main');
+var main = require('../main');
 var Genes = require('./Genes');
 var Breeder = require('./Breeder');
 //require 'trollop';

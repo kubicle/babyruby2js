@@ -1,7 +1,7 @@
 //Translated from game_logic.rb using babyruby2js
 'use strict';
 
-var main = require('./main');
+var main = require('../main');
 var Grid = require('./Grid');
 var Stone = require('./Stone');
 var Group = require('./Group');

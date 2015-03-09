@@ -3,7 +3,7 @@
 
 var inherits = require('util').inherits;
 var Grid = require('./Grid');
-var main = require('./main');
+var main = require('../main');
 var Player = require('./Player');
 
 /** @class */

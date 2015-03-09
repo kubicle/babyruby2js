@@ -2,7 +2,7 @@
 'use strict';
 
 var Grid = require('./Grid');
-var main = require('./main');
+var main = require('../main');
 var Stone = require('./Stone');
 var BoardAnalyser = require('./BoardAnalyser');
 

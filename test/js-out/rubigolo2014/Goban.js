@@ -1,7 +1,7 @@
 //Translated from goban.rb using babyruby2js
 'use strict';
 
-var main = require('./main');
+var main = require('../main');
 var StoneConstants = require('./StoneConstants');
 var Grid = require('./Grid');
 var Stone = require('./Stone');

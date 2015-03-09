@@ -1,7 +1,7 @@
 //Translated from logging.rb using babyruby2js
 'use strict';
 
-var main = require('./main');
+var main = require('../main');
 var Logger = require('./Logger');
 // require "logger"
 Logger.ERROR = 3;

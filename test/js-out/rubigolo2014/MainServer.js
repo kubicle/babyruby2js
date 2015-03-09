@@ -1,7 +1,7 @@
 //Translated from main_server.rb using babyruby2js
 'use strict';
 
-var main = require('./main');
+var main = require('../main');
 var Grid = require('./Grid');
 var Stone = require('./Stone');
 var MainServer = require('./MainServer');

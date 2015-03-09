@@ -1,7 +1,7 @@
 //Translated from handicap_setter.rb using babyruby2js
 'use strict';
 
-var main = require('./main');
+var main = require('../main');
 var HandicapSetter = require('./HandicapSetter');
 var Grid = require('./Grid');
 var Stone = require('./Stone');

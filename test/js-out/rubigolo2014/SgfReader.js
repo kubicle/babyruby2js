@@ -1,7 +1,7 @@
 //Translated from sgf_reader.rb using babyruby2js
 'use strict';
 
-var main = require('./main');
+var main = require('../main');
 // Example:
 // (;FF[4]EV[go19.ch.10.4.3]PB[kyy]PW[Olivier Lombart]KM[6.5]SZ[19]
 // SO[http://www.littlegolem.com];B[pd];W[pp];

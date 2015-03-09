@@ -2,7 +2,7 @@
 'use strict';
 
 var Grid = require('./Grid');
-var main = require('./main');
+var main = require('../main');
 var ConsoleGame = require('./ConsoleGame');
 //require 'trollop';
 var Logging = require('./Logging');
