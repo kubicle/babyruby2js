@@ -75,7 +75,7 @@ Group.prototype.to_s = function () {
 // debug dump does not have more to display now that stones are simpler
 // TODO: remove it unless stones get more state data to display
 Group.prototype.debug_dump = function () {
-    return this.to_s();
+    return this.toString();
 };
 
 Group.prototype.stones_dump = function () {

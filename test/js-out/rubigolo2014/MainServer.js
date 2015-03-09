@@ -193,7 +193,7 @@ MainServer.prototype.req_new_move = function (args) {
     } catch (err) {
         // if err.message.start_with?("Invalid move")
         // add_message("Ignored move #{move} (game displayed was maybe not in synch)")
-        this.add_message(err.to_s());
+        this.add_message(err.toString());
     }
 };
 
@@ -327,7 +327,7 @@ MainServer.prototype.web_display = function (goban, ai_played, question) {
     s += 'table {border: 1px solid black;} td {width: 15px;}</style>';
     s += '</head><body><table>';
     for (var j = size; j >= 1; j--) {
-        s += '<tr><th>' + j.to_s() + '</th>';
+        s += '<tr><th>' + j.toString() + '</th>';
         for (var i = 1; i <= size; i++) {
             if (this.have_score) {
                 var color = goban.scoring_grid.yx[j][i];
@@ -336,7 +336,7 @@ MainServer.prototype.web_display = function (goban, ai_played, question) {
             }
             if (color === main.EMPTY) {
                 if (human_move && Stone.valid_move(goban, i, j, this.game.cur_color)) {
-                    s += '<td><a href=\'move?at=' + Grid.x_label(i) + j.to_s() + '\'>+</a></td>';
+                    s += '<td><a href=\'move?at=' + Grid.x_label(i) + j.toString() + '\'>+</a></td>';
                 } else {
                     s += '<td>+</td>'; // empty intersection we cannot play on (ko or suicide)
                 }

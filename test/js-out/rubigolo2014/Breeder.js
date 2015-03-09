@@ -112,7 +112,7 @@ Breeder.prototype.one_tournament = function (num_match_per_ai) {
             if (p2 === p1) {
                 p2 = this.gen_size - 1;
             }
-            var diff = this.play_game(p1.to_s(), p2.to_s(), this.generation[p1], this.generation[p2]);
+            var diff = this.play_game(p1.toString(), p2.toString(), this.generation[p1], this.generation[p2]);
             if (Math.abs(diff) < Breeder.TOO_SMALL_SCORE_DIFF) {
                 diff = 0;
             } else {

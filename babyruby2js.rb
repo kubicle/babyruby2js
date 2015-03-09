@@ -700,11 +700,12 @@ class RubyToJs
     when "last"
       val = exp(arg0)
       return "#{ret}#{val}[#{val}.length-1]"
-    when "strip", "lstrip", "rstrip", "downcase", "upcase", "sort" #, "to_s"
+    when "strip", "lstrip", "rstrip", "downcase", "upcase", "sort"
       equiv = {"strip"=>"trim", "lstrip"=>"trimLeft", "rstrip"=>"trimRight",
-        "upcase"=>"toUpperCase", "downcase"=>"toLowerCase", "sort"=>"sort",
-        "to_s"=>"toString"}
+        "upcase"=>"toUpperCase", "downcase"=>"toLowerCase", "sort"=>"sort"}
       return "#{ret}#{exp(arg0)}.#{equiv[methName]}()"
+    when "to_s"
+      return "#{ret}#{arg0 ? exp(arg0) : 'this'}.toString()"
     when "pop", "shift", "message"
       return "#{ret}#{exp(arg0)}.#{methName}()" if n.children.length==2
     when "split"
