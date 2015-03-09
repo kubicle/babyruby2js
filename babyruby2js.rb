@@ -4,6 +4,7 @@ require 'json'
 require_relative 'associator'
 
 MAIN_CLASS = "main"
+MAIN_CLASS_PATH = "./"
 
 
 class RubyToJs
@@ -17,11 +18,12 @@ class RubyToJs
     @publicMethods = {}
     @stmtDecl = []
     @indent = 0
-    @indentSize = 4 # in spaces
+    @indentSize = @cfg["tabSize"] # in spaces
+    @camelCase = @cfg["camelCase"]
     @exp_comments = ""
     @exp_deco = ""
-    @showWarnings = true
-
+  
+    @rubyFilePath = MAIN_CLASS_PATH
     enterClass(MAIN_CLASS)
     enterMethod("")
   end
@@ -37,6 +39,7 @@ class RubyToJs
       @replacements.merge!(localCfg["replacements"])
       cfg.merge!(localCfg)
     end
+    @cfg = cfg
 
     @srcDir = @options.src ? @options.src : cfg["src"]
     @targetDir = @options.target ? @options.target : cfg["target"]
@@ -49,14 +52,24 @@ class RubyToJs
   end
 
   def translateAll
-    @showWarnings = false
     sources = getFiles(".")
-    2.times do
-      sources.each do |src|
-        translateFile(src)
-      end
-      @showWarnings = true
+    # we "visit" all files once to learn about all classes, then translate them all
+    2.times do |i|
+      sources.each { |src| translateFile(src, i==0) }
     end
+  end
+
+  def translateFile(filename, simple_visit=false)
+    @showWarnings = !simple_visit
+    cname, @rubyFilePath, @rubyFile = parseRubyFilename(filename)
+    jsFile = "#{@targetDir}#{@rubyFilePath}#{cname}.js"
+    createTargetDir(@targetDir+@rubyFilePath)
+    puts "Translating #{@rubyFile} into #{jsFile}..." if !simple_visit
+    srcFile = Parser::Source::Buffer.new(@rubyFile)
+    srcFile.source = File.read(@srcDir+@rubyFilePath+@rubyFile)
+    jsCode = translateSrc(srcFile)
+    File.write(jsFile, jsCode)
+    puts "Completed #{jsFile}" if @options.debug
   end
 
   def getFiles(dir, files=nil)
@@ -73,38 +86,12 @@ class RubyToJs
     return files
   end
 
-  def translateFile(rubyFile)
-    rubyFile += ".rb" if !rubyFile.end_with?(".rb")
-    path, @rubyFile, cname = buildJsFilename(rubyFile)
-    jsFile = "#{@targetDir}#{path}#{cname}.js"
-    createTargetDir(@targetDir+path)
-    puts "Translating #{@rubyFile} into #{jsFile}..."
-    srcFile = Parser::Source::Buffer.new(@rubyFile)
-    srcFile.source = File.read(@srcDir+path+@rubyFile)
-    jsCode = translateSrc(srcFile)
-    File.write(jsFile, jsCode)
-    puts "Completed #{jsFile}" if @options.debug
-  end
-
   def createTargetDir(path)
     root = Dir.pwd
     path.split("/").each do |d|
       root += "/" + d
       Dir.mkdir(root) if !Dir.exists?(root)
     end
-  end
-
-  def buildJsFilename(rubyFile)
-    slash = rubyFile.rindex("/")
-    if slash
-      path = rubyFile[0..slash]
-      mod = rubyFile[slash+1..-1]
-    else
-      path = "./"
-      mod = rubyFile
-    end
-    className = classNameFromFileName(mod)
-    return path, mod, className
   end
 
   def translateSrc(srcFile)
@@ -148,7 +135,10 @@ class RubyToJs
 
   def newClass(name, parent)
     parentName = parent ? constOrClass(parent) : nil
-    return {name: name, parent: parentName, methods: {}, members: {}, constants: {}}
+    return {
+      name: name, parent: parentName, directory: @rubyFilePath,
+      methods: {}, members: {}, constants: {}
+    }
   end
 
   def enterClass(name, parent=nil)
@@ -437,7 +427,7 @@ class RubyToJs
   end
 
   def varName(n)
-    vname = n.children[0].to_s
+    vname = jsName(n.children[0].to_s)
     case vname[0]
     when "@"
       if vname[1] == "@"
@@ -524,7 +514,7 @@ class RubyToJs
     i = 0
     i+=1 if static
     methName = n.children[i].to_s
-    jsMethName = normalizedMethodName(methName)
+    jsMethName = jsName(methName)
     enterMethod(methName)
     after = ";"
     if methName == "initialize"
@@ -606,11 +596,7 @@ class RubyToJs
     if standard
       requ = "//require #{mod}"
     else
-      mod = mod[1..-2] if mod.start_with?("'")
-      slash = mod.rindex("/")
-      path = slash ? mod[0..slash] : "./"
-      mod = slash ? mod[slash+1..-1] : mod
-      className = classNameFromFileName(mod)
+      className, path = parseRubyFilename(mod)
       @dependencies[className] = false # no need to generate again
       requ = "var #{className} = require('#{path}#{className}')"
     end
@@ -625,7 +611,10 @@ class RubyToJs
       if val.is_a?(String)
         requ = "var #{className} = #{val}"
       else
-        requ = "var #{className} = require('./#{className}')" #TODO compute path here instead of "."
+        cl = @classes[className]
+        file = cl ? relative_path(@rubyFilePath, cl[:directory]) : "./"
+        puts "W03: #{@rubyFile}: #{className} unknown class" if @showWarnings and !cl
+        requ = "var #{className} = require('#{file}#{className}')"
       end
       requ = @replacements[requ] if @replacements[requ]
       res += "#{requ};#{cr}" if requ != ""
@@ -633,9 +622,43 @@ class RubyToJs
     return res
   end
 
-  def classNameFromFileName(fname)
-    fname = fname[0..-4] if fname.end_with?(".rb")
-    return fname.split("_").map(){|w| w.capitalize}.join
+  # e.g. "test/","test/ai/" => "./ai/"
+  #   or "test/ai/","test/" => "../"
+  def relative_path(from, to)
+    res = ""
+    f = from.split("/")
+    t = to.split("/")
+    while f.first == "." do f.shift end
+    while t.first == "." do t.shift end
+    while f.first and f.first == t.first do f.shift; t.shift end
+    f.size.times do res << "../" end
+    res << t.join("/") + "/" if t.first
+    return res != "" ? res : "./"
+  end
+
+  # e.g. "./test/test_stone" => ["TestStone", "./test/", "test_stone.rb"]
+  def parseRubyFilename(fname)
+    fname = fname[1..-2] if fname.start_with?("'") or fname.start_with?('"')
+
+    slash = fname.rindex("/")
+    path = slash ? fname[0..slash] : "./"
+    fname = fname[slash+1..-1] if slash
+    fname = fname.chomp(".rb")
+    
+    className = fname.split("_").map{|w| w.capitalize}.join
+    return className, path, fname+".rb"
+  end
+
+  # e.g. "play_at!" => "playAt"
+  def jsName(rubyName)
+    name = rubyName.chomp("?").chomp("!")
+    return name if !@camelCase
+    # NB: we want to "preserve" a leading underscore hence using split("_") is awkward
+    pos = 1
+    while (pos = name.index("_", pos)) do
+      name = name[0..pos-1] + name[pos+1..-1].capitalize
+    end
+    return name
   end
 
   def methodCall(n, mustReturn=false, block=nil)
@@ -677,9 +700,10 @@ class RubyToJs
     when "last"
       val = exp(arg0)
       return "#{ret}#{val}[#{val}.length-1]"
-    when "strip", "lstrip", "rstrip", "downcase", "upcase", "sort"
+    when "strip", "lstrip", "rstrip", "downcase", "upcase", "sort" #, "to_s"
       equiv = {"strip"=>"trim", "lstrip"=>"trimLeft", "rstrip"=>"trimRight",
-        "upcase"=>"toUpperCase", "downcase"=>"toLowerCase", "sort"=>"sort"}
+        "upcase"=>"toUpperCase", "downcase"=>"toLowerCase", "sort"=>"sort",
+        "to_s"=>"toString"}
       return "#{ret}#{exp(arg0)}.#{equiv[methName]}()"
     when "pop", "shift", "message"
       return "#{ret}#{exp(arg0)}.#{methName}()" if n.children.length==2
@@ -742,7 +766,7 @@ class RubyToJs
     when "each" # we get here only if each could not be converted to a for loop earlier
       jsMethName = "forEach"
     else #regular method call
-      jsMethName = normalizedMethodName(methName)
+      jsMethName = jsName(methName)
     end
 
     userMethod = !objAndMeth
@@ -757,22 +781,6 @@ class RubyToJs
       @publicMethods[methName] = true # so we show it only once
     end
     return "#{objAndMeth}(#{params})"
-  end
-
-  def objScope(n, methName)
-    return "#{exp(n)}." if n
-    return "this." if @classMethods[methName] or @classDataMembers[methName]
-    return ""
-  end
-
-  def normalizedMethodName(methName)
-    lastChar = methName[-1,1]
-    case lastChar
-    when "?", "!"
-      return methName.chomp(lastChar)
-    else
-      return methName
-    end
   end
 
   # This decides if we put "()" or not for a method call that could be a data accessor too
@@ -790,6 +798,12 @@ class RubyToJs
       @publicMethods[methName] = true # so we show it only once
     end
     return "()"
+  end
+
+  def objScope(n, methName)
+    return "#{exp(n)}." if n
+    return "this." if @classMethods[methName] or @classDataMembers[methName]
+    return ""
   end
 
 end
