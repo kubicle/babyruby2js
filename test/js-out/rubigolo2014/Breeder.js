@@ -100,7 +100,7 @@ Breeder.prototype.run = function (num_tournaments, num_match_per_ai) {
 // Sadly this costs us a lot: we need to play twice more games to get score data...
 Breeder.prototype.one_tournament = function (num_match_per_ai) {
     if (main.debug_breed) {
-        main.log.debug('One tournament starts for ' + this.generation.size + ' AIs');
+        main.log.debug('One tournament starts for ' + this.generation.length + ' AIs');
     }
     for (var p1 = 1; p1 <= this.gen_size; p1++) {
         this.score_diff[p1] = 0;
@@ -129,7 +129,7 @@ Breeder.prototype.one_tournament = function (num_match_per_ai) {
 
 Breeder.prototype.reproduction = function () {
     if (main.debug_breed) {
-        main.log.debug('=== Reproduction time for ' + this.generation.size + ' AI');
+        main.log.debug('=== Reproduction time for ' + this.generation.length + ' AI');
     }
     this.picked = new main.Array(this.gen_size, 0);
     this.max_score = Math.max.apply(Math,this.score_diff);

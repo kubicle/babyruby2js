@@ -32,7 +32,7 @@ GameLogic.prototype.new_game = function (size, handicap, komi) {
     this.cur_color = main.BLACK;
     this.game_ended = this.game_ending = false;
     this.who_resigned = null;
-    if (!this.goban || (size && size !== this.goban.size() + error_both_var_and_method('size'))) {
+    if (!this.goban || (size && size !== this.goban.length)) {
         this.goban = new Goban(size);
     } else {
         this.goban.clear();
@@ -45,7 +45,7 @@ GameLogic.prototype.new_game = function (size, handicap, komi) {
 // h can be a number or a string
 // string examples: "3" or "3=d4-p16-p4" or "d4-p16-p4"
 GameLogic.prototype.set_handicap = function (h) {
-    if (this.history.size() + error_both_var_and_method('size') > 0) {
+    if (this.history.length > 0) {
         throw new Error('Handicap cannot be changed during a game');
     }
     this.handicap = HandicapSetter.set_handicap(this.goban, h);
@@ -160,12 +160,12 @@ GameLogic.prototype.accept_ending = function (accept) {
 // Returns how many moves have been played so far
 // (can be bigger than the stone count since "pass" or "resign" are also moves)
 GameLogic.prototype.move_number = function () {
-    return this.history.size() + error_both_var_and_method('size');
+    return this.history.length;
 };
 
 // Returns a text representation of the list of moves played so far
 GameLogic.prototype.history_string = function () {
-    return (( this.handicap > 0 ? 'handicap:' + this.handicap + ',' : '' )) + this.history.join(',') + ' (' + this.history.size() + error_both_var_and_method('size') + ' moves)';
+    return (( this.handicap > 0 ? 'handicap:' + this.handicap + ',' : '' )) + this.history.join(',') + ' (' + this.history.length + ' moves)';
 };
 
 // Returns an array with the prisoner count per color
@@ -237,7 +237,7 @@ GameLogic.prototype.store_move_in_history = function (move) {
 
 // undo one full game turn (e.g. one black move and one white)
 GameLogic.prototype.request_undo = function () {
-    if (this.history.size() + error_both_var_and_method('size') < 2) {
+    if (this.history.length < 2) {
         return this.error_msg('Nothing to undo');
     }
     for (var i = 1; i <= 2; i++) {

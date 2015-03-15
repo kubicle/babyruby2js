@@ -16,7 +16,7 @@ Contacts.prototype.clear = function () {
 };
 
 Contacts.prototype.empty = function () {
-    return this.contacts.size() === 0;
+    return this.contacts.length === 0;
 };
 
 Contacts.prototype.push = function (item) {
@@ -32,7 +32,7 @@ Contacts.prototype.each = function (, cb) {
 };
 
 Contacts.prototype.size = function () {
-    return this.contacts.size();
+    return this.contacts.length;
 };
 
 Contacts.prototype.[] = function (ndx) {

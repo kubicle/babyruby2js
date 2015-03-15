@@ -145,7 +145,7 @@ Goban.prototype.empty = function (i, j) {
 };
 
 Goban.prototype.move_number = function () {
-    return this.history.size;
+    return this.history.length;
 };
 
 // Plays a stone and stores it in history

@@ -36,7 +36,7 @@ function Grid(size) {
 module.exports = Grid;
 
 Grid.prototype.copy = function (source_grid) {
-    if (source_grid.size !== this.size) {
+    if (source_grid.length !== this.size) {
         throw new Error('Cannot copy between different sized grids');
     }
     var src_yx = source_grid.yx;
@@ -50,7 +50,7 @@ Grid.prototype.copy = function (source_grid) {
 
 // Converts from goban grid (stones) to simple grid (colors) REVIEWME
 Grid.prototype.convert = function (source_grid) {
-    if (source_grid.size !== this.size) {
+    if (source_grid.length !== this.size) {
         throw new Error('Cannot copy between different sized grids');
     }
     var src_yx = source_grid.yx;
@@ -159,8 +159,8 @@ Grid.prototype.image = function () {
 // So last row (j==size) comes first in image
 Grid.prototype.load_image = function (image) {
     var rows = image.split(/'\"|,'/);
-    if (rows.size !== this.size) {
-        throw new Error('Invalid image: ' + rows.size + ' rows instead of ' + this.size);
+    if (rows.length !== this.size) {
+        throw new Error('Invalid image: ' + rows.length + ' rows instead of ' + this.size);
     }
     for (var j = this.size; j >= 1; j--) {
         var row = rows[this.size - j];

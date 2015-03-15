@@ -32,9 +32,9 @@ module.exports = Void;
 // @eye_color stays nil if there is more than 1 color around (not an eye) or full board empty
 Void.prototype.eye_check = function () {
     var one_color = null;
-    for (var c = 1; c <= this.groups.size; c++) {
+    for (var c = 1; c <= this.groups.length; c++) {
         // is there 1 or more groups of this color?
-        if (this.groups[c].size >= 1) {
+        if (this.groups[c].length >= 1) {
             if (one_color) {
                 one_color = null;
                 break;
@@ -72,15 +72,15 @@ Void.prototype.set_owner = function (color) {
 
 Void.prototype.toString = function () {
     var s = 'void ' + this.code + ' (' + Grid.color_to_char(this.code) + '/' + this.i + ',' + this.j + '), size ' + this.size;
-    for (var color = 1; color <= this.groups.size; color++) {
-        s += ', ' + this.groups[color].size + ' ' + Grid.COLOR_NAMES[color] + ' neighbors';
+    for (var color = 1; color <= this.groups.length; color++) {
+        s += ', ' + this.groups[color].length + ' ' + Grid.COLOR_NAMES[color] + ' neighbors';
     }
     return s;
 };
 
 Void.prototype.debug_dump = function () {
     console.log(this.toString());
-    for (var color = 1; color <= this.groups.size; color++) {
+    for (var color = 1; color <= this.groups.length; color++) {
         console.log('    Color ' + color + ' (' + Grid.color_to_char(color) + '):');
         for (var neighbor, neighbor_array = this.groups[color], neighbor_ndx = 0; neighbor=neighbor_array[neighbor_ndx], neighbor_ndx < neighbor_array.length; neighbor_ndx++) {
             console.log(' #' + neighbor.ndx);
@@ -117,7 +117,7 @@ BoardAnalyser.prototype.count_score = function (goban, grid) {
     this.color_voids();
     for (var v, v_array = this.voids, v_ndx = 0; v=v_array[v_ndx], v_ndx < v_array.length; v_ndx++) {
         if (v.owner) {
-            this.scores[v.owner] += v.size() + error_both_var_and_method('size');
+            this.scores[v.owner] += v.length;
         }
     }
     if (main.debug) {
@@ -139,24 +139,24 @@ BoardAnalyser.prototype.debug_dump = function () {
     if (this.scores) {
         console.log('\nGroups with 2 eyes or more: ');
         for (var g, g_array = this.all_groups, g_ndx = 0; g=g_array[g_ndx], g_ndx < g_array.length; g_ndx++) {
-            if (g.eyes.size() + error_both_var_and_method('size') >= 2) {
+            if (g.eyes.length >= 2) {
                 console.log(g.ndx + ',');
             }
         }
         console.log('\nGroups with 1 eye: ');
         for (var g, g_array = this.all_groups, g_ndx = 0; g=g_array[g_ndx], g_ndx < g_array.length; g_ndx++) {
-            if (g.eyes.size() + error_both_var_and_method('size') === 1) {
+            if (g.eyes.length === 1) {
                 console.log(g.ndx + ',');
             }
         }
         console.log('\nGroups with no eye: ');
         for (var g, g_array = this.all_groups, g_ndx = 0; g=g_array[g_ndx], g_ndx < g_array.length; g_ndx++) {
-            if (g.eyes.size() + error_both_var_and_method('size') === 0) {
+            if (g.eyes.length === 0) {
                 console.log(g.ndx + ',');
             }
         }
         console.log('\nScore:\n');
-        for (var i = 1; i <= this.scores.size() + error_both_var_and_method('size'); i++) {
+        for (var i = 1; i <= this.scores.length; i++) {
             console.log('Player ' + i + ': ' + this.scores[i] + ' points');
         }
     }
@@ -174,8 +174,8 @@ BoardAnalyser.prototype.find_voids = function () {
     this.all_groups.clear();
     this.voids.clear();
     var neighbors = [[], []];
-    for (var j = 1; j <= this.goban.size() + error_both_var_and_method('size'); j++) {
-        for (var i = 1; i <= this.goban.size() + error_both_var_and_method('size'); i++) {
+    for (var j = 1; j <= this.goban.length; j++) {
+        for (var i = 1; i <= this.goban.length; i++) {
             var size;
             if ((size = this.filler.fill_with_color(i, j, main.EMPTY, void_code, neighbors)) > 0) {
                 this.voids.push(new Void(this, void_code, i, j, size, neighbors));
@@ -227,14 +227,14 @@ BoardAnalyser.prototype.find_stronger_owners = function () {
 // Reviews the groups and declare "dead" the ones who do not own any void
 BoardAnalyser.prototype.find_dying_groups = function () {
     for (var g, g_array = this.all_groups, g_ndx = 0; g=g_array[g_ndx], g_ndx < g_array.length; g_ndx++) {
-        if (g.eyes.size() + error_both_var_and_method('size') >= 2) {
+        if (g.eyes.length >= 2) {
             continue;
         }
-        if (g.eyes.size() + error_both_var_and_method('size') === 1 && g.eyes[0].size() + error_both_var_and_method('size') + g.extra_lives >= 3) {
+        if (g.eyes.length === 1 && g.eyes[0].length + g.extra_lives >= 3) {
             continue;
         } // actually not enough if gote but well...
         var color = g.color;
-        if (g.eyes.size() + error_both_var_and_method('size') === 1 && g.eyes[0].groups[color].size() + error_both_var_and_method('size') > 1) {
+        if (g.eyes.length === 1 && g.eyes[0].groups[color].length > 1) {
             continue;
         } // connected by eye
         // we need to look at voids around (fake eyes, etc.)
@@ -248,11 +248,11 @@ BoardAnalyser.prototype.find_dying_groups = function () {
                 if (v.owner === color) {
                     my_void = v;
                     owned_voids += 1;
-                    size += v.size() + error_both_var_and_method('size');
+                    size += v.length;
                 }
             }
         }
-        if (g.eyes.size() + error_both_var_and_method('size') === 1 && owned_voids >= 1) {
+        if (g.eyes.length === 1 && owned_voids >= 1) {
             continue;
         } // TODO: this is too lenient
         if (owned_voids >= 2) {
@@ -261,12 +261,12 @@ BoardAnalyser.prototype.find_dying_groups = function () {
         if (owned_voids === 1 && size + g.extra_lives >= 3) {
             continue;
         }
-        if (owned_voids === 1 && my_void.groups[color].size() + error_both_var_and_method('size') > 1) {
+        if (owned_voids === 1 && my_void.groups[color].length > 1) {
             continue;
         } // TODO: check also lives of ally
         // find if the only void around is owned (e.g. lost stones inside big territory)
         // if we don't know who owns the voids around g, leave g as alive (unfinished game)
-        if (g.voids.size() + error_both_var_and_method('size') !== 0 && !one_owner) {
+        if (g.voids.length !== 0 && !one_owner) {
             continue;
         }
         // g is dead!
@@ -279,7 +279,7 @@ BoardAnalyser.prototype.find_dying_groups = function () {
             main.log.debug('Hence ' + g + ' is considered dead (' + taken + ' prisoners; 1st stone ' + stone + ')');
         }
         if (main.debug) {
-            main.log.debug('eyes:' + g.eyes.size() + error_both_var_and_method('size') + ' owned_voids:' + owned_voids + ' size-voids:' + size);
+            main.log.debug('eyes:' + g.eyes.length + ' owned_voids:' + owned_voids + ' size-voids:' + size);
         }
     }
 };
@@ -299,7 +299,7 @@ BoardAnalyser.prototype.find_dame_voids = function () {
                 }
             }
         }
-        if (alive_colors.size() + error_both_var_and_method('size') >= 2) {
+        if (alive_colors.length >= 2) {
             v.set_owner(null);
             if (main.debug) {
                 main.log.debug('Void ' + v + ' is considered neutral ("dame")');
@@ -325,7 +325,7 @@ BoardAnalyser.prototype.color_voids = function () {
 // NB: for end-game counting, this logic is enough because undetermined situations
 // have usually all been resolved (or this means both players cannot see it...)
 BoardAnalyser.prototype.group_liveliness = function (g) {
-    return g.eyes.size() + error_both_var_and_method('size') + g.voids.count(function (z) {
+    return g.eyes.length + g.voids.count(function (z) {
         return z.owner === g.color;
     });
 };

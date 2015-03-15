@@ -158,7 +158,7 @@ MainServer.prototype.req_accept_score = function (args) {
 // Show prisoner counts during the game  
 MainServer.prototype.req_show_prisoners = function () {
     var prisoners = this.game.prisoners();
-    for (var c = 1; c <= prisoners.size() + error_both_var_and_method('size'); c++) {
+    for (var c = 1; c <= prisoners.length; c++) {
         this.add_message(prisoners[c] + ' ' + Grid.COLOR_NAMES[c] + ' (' + Grid.COLOR_CHARS[c] + ') are prisoners');
     }
     return this.add_message('');
@@ -211,7 +211,7 @@ MainServer.prototype.req_load_moves = function (args) {
 MainServer.prototype.parse_request = function (req_str) {
     // GET /mainMenu?par1=val1 HTTP/1.1
     var reqs = req_str.split();
-    if (reqs.size() + error_both_var_and_method('size') < 3 || reqs[0] !== 'GET' || reqs[2] !== 'HTTP/1.1') {
+    if (reqs.length < 3 || reqs[0] !== 'GET' || reqs[2] !== 'HTTP/1.1') {
         throw new Error('Unsupported request: ' + reqs);
     }
     var full_url = reqs[1];
@@ -315,7 +315,7 @@ MainServer.prototype.web_display = function (goban, ai_played, question) {
     var ending = (!ended && this.game.game_ending);
     var player = this.players[this.game.cur_color];
     var human_move = (!ended && !ending && !player);
-    var size = this.goban.size() + error_both_var_and_method('size');
+    var size = this.goban.length;
     if (ending) {
         this.show_score_info();
     }

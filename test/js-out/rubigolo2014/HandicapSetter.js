@@ -36,7 +36,7 @@ HandicapSetter.set_handicap = function (goban, h) {
         
         Stone.play_at(goban, i, j, main.BLACK);
     }
-    return moves.size() + error_both_var_and_method('size');
+    return moves.length;
 };
 
 // Places the standard (star points) handicap
@@ -46,7 +46,7 @@ HandicapSetter.set_handicap = function (goban, h) {
 HandicapSetter.set_standard_handicap = function (goban, count) {
     // we want middle points only if the board is big enough 
     // and has an odd number of intersections
-    var size = goban.size() + error_both_var_and_method('size');
+    var size = goban.length;
     if ((size < 9 || size.modulo(2) === 0) && count > 4) {
         count = 4;
     }

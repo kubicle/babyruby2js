@@ -9,14 +9,14 @@ var BoardAnalyser = require('./BoardAnalyser');
 /** @class */
 function PotentialTerritory(goban) {
     this.goban = goban;
-    this.size = goban.size;
+    this.size = goban.length;
     this.boan = new BoardAnalyser();
     this.real_grid = this.goban.scoring_grid; // we can reuse the already allocated grid
     this.real_yx = this.real_grid.yx; // simple shortcut to real yx
     // grids below are used in the evaluation process
-    this.grids = [new Grid(goban.size), new Grid(goban.size)];
-    this.reduced_grid = new Grid(goban.size);
-    this.territory = new Grid(goban.size); // result of evaluation
+    this.grids = [new Grid(goban.length), new Grid(goban.length)];
+    this.reduced_grid = new Grid(goban.length);
+    this.territory = new Grid(goban.length); // result of evaluation
 }
 module.exports = PotentialTerritory;
 

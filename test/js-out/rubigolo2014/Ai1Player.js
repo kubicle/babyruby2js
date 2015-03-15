@@ -26,7 +26,7 @@ function Ai1Player(goban, color, genes) {
     main.Player.call(this, false, goban);
     this.inf = new InfluenceMap(this.goban);
     this.ter = new PotentialTerritory(this.goban);
-    this.size = this.goban.size;
+    this.size = this.goban.length;
     this.genes = (( genes ? genes : new Genes() ));
     this.minimum_score = this.get_gene('smaller-move', 0.033, 0.02, 0.066);
     this.heuristics = [];

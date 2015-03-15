@@ -56,7 +56,7 @@ Group.prototype.clear = function () {
 };
 
 Group.prototype.toString = function () {
-    var s = '{group #' + this.ndx + ' of ' + this.stones.size() + error_both_var_and_method('size') + ' ' + Grid.color_name(this.color) + ' stones [';
+    var s = '{group #' + this.ndx + ' of ' + this.stones.length + ' ' + Grid.color_name(this.color) + ' stones [';
     for (var stone, stone_array = this.stones, stone_ndx = 0; stone=stone_array[stone_ndx], stone_ndx < stone_array.length; stone_ndx++) {
         s += stone.as_move() + ',';
     }
@@ -140,7 +140,7 @@ Group.prototype.all_enemies = function () {
         }
     }
     if (main.debug_group) {
-        main.log.debug(this + ' has ' + this.all_enemies.size() + error_both_var_and_method('size') + ' enemies');
+        main.log.debug(this + ' has ' + this.all_enemies.length + ' enemies');
     }
     return this.all_enemies;
 };
@@ -194,7 +194,7 @@ Group.prototype.disconnect_stone = function (stone, on_merge) {
         main.log.debug('Disconnecting ' + stone + ' from group ' + this + ' (on_merge=' + on_merge + ')');
     }
     // groups of 1 stone become empty groups (->garbage)
-    if (this.stones.size() + error_both_var_and_method('size') > 1) {
+    if (this.stones.length > 1) {
         this.lives -= this.lives_added_by_stone(stone);
         if (!on_merge) {
             this.lives += 1;
@@ -331,9 +331,9 @@ Group.resuscitate_from = function (killer_stone, goban) {
 // Returns prisoners grouped by color of dead stones  
 Group.prisoners = function (goban) {
     var prisoners = [0, 0];
-    for (var i = 1; i <= goban.killed_groups.size() + error_both_var_and_method('size') - 1; i++) {
+    for (var i = 1; i <= goban.killed_groups.length - 1; i++) {
         var g = goban.killed_groups[i];
-        prisoners[g.color] += g.stones.size() + error_both_var_and_method('size');
+        prisoners[g.color] += g.stones.length;
     }
     return prisoners;
 };

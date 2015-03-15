@@ -23,13 +23,13 @@ module.exports = TestStone;
 
 TestStone.prototype.how_many_lives = function (i, j) {
     var s = this.goban.stone_at(i, j);
-    var lives_before = s.empties().size() + error_both_var_and_method('size');
+    var lives_before = s.empties().length;
     // we test the play/undo too
     s = Stone.play_at(this.goban, i, j, main.WHITE);
-    var lives = s.empties().size() + error_both_var_and_method('size');
+    var lives = s.empties().length;
     assert_equal(lives_before, lives);
     Stone.undo(this.goban);
-    var lives_after = s.empties().size() + error_both_var_and_method('size');
+    var lives_after = s.empties().length;
     assert_equal(lives_after, lives);
     return lives;
 };
@@ -37,11 +37,11 @@ TestStone.prototype.how_many_lives = function (i, j) {
 // Not very useful anymore for stones
 TestStone.prototype.test_how_many_lives = function () {
     assert_equal(2, this.how_many_lives(1, 1));
-    assert_equal(2, this.how_many_lives(this.goban.size() + error_both_var_and_method('size'), this.goban.size() + error_both_var_and_method('size')));
-    assert_equal(2, this.how_many_lives(1, this.goban.size() + error_both_var_and_method('size')));
-    assert_equal(2, this.how_many_lives(this.goban.size() + error_both_var_and_method('size'), 1));
+    assert_equal(2, this.how_many_lives(this.goban.length, this.goban.length));
+    assert_equal(2, this.how_many_lives(1, this.goban.length));
+    assert_equal(2, this.how_many_lives(this.goban.length, 1));
     assert_equal(4, this.how_many_lives(2, 2));
-    assert_equal(4, this.how_many_lives(this.goban.size() + error_both_var_and_method('size') - 1, this.goban.size() + error_both_var_and_method('size') - 1));
+    assert_equal(4, this.how_many_lives(this.goban.length - 1, this.goban.length - 1));
     var s = Stone.play_at(this.goban, 2, 2, main.BLACK); // we will try white stones around this one
     var g = s.group;
     assert_equal(2, this.how_many_lives(1, 1));

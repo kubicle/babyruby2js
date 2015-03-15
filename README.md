@@ -16,7 +16,7 @@ ruby ../babyruby2js.rb --src=. --target=js-out --debug=1 --file=./test1.rb
 - constants added to main class need to be "required" at least once
 - we could find comments that were not used and dump them too
 - "count" method on Array
-- array.size not translated as "length"
+- standard method names are tranlated without type-check (e.g. size => length)
 - next & return not translated right in callbacks
 - if x = f() changed into if (x = f()) not liked by JSHint; but if (x=f()) is OK
 - s << str is replaced by s += str (with error if s is a parameter)
@@ -33,7 +33,6 @@ ruby ../babyruby2js.rb --src=. --target=js-out --debug=1 --file=./test1.rb
 - iterators returned by each, upto, step, etc.
 - in "case" (switch) a break is generated even if last stmt is return or throw (JSHint complains)
 - map[:key] => map['key'] instead of map.key (JSHint complains)
-- .size() called on arrays is not changed into .length
 - 0 and "" are true in Ruby and false in JS, hence code like if !a.find_index(...) needs work
 - for the reason above, we leave find_index untranslated
 - negative index on arrays does not "loop back" from last item

@@ -148,7 +148,7 @@ Stone.prototype.move_is_ko = function (color) {
         return false;
     }
     // This killed group must be a single stone A
-    if (group_a.stones.size() + error_both_var_and_method('size') !== 1) {
+    if (group_a.stones.length !== 1) {
         return false;
     }
     var stone_a = group_a.stones[0];
@@ -161,7 +161,7 @@ Stone.prototype.move_is_ko = function (color) {
     if (group_b.killed_by !== stone_a) {
         return false;
     }
-    if (group_b.stones.size() + error_both_var_and_method('size') !== 1) {
+    if (group_b.stones.length !== 1) {
         return false;
     }
     var stone_b = group_b.stones[0];
@@ -252,7 +252,7 @@ Stone.prototype.put_down = function (color) {
         main.log.debug('put_down: ' + this.toString());
     }
     var allies = this.unique_allies(color); // note we would not need unique if group#merge ignores dupes
-    if (allies.size() + error_both_var_and_method('size') === 0) {
+    if (allies.length === 0) {
         var lives = 0;
         for (var s, s_array = this.neighbors, s_ndx = 0; s=s_array[s_ndx], s_ndx < s_array.length; s_ndx++) {
             if (s.color === main.EMPTY) {
@@ -268,7 +268,7 @@ Stone.prototype.put_down = function (color) {
     for (var g, g_array = this.unique_enemies(color), g_ndx = 0; g=g_array[g_ndx], g_ndx < g_array.length; g_ndx++) {
         g.attacked_by(this);
     }
-    for (var a = 1; a <= allies.size() + error_both_var_and_method('size') - 1; a++) {
+    for (var a = 1; a <= allies.length - 1; a++) {
         this.group.merge(allies[a], this);
     } // update_around_on_new
 };

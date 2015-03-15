@@ -131,7 +131,7 @@ TestSpeed.prototype.moves_ij = function (game) {
 TestSpeed.prototype.play_moves = function (moves_ij) {
     var move_count = 0;
     var cur_color = main.BLACK;
-    for (var n = 0; n <= moves_ij.size() + error_both_var_and_method('size') - 2; n += 2) {
+    for (var n = 0; n <= moves_ij.length - 2; n += 2) {
         var i = moves_ij[n];
         var j = moves_ij[n + 1];
         if (!Stone.valid_move(this.goban, i, j, cur_color)) {
@@ -145,7 +145,7 @@ TestSpeed.prototype.play_moves = function (moves_ij) {
 };
 
 TestSpeed.prototype.play_game_and_clean = function (moves_ij, clean_mode) {
-    var num_moves = moves_ij.size() + error_both_var_and_method('size') / 2;
+    var num_moves = moves_ij.length / 2;
     if (main.debug) {
         main.log.debug('About to play a game of ' + num_moves + ' moves');
     }

@@ -705,10 +705,13 @@ class RubyToJs
     when "last"
       val = exp(arg0)
       return "#{ret}#{val}[#{val}.length-1]"
+    #TODO: gather standard methods so we can add checks and warnings if name used in user code
     when "strip", "lstrip", "rstrip", "downcase", "upcase", "sort"
-      equiv = {"strip"=>"trim", "lstrip"=>"trimLeft", "rstrip"=>"trimRight",
-        "upcase"=>"toUpperCase", "downcase"=>"toLowerCase", "sort"=>"sort"}
-      return "#{ret}#{exp(arg0)}.#{equiv[methName]}()"
+      equiv = { "strip"=>"trim", "lstrip"=>"trimLeft", "rstrip"=>"trimRight",
+        "upcase"=>"toUpperCase", "downcase"=>"toLowerCase", "sort"=>"sort" }
+      return "#{ret}#{exp(arg0)}.#{equiv[methName]}()" if n.children.length==2 #NO PARAM
+    when "size"
+      return "#{ret}#{exp(arg0)}.length" if n.children.length==2 #NO PARAM
     when "to_s"
       return "#{ret}#{arg0 ? exp(arg0) : 'this'}.toString()"
     when "pop", "shift", "message"
