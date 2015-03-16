@@ -93,7 +93,8 @@ module Parser
 
       # #associate is broken for nodes which have the same content.
       # e.g. 2 identical lines in the code will see their comments "merged".
-      # Using #associate_locations prevents this.
+      # Using #associate_locations prevents this. The returned hash uses
+      # node.location as a key to retrieve the comments for this node.
       def associate_locations
         @map_using_node = false
         return associate
@@ -102,16 +103,11 @@ module Parser
       private
 
       def process(prev_node, node)
-    #    puts "\nprocess:"
-    #    p (prev_node ? prev_node.location.line : "")
-    #    p prev_node, node.location.line, node
-
         if node.type != :begin
           while current_comment_between?(prev_node, node)
             associate_and_advance_comment(prev_node, node)
           end
           if current_comment_decorates?(node)
-#            p "", "decoration:", node, @current_comment
             associate_and_advance_comment(node, nil)
           end
         end
@@ -123,7 +119,6 @@ module Parser
               prev_node = child
             end
           end
-        #  p "", "prev_node:", prev_node, prev_node.location if prev_node
           while current_comment_at_end?(node, nil)
             associate_and_advance_comment(prev_node, nil)
           end
@@ -133,11 +128,6 @@ module Parser
       def advance_comment
         @comment_num += 1
         @current_comment = @comments[@comment_num]
-        # if @current_comment
-        #   p @comment_num, @current_comment, @current_comment.location
-        # else
-        #   p "REACHED LAST COMMENT"
-        # end
       end
 
       def current_comment_between?(prev_node, next_node)
@@ -163,8 +153,6 @@ module Parser
       def current_comment_at_end?(parent, last_node)
         return false if !@current_comment
         comment_loc = @current_comment.location.expression
-        #last_loc = last_node.location.expression
-        #return false if comment_loc.end_pos >= last_loc.end_pos
         parent_loc = parent.location.expression
         return comment_loc.end_pos <= parent_loc.end_pos
       end
