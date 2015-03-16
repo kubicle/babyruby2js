@@ -723,7 +723,7 @@ class RubyToJs
       return "#{ret}#{exp(arg0)}.#{methName}()" if n.children.length==2
       return "#{ret}#{exp(arg0)}.#{methName}(#{exp(n.children[2])})" if n.children.length==3
     when "%" #(send (str "%2d") :% (lvar :j))
-      return "#{ret}#{mainClass}.strFormat(#{exp(arg0)}, #{exp(n.children[2])})" if arg0.type==:str
+      return "#{ret}#{exp(arg0)}.format(#{exp(n.children[2])})" if arg0.type==:str
       return "#{ret}#{exp(arg0)} % #{exp(n.children[2])}" # % operator (modulo) on numbers
     when "chr"
       return "#{ret}String.fromCharCode(#{exp(arg0)})"
