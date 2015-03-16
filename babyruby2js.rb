@@ -98,7 +98,7 @@ class RubyToJs
     # Parse the source and comments
     ast, comments = Parser::CurrentRuby.new.parse_with_comments(srcFile)
     associator = Parser::Source::Comment::Associator.new(ast, comments)
-    @commentMap, @decorative_comment = associator.associate
+    @commentMap = associator.associate_locations
 
     @_doneComments = 0
 
@@ -106,7 +106,7 @@ class RubyToJs
       puts "#{@rubyFile}:"
       p ast
       puts "\ncomments:"
-      p @commentMap, @decorative_comment
+      p @commentMap
       puts "\n"
     end
     
@@ -184,13 +184,13 @@ class RubyToJs
   # Returns comments of a node, ready for JavaScript format
   # (a paragraph of heading comments, and a line of decorative comments)
   def getComments(n)
-    comments = @commentMap[n.location] # used to be comments = @commentMap[n]
+    comments = @commentMap[n.location]
     paragraph = ""
     deco = ""
     comments.each do |c|
       txt = c.text[1..-1]
-      txt = txt[1..-1] if txt[0]==" "
-      if @decorative_comment[c]
+      txt = txt[1..-1] if txt[0] == " "
+      if c.location.line >= n.location.line
         deco << " // #{txt}"
       else
         paragraph << "// #{txt}#{cr}"
