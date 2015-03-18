@@ -25,10 +25,6 @@ class Logger
   def debug(msg)
     puts msg
   end
-
-  def test(a,b,c)
-    a.methA(a+b, 33)
-  end
 end
 
 $log = Logger.new(STDOUT)
