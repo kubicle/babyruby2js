@@ -99,26 +99,20 @@ class RubyToJs
     ast, comments = Parser::CurrentRuby.new.parse_with_comments(srcFile)
     associator = Parser::Source::Comment::Associator.new(ast, comments)
     @commentMap = associator.associate_locations
-
-    @_doneComments = 0
+    @usedComments = {}
 
     if @options.debug
       puts "#{@rubyFile}:"
-      p ast
-      puts "\ncomments:"
-      p @commentMap
-      puts "\n"
+      p ast, ""
     end
     
     @dependencies = {}
     code = stmt(ast)
 
-    #debug
-    if @_doneComments!=comments.length
-      p @_doneComments.to_s + "/" + comments.length.to_s
-      p "map:"
-      @commentMap.each do |k,c|
-        p k, (c.length>0 ? c[0].text : '[]')
+    if @showWarnings and comments.length != @usedComments.length
+      comments.each do |c|
+        next if @usedComments[c.location]
+        puts "W04: #{@rubyFile}: lost comment: #{c.text}"
       end
     end
 
@@ -195,7 +189,7 @@ class RubyToJs
       else
         paragraph << "// #{txt}#{cr}"
       end
-      @_doneComments += 1
+      @usedComments[c.location] = true
     end
     return paragraph, deco
   end

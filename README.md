@@ -14,8 +14,6 @@ ruby ../babyruby2js.rb --src=. --target=js-out --debug=1 --file=./test1.rb
 - generated "require" need review
 - class constants need to be moved *after* the constructor
 - constants added to main class need to be "required" at least once
-- we could find comments that were not used and dump them too
-- "count" method on Array
 - standard method names are tranlated without type-check (e.g. size => length)
 - next & return not translated right in callbacks
 - if x = f() changed into if (x = f()) not liked by JSHint; but if (x=f()) is OK
