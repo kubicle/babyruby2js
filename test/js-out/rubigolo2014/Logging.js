@@ -28,10 +28,6 @@ Logger.prototype.debug = function (msg) {
     console.log(msg);
 };
 
-Logger.prototype.test = function (a, b, c) {
-    return a.methA(a + b, 33);
-};
-
 main.log = new Logger(main.STDOUT);
 // change $log.level to Logger::DEBUG, etc. as you need
 main.log.level=(Logger.DEBUG);
