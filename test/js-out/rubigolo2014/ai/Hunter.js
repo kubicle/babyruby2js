@@ -145,8 +145,8 @@ Hunter.prototype.escaping_atari_is_caught = function (stone, level) {
     if (empties.length !== 2) {
         throw new Error('Unexpected: hunter #2');
     }
-    var e1 = empties[0]; // need to keep the empties ref since all_lives returns volatile content
-    var e2 = empties[1];
+    var e1 = empties[0];
+    var e2 = empties[1]; // need to keep the empties ref since all_lives returns volatile content
     //  recursive descent
     if (main.debug) {
         main.log.debug('Enemy has 2 lives left: ' + e1 + ' and ' + e2);
