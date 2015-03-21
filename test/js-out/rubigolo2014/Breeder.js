@@ -87,13 +87,13 @@ Breeder.prototype.play_game = function (name1, name2, p1, p2) {
 };
 
 Breeder.prototype.run = function (num_tournaments, num_match_per_ai) {
-    for (var i = 1; i <= num_tournaments; i++) {
+    for (var i = 1; i <= num_tournaments; i++) { // TODO: Find a way to appreciate the progress
         this.timer.start('Breeding tournament ' + i + 1 + '/' + num_tournaments + ': each of ' + this.gen_size + ' AIs plays ' + num_match_per_ai + ' games', 5.5, 36);
         this.one_tournament(num_match_per_ai);
         this.timer.stop(false);
         this.reproduction();
         this.control();
-    } // TODO: Find a way to appreciate the progress
+    }
 };
 
 // NB: we only update score for black so komi unbalance does not matter.
