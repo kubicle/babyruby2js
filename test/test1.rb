@@ -3,6 +3,10 @@
 
 class TestStone
 
+def f1(a) # f1 decoring comment
+  return a[1...4] + a[-1..-4]
+end
+
 #bug2.1
 def myfunc()
   a=1 # first time

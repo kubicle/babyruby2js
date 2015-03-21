@@ -92,7 +92,7 @@ GameLogic.prototype.play_one_move = function (move) {
     } else if (move.start_with('hand')) {
         return this.set_handicap(move.split(':')[1]);
     } else if (move.start_with('load:')) {
-        return this.load_moves(main.newRange(move, 5, -1));
+        return this.load_moves(move.range(5, -1));
     } else if (move.start_with('log')) {
         return this.set_log_level(move.split(':')[1]);
     } else {

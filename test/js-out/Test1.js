@@ -2,6 +2,10 @@
 'use strict';
 
 // comm1
+TestStone.prototype.f1 = function (a) { // f1 decoring comment
+    return a.slice(1, 4) + a.range(-1, -4);
+};
+
 // bug2.1
 TestStone.prototype.myfunc = function () {
     var a = 1; // first time
