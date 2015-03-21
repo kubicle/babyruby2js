@@ -7,13 +7,13 @@ TestStone.prototype.f1 = function (a) { // f1 decoring comment
 };
 
 // bug2.1
-TestStone.prototype.myfunc = function () {
+TestStone.prototype.test2 = function () {
     var a = 1; // first time
     // call f1
     f1();
     var b = 2; // second time
-    f3(a, b, c()); // param a
-     // param b // param c
+    f3(a, b, c()); // param a // param b
+    // param c
     // call f2
     return f1(); // bug1.1 // bug1.2
 };
