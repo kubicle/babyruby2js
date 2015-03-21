@@ -74,10 +74,10 @@ Ai1Player.prototype.get_gene = function (name, def_val, low_limit, high_limit) {
 Ai1Player.prototype.get_move = function () {
     // @timer.start("AI move",0.5,3)
     this.num_moves += 1;
-    if (this.num_moves >= this.size * this.size) {
+    if (this.num_moves >= this.size * this.size) { // force pass after too many moves
         main.log.error('Forcing AI pass since we already played ' + this.num_moves);
         return 'pass';
-    } // force pass after too many moves
+    }
     this.prepare_eval();
     var best_score, second_best;
     best_score = second_best = this.minimum_score;

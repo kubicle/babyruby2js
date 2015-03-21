@@ -35,7 +35,7 @@ Void.prototype.eye_check = function () {
     for (var c = 1; c <= this.groups.length; c++) {
         // is there 1 or more groups of this color?
         if (this.groups[c].length >= 1) {
-            if (one_color) {
+            if (one_color) { // we already had groups in another color
                 one_color = null;
                 break;
             } // we already had groups in another color

@@ -20,9 +20,9 @@ HandicapSetter.set_handicap = function (goban, h) {
             h = parseInt(h, 10);
         }
     }
-    if (h.is_a(main.Fixnum)) {
+    if (h.is_a(main.Fixnum)) { // e.g. 3
         return HandicapSetter.set_standard_handicap(goban, h);
-    } // e.g. 3
+    }
     // Could be standard or not but we are given the stones so use them   
     if (eq) {
         h = main.newRange(h, eq + 1, -1);

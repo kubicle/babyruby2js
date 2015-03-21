@@ -75,10 +75,10 @@ Grid.color_to_char = function (color) {
 };
 
 // Returns the name of the color/player (e.g. "black")
-Grid.color_name = function (color) {
+Grid.color_name = function (color) { // TODO remove me or?
     return Grid.COLOR_NAMES[color];
 };
- // TODO remove me or?
+
 Grid.char_to_color = function (char) {
     return Grid.CIRCULAR_COLOR_CHARS.index(char) + Grid.DAME_COLOR;
 };
@@ -144,7 +144,7 @@ Grid.prototype.toString = function () {
 // Image is upside-down to help compare with a copy paste from console log.
 // So last row (j==size) comes first in image
 Grid.prototype.image = function () {
-    if (this.yx[1][1].instance_of(Stone)) {
+    if (this.yx[1][1].instance_of(Stone)) { // FIXME
         return this.to_text(false, ',', function (s) {
             return Grid.color_to_char(s.color);
         }).chop();
@@ -152,7 +152,7 @@ Grid.prototype.image = function () {
         return this.to_text(false, ',', function (c) {
             return Grid.color_to_char(c);
         }).chop();
-    } // FIXME
+    }
 };
 
 // Watch out our images are upside-down on purpose (to help copy paste from screen)

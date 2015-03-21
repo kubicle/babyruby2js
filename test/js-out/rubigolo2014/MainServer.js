@@ -61,11 +61,11 @@ MainServer.prototype.get_session_and_request = function () {
     } catch (err) {
         if (err.constructor.name === 'Errno::EWOULDBLOCK' || err.constructor.name === 'Errno::EAGAIN') {
             main.log.debug('Closing and reopening the session...'); // see comment above about IE
-        } else if (err.constructor.name === 'Errno::ECONNRESET' || err.message() === 'Connection dropped') {
+        } else if (err.constructor.name === 'Errno::ECONNRESET' || err.message() === 'Connection dropped') { // connection dropped or closed by the remote host
             main.log.info('Connection dropped or timed-out; we will create a new session (no issue)');
         } else {
             main.log.error('Unexpected error: ' + err.constructor + ', msg:' + err.message());
-        } // connection dropped or closed by the remote host
+        }
         this.close_session();
         error_unhandled_exp('(retry ...)');
     }

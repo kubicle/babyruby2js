@@ -79,12 +79,12 @@ ConsoleGame.prototype.play_move_or_cmd = function (move) {
         console.log(this.game.history_string());
     } else if (move === 'dbg') {
         return this.goban.debug_display();
-    } else if (move === 'help') {
+    } else if (move === 'help') { // this help is for console only
         console.log('Move (e.g. b3) or pass, undo, resign, history, dbg, log:(level)=(1/0), load:(moves), continue:(times)');
         console.log('Four letter abbreviations are accepted, e.g. "hist" is valid to mean "history"');
     } else {
         return this.game.play_one_move(move);
-    } // this help is for console only
+    }
 };
 
 ConsoleGame.prototype.play_game = function () {
