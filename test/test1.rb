@@ -3,7 +3,16 @@
 
 class TestStone
 
-def test1(a) # f1 decoring comment
+def testDeco1
+  if true
+    p "hi"
+    raise 0 if x<0 # deco on trailing if
+  else
+    p "hi"
+  end
+end
+
+def test1(a) # test1 decoring comment
   a.each do |n| # block arg n comment
     p a[1...4] + a[-1..-4]
   end
