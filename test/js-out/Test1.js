@@ -17,8 +17,7 @@ TestStone.prototype.test2 = function () {
     // call f1
     f1();
     var b = 2; // second time
-    f3(a, b, c()); // param a // param b
-    // param c
+    f3(a, b, c()); // param a // param b // param c
     // call f2
     return f1(); // bug1.1 // bug1.2
 };
