@@ -25,9 +25,9 @@ Hunter.prototype.eval_move = function (i, j, level) {
     eg1 = eg2 = eg3 = null;
     var snapback = false;
     for (var eg, eg_array = stone.unique_enemies(this.color), eg_ndx = 0; eg=eg_array[eg_ndx], eg_ndx < eg_array.length; eg_ndx++) {
-        if (eg.lives !== 2) {
+        if (eg.lives !== 2) { // NB if 1 this is a case for Executioner
             continue;
-        } // NB if 1 this is a case for Executioner
+        }
         // if even a single of our groups around is in atari this will not work (enemy will kill our group and escape)
         if (1 === eg.all_enemies().forEach(function (ag) {
             if (ag.lives < 2) {
@@ -145,8 +145,8 @@ Hunter.prototype.escaping_atari_is_caught = function (stone, level) {
     if (empties.length !== 2) {
         throw new Error('Unexpected: hunter #2');
     }
-    var e1 = empties[0];
-    var e2 = empties[1]; // need to keep the empties ref since all_lives returns volatile content
+    var e1 = empties[0]; // need to keep the empties ref since all_lives returns volatile content
+    var e2 = empties[1];
     //  recursive descent
     if (main.debug) {
         main.log.debug('Enemy has 2 lives left: ' + e1 + ' and ' + e2);

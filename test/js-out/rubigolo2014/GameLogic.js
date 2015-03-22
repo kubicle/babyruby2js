@@ -241,9 +241,9 @@ GameLogic.prototype.request_undo = function () {
         return this.error_msg('Nothing to undo');
     }
     for (var i = 1; i <= 2; i++) {
-        if (!this.history[this.history.length-1].end_with('pass')) {
+        if (!this.history[this.history.length-1].end_with('pass')) { // no stone to remove for a pass
             Stone.undo(this.goban);
-        } // no stone to remove for a pass
+        }
         this.history.pop();
     }
     this.num_pass = 0;
@@ -254,9 +254,9 @@ GameLogic.prototype.request_undo = function () {
 // Returns the game unchanged if it is not an SGF one.
 // Returns an empty move list if nothing should be played (a game is pending).
 GameLogic.prototype.sgf_to_game = function (game) {
-    if (!game.start_with('(;FF')) {
+    if (!game.start_with('(;FF')) { // are they are always the 1st characters?
         return game;
-    } // are they are always the 1st characters?
+    }
     var reader = new SgfReader(game);
     this.new_game(reader.board_size, reader.handicap);
     this.komi = reader.komi;

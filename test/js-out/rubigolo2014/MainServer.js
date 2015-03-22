@@ -121,9 +121,9 @@ MainServer.prototype.let_ai_play = function () {
         return null;
     }
     var player = this.players[this.game.cur_color];
-    if (!player) {
+    if (!player) { // human
         return null;
-    } // human
+    }
     var move = player.get_move();
     this.game.play_one_move(move);
     return move;

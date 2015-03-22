@@ -26,12 +26,12 @@ Connector.prototype.eval_move = function (i, j) {
     var num_enemies = enemies.length;
     var allies = stone.unique_allies(this.color);
     var num_allies = allies.length;
-    if (num_allies < 2) {
+    if (num_allies < 2) { // nothing to connect here
         return 0;
-    } // nothing to connect here
-    if (num_allies === 3 && num_enemies === 0) {
+    }
+    if (num_allies === 3 && num_enemies === 0) { // in this case we never want to connect unless enemy comes by
         return 0;
-    } // in this case we never want to connect unless enemy comes by
+    }
     if (num_allies === 4) {
         return 0;
     }

@@ -51,14 +51,14 @@ Savior.prototype.eval_escape = function (i, j, stone) {
             threat += new_threat;
         }
     }
-    if (threat === 0) {
+    if (threat === 0) { // no threat
         return 0;
-    } // no threat
+    }
     lives_added += stone.num_empties();
     // $log.debug("Savior looking at #{i},#{j}: threat is #{threat}, lives_added is #{lives_added}") if $debug
-    if (lives_added < 2) {
+    if (lives_added < 2) { // nothing we can do here
         return 0;
-    } // nothing we can do here
+    }
     if (lives_added === 2) {
         // when we get 2 lives from the new stone, get our "consultant hunter" to evaluate if we can escape
         if (main.debug) {

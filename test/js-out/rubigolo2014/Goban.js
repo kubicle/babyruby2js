@@ -133,9 +133,9 @@ Goban.prototype.stone_at = function (i, j) {
 
 Goban.prototype.color = function (i, j) {
     var stone = this.ban[j][i];
-    if (stone) {
+    if (stone) { // works because BORDER == nil
         return stone.color;
-    } // works because BORDER == nil
+    }
     return main.BORDER;
 };
 

@@ -45,9 +45,9 @@ Spacer.prototype.eval_move = function (i, j) {
     // remove points only if we fill up our own territory
     var ter = this.ter.potential().yx;
     var fill_own_ter = ( this.color === main.BLACK ? ter[j][i] : -ter[j][i] );
-    if (fill_own_ter > 0) {
+    if (fill_own_ter > 0) { // filling up enemy's space is not looked at here
         fill_own_ter = 0;
-    } // filling up enemy's space is not looked at here
+    }
     if (main.debug && fill_own_ter !== 0) {
         main.log.debug('Spacer sees potential territory score ' + fill_own_ter + ' in ' + i + ',' + j);
     }

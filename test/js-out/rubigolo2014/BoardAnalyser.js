@@ -214,13 +214,13 @@ BoardAnalyser.prototype.find_stronger_owners = function () {
         var more_lives = Math.max.apply(Math,lives);
         if (lives.count(function (l) {
             return l === more_lives;
-        }) === 1) {
+        }) === 1) { // make sure we have a winner, not a tie
             var c = lives.find_index(more_lives);
             v.set_owner(c);
             if (main.debug) {
                 main.log.debug('It looks like color ' + c + ', with ' + more_lives + ' lives, owns ' + v + ' (this might change once we identify dead groups)');
             }
-        } // make sure we have a winner, not a tie
+        }
     }
 };
 
@@ -230,13 +230,13 @@ BoardAnalyser.prototype.find_dying_groups = function () {
         if (g.eyes.length >= 2) {
             continue;
         }
-        if (g.eyes.length === 1 && g.eyes[0].length + g.extra_lives >= 3) {
+        if (g.eyes.length === 1 && g.eyes[0].length + g.extra_lives >= 3) { // actually not enough if gote but well...
             continue;
-        } // actually not enough if gote but well...
+        }
         var color = g.color;
-        if (g.eyes.length === 1 && g.eyes[0].groups[color].length > 1) {
+        if (g.eyes.length === 1 && g.eyes[0].groups[color].length > 1) { // connected by eye
             continue;
-        } // connected by eye
+        }
         // we need to look at voids around (fake eyes, etc.)
         var owned_voids, size;
         owned_voids = size = 0;
@@ -252,18 +252,18 @@ BoardAnalyser.prototype.find_dying_groups = function () {
                 }
             }
         }
-        if (g.eyes.length === 1 && owned_voids >= 1) {
+        if (g.eyes.length === 1 && owned_voids >= 1) { // TODO: this is too lenient
             continue;
-        } // TODO: this is too lenient
-        if (owned_voids >= 2) {
+        }
+        if (owned_voids >= 2) { // TODO later: here is the horror we read about on the web
             continue;
-        } // TODO later: here is the horror we read about on the web
+        }
         if (owned_voids === 1 && size + g.extra_lives >= 3) {
             continue;
         }
-        if (owned_voids === 1 && my_void.groups[color].length > 1) {
+        if (owned_voids === 1 && my_void.groups[color].length > 1) { // TODO: check also lives of ally
             continue;
-        } // TODO: check also lives of ally
+        }
         // find if the only void around is owned (e.g. lost stones inside big territory)
         // if we don't know who owns the voids around g, leave g as alive (unfinished game)
         if (g.voids.length !== 0 && !one_owner) {
