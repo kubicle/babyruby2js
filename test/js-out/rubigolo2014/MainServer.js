@@ -93,8 +93,8 @@ MainServer.prototype.close_session = function () {
 MainServer.prototype.send_response = function (reply) {
     var header = this.response_header(reply);
     try {
-        console.log(header);
-        console.log(reply); // can throw Broken pipe (Errno::EPIPE)
+        this.session.print(header);
+        this.session.print(reply); // can throw Broken pipe (Errno::EPIPE)
         if (!this.keep_alive) {
             this.close_session();
         }
