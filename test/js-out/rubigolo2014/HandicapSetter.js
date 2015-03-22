@@ -24,9 +24,9 @@ HandicapSetter.set_handicap = function (goban, h) {
         return HandicapSetter.set_standard_handicap(goban, h);
     }
     // Could be standard or not but we are given the stones so use them   
-    if (eq) {
+    if (eq) { // "3=d4-p16-p4" would become "d4-p16-p4"
         h = h.range(eq + 1, -1);
-    } // "3=d4-p16-p4" would become "d4-p16-p4"
+    }
     var moves = h.split('-');
     for (var move, move_array = moves, move_ndx = 0; move=move_array[move_ndx], move_ndx < move_array.length; move_ndx++) {
         var i, j;

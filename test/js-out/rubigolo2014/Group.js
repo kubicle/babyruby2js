@@ -175,12 +175,12 @@ Group.prototype.connect_stone = function (stone, on_merge) {
     }
     this.stones.push(stone);
     this.lives += this.lives_added_by_stone(stone);
-    if (!on_merge) {
+    if (!on_merge) { // minus one since the connection itself removes 1
         this.lives -= 1;
-    } // minus one since the connection itself removes 1
-    if (this.lives < 0) {
+    }
+    if (this.lives < 0) { // can be 0 if suicide-kill
         throw new Error('Unexpected error (lives<0 on connect)');
-    } // can be 0 if suicide-kill
+    }
     if (main.debug_group) {
         return main.log.debug('Final group: ' + this);
     }
@@ -196,12 +196,12 @@ Group.prototype.disconnect_stone = function (stone, on_merge) {
     // groups of 1 stone become empty groups (->garbage)
     if (this.stones.length > 1) {
         this.lives -= this.lives_added_by_stone(stone);
-        if (!on_merge) {
+        if (!on_merge) { // see comment in connect_stone
             this.lives += 1;
-        } // see comment in connect_stone
-        if (this.lives < 0) {
+        }
+        if (this.lives < 0) { // can be 0 if suicide-kill
             throw new Error('Unexpected error (lives<0 on disconnect)');
-        } // can be 0 if suicide-kill
+        }
     } else {
         this.goban.garbage_groups.push(this);
         if (main.debug_group) {
@@ -217,9 +217,9 @@ Group.prototype.disconnect_stone = function (stone, on_merge) {
 // When a new stone appears next to this group
 Group.prototype.attacked_by = function (stone) {
     this.lives -= 1;
-    if (this.lives <= 0) {
+    if (this.lives <= 0) { // also check <0 so we can raise in die_from method
         return this.die_from(stone);
-    } // also check <0 so we can raise in die_from method
+    }
 };
 
 // When a group of stones reappears because we undo
