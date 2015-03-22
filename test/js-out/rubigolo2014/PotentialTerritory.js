@@ -128,13 +128,13 @@ PotentialTerritory.prototype.reduce = function (grid) {
     var yx = grid.yx;
     for (var j = 1; j <= this.size; j++) {
         for (var i = 1; i <= this.size; i++) {
-            if (this.real_yx[j][i] !== main.EMPTY) {
+            if (this.real_yx[j][i] !== main.EMPTY) { // cannot reduce a real stone
                 continue;
-            } // cannot reduce a real stone
+            }
             var color = yx[j][i];
-            if (color === main.EMPTY) {
+            if (color === main.EMPTY) { // we did not enlarge here, no need to reduce
                 continue;
-            } // we did not enlarge here, no need to reduce
+            }
             var enemies = this.in_contact(yx, i, j, 1 - color);
             // we can safely reduce if no enemy was around at the end of the enlarging steps
             if (enemies === 0) {
@@ -149,9 +149,9 @@ PotentialTerritory.prototype.reduce = function (grid) {
 PotentialTerritory.prototype.enlarge_at = function (in_yx, out_yx, i, j, first, second) {
     var ss = this.in_contact(in_yx, i, j, first);
     if (ss > 0) {
-        if (ss >= 3) {
+        if (ss >= 3) { // if 3 or 4 no need to fill the void
             return;
-        } // if 3 or 4 no need to fill the void
+        }
     } else if (!this.diagonal_move_ok(in_yx, i, j, first, second)) {
         return;
     }

@@ -43,9 +43,9 @@ ZoneFiller.prototype.fill_with_color = function (start_i, start_j, to_replace, c
         j0 = _m[1];
         j1 = _m[2];
         
-        if (this.yx[j0][i] !== to_replace) {
+        if (this.yx[j0][i] !== to_replace) { // gap already done by another path
             continue;
-        } // gap already done by another path
+        }
         while (this._check(i, j0 - 1)) {
             j0 -= 1;
         }
@@ -75,9 +75,9 @@ ZoneFiller.prototype.fill_with_color = function (start_i, start_j, to_replace, c
             }
             // upto j
             // $log.debug("--- pushing gap [#{ix},#{curgap},#{j1}]") if $debug and curgap
-            if (curgap) {
+            if (curgap) { // last gap
                 gaps.push([ix, curgap, j1]);
-            } // last gap
+            }
         } // each ix
     }
     // while gap

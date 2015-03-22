@@ -58,9 +58,9 @@ ScoreAnalyser.prototype.get_score = function () {
 };
 
 ScoreAnalyser.prototype.score_info_to_s = function (info) {
-    if (info.is_a(main.String)) {
+    if (info.is_a(main.String)) { // for games where all but 1 resigned
         return [info];
-    } // for games where all but 1 resigned
+    }
     if (!info || info.length !== 2) {
         throw new Error('Invalid score info: ' + info);
     }

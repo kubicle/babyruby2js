@@ -43,9 +43,9 @@ SgfReader.prototype.to_move_list = function () {
         var name = this.nodes[i][0];
         var value = this.nodes[i][1];
         if (name !== 'B' && name !== 'W') {
-            if (name !== 'C') {
+            if (name !== 'C') { // comments can be ignored
                 main.log.warn('Unknown property ' + name + '[' + value + '] ignored');
-            } // comments can be ignored
+            }
             continue;
         }
         if (name !== expected_player) {

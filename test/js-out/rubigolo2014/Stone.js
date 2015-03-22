@@ -94,9 +94,9 @@ Stone.prototype.empty = function () {
 
 Stone.valid_move = function (goban, i, j, color) {
     // Remark: no log here because of the noise created with web server mode
-    if (!goban.valid_move(i, j)) {
+    if (!goban.valid_move(i, j)) { // also checks if empty
         return false;
-    } // also checks if empty
+    }
     var stone = goban.stone_at(i, j);
     if (stone.move_is_suicide(color)) {
         return false;
