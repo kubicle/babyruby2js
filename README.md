@@ -19,7 +19,9 @@ ruby ../babyruby2js.rb --src=. --target=js-out --debug=1 --file=./test1.rb
 - if x = f() changed into if (x = f()) not liked by JSHint; but if (x=f()) is OK
 - s << str is replaced by s += str (with error if s is a parameter)
 - << not handled on arrays (use push instead)
-- chop!
+- chop! and other mutable string methods
+- ranges (only [n..m] and [n...m] supported on strings and arrays)
+- slice on arrays (slice on string is OK)
 - local var declared in "then" or "else" stmt but used after the "if" block
 - 2 loops using same var for index => dupe decl in JS
 - self instead of this (we could detect we are in a cb block)

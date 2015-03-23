@@ -6,6 +6,18 @@ require_relative 'associator'
 MAIN_CLASS = "main"
 MAIN_CLASS_PATH = "./"
 
+RANGE_FUNC = { :irange => "range", :erange => "slice" }
+
+NO_PARAM_FUNC = {
+  :strip=> "trim", :lstrip=> "trimLeft", :rstrip=> "trimRight",
+  :upcase=> "toUpperCase", :downcase=> "toLowerCase",
+  :split => "split", :chop => "chop", :chomp => "chomp",
+  :chop! => "chop!", # will break on purpose
+  :sort=> "sort", :pop => "pop", :shift => "shift", :message => "message"
+}
+ONE_PARAM_FUNC = {
+  :split => "split", :chomp => "chomp"
+}
 
 class RubyToJs
 
@@ -20,8 +32,8 @@ class RubyToJs
     @indent = 0
     @indentSize = @cfg["tabSize"] # in spaces
     @camelCase = @cfg["camelCase"]
-    @exp_comments = ""
-    @exp_deco = ""
+    @cur_comments = ""
+    @cur_deco = ""
   
     @rubyFilePath = MAIN_CLASS_PATH
     enterClass(MAIN_CLASS)
@@ -194,17 +206,40 @@ class RubyToJs
     return paragraph, deco
   end
 
-  def stmt(n, mustReturn=false)
-    code = exp(n, true, mustReturn)
+  def storeComments(n)
     comments, deco = getComments(n)
-    ecomments = edeco = ""
-    if @exp_comments!="" or @exp_deco!=""
-      ecomments = "#{cr}#{@exp_comments}"
-      edeco = @exp_deco
-      @exp_comments = ""
-      @exp_deco = ""
+    @cur_comments << comments
+    @cur_deco << deco
+  end
+
+  def genCom(mode, node=nil)
+    nodeCom, nodeDeco = "", ""
+    nodeCom, nodeDeco = getComments(node) if node
+    case mode
+    when "C" #comments
+      res = nodeCom + @cur_comments
+      @cur_comments = ""
+    when "D" #decorative comments
+      res = @cur_deco + nodeDeco
+      @cur_deco = ""
+    when "P" #parameters
+      return "" if @cur_comments=="" and @cur_deco==""
+      res = ""
+      res << "#{@cur_comments}" if @cur_comments!=""
+      res << "#{@cur_deco}" if @cur_deco!=""
+      res << "#{cr}"
+      @cur_comments = ""
+      @cur_deco = ""
+    else
+      raise "Invalid comment mode: #{mode}"
     end
-    return "#{comments}#{localVarDecl()}#{code}#{deco}#{ecomments}#{edeco}"
+    return res
+  end
+
+  def stmt(n, mustReturn=false)
+    return "" if n == nil
+    code = exp(n, true, mustReturn)
+    return "#{genCom('C',n)}#{localVarDecl()}#{code}#{genCom('D',n)}"
   end
 
   def exp(n, isStmt=false, mustReturn=false)
@@ -212,11 +247,7 @@ class RubyToJs
     semi = isStmt ? ";" : ""
     ret = mustReturn ? "return " : ""
     arg0 = n.children[0]
-    if !isStmt
-      comments, deco = getComments(n)
-      @exp_comments << comments
-      @exp_deco << deco
-    end
+    storeComments(n) if !isStmt
 
     case n.type
     when :send
@@ -358,9 +389,9 @@ class RubyToJs
     res = isStmt ? localVarDecl() : ""
     if isStmt
       if n.children[1]==nil # "unless" has no "then" block but an "else"
-        return "#{res}if (!(#{cond})) {#{crb}#{stmt(n.children[2],mustReturn)}#{cre}}"
+        return "#{res}if (!(#{cond})) {#{genCom('D')}#{crb}#{stmt(n.children[2],mustReturn)}#{cre}}"
       end
-      res += "if (#{cond}) {#{crb}#{stmt(n.children[1],mustReturn)}#{cre}}"
+      res += "if (#{cond}) {#{genCom('D')}#{crb}#{stmt(n.children[1],mustReturn)}#{cre}}"
       return res if !n.children[2]
       if n.children[2].type == :if
         return "#{res} else #{stmt(n.children[2],mustReturn)}" # else if...
@@ -438,10 +469,11 @@ class RubyToJs
   end
 
   def methodAsLoop(method, args, code)
-    return nil if method.type != :send
+    return nil if method.type != :send or args.children.length > 1
     methName = method.children[1]
     decl = test = incr = nil
     ndx = args.children.length == 1 ? args.children[0].children[0].to_s : "i"
+    pdeco = getComments(args)[1]
 
     case methName
     when :upto
@@ -494,7 +526,7 @@ class RubyToJs
     decl = "var #{ndx} = #{v1}" if !decl
     test = "#{ndx} <= #{v2}" if !test
     incr = "#{ndx}++" if !incr
-    return "for (#{decl}; #{test}; #{incr}) {#{crb}#{stmt(code)}#{cre}}"
+    return "for (#{decl}; #{test}; #{incr}) {#{pdeco}#{crb}#{stmt(code)}#{cre}}"
   end
 
   def enterMethod(methName)
@@ -527,6 +559,7 @@ class RubyToJs
     end
     args = n.children[i+1]
     proto << methodArgs(args)
+    pcom, pdeco = getComments(args)
     @hasYield = false
     @indent += 1
     defaultValues = methodDefaultArgs(args)
@@ -535,15 +568,19 @@ class RubyToJs
     # if callback was called in body we need to add it as parameter
     proto << (args.children.length ? ", cb" : "cb") if @hasYield
     @publicMethods[methName] = @class if !@private
-    return "#{proto}) {#{crb}#{defaultValues}#{body}#{cre}}#{after}#{cr}"
+    return "#{pcom}#{proto}) {#{pdeco}#{crb}#{defaultValues}#{body}#{cre}}#{after}#{cr}"
   end
 
   def methodArgs(n) #(args (arg :stone) (arg :lives))
+    return "" if n.children.length==0
+    res = vname = ""
     n.children.each do |a|
       vname = a.children[0].to_s
       @localVars[vname] = @parameters[vname] = true
+      storeComments(a)
+      res << "#{vname}, #{genCom('P')}"
     end
-    return n.children.map {|a| a.children[0].to_s}.join(", ")
+    return res.sub("#{vname}, ", "#{vname}")
   end
 
   def methodDefaultArgs(args) # (args (optarg :size (int 19)))
@@ -566,7 +603,8 @@ class RubyToJs
     return asLoop if asLoop
     # Ruby: @grid.to_text(false,","){ |s| ... }
     # => (block (send (ivar :@grid) :to_text (false) (str ",")) (args (arg :s)) ...
-    func = "function (#{methodArgs(args)}) {#{crb}#{stmt(code,true)}#{cre}}"
+    pdeco = getComments(args)[1]
+    func = "function (#{methodArgs(args)}) {#{pdeco}#{crb}#{stmt(code,true)}#{cre}}"
     return "#{methodCall(method, mustReturn, func)}#{semi}"
   end
 
@@ -662,128 +700,121 @@ class RubyToJs
 
   def methodCall(n, mustReturn=false, block=nil)
     ret = mustReturn ? "return " : ""
-    methName = n.children[1].to_s
-    objAndMeth = nil
     arg0 = n.children[0]
-    case methName
-    when "<<"
+    symbol = n.children[1]
+
+    num_param = n.children.length - 2
+    if num_param == 0
+      arg0func = NO_PARAM_FUNC[symbol]
+      return "#{ret}#{exp(arg0)}.#{arg0func}()" if arg0func
+    elsif num_param == 1
+      arg1func = ONE_PARAM_FUNC[symbol]
+      return "#{ret}#{exp(arg0)}.#{arg1func}(#{exp(n.children[2])})" if arg1func
+    end
+
+    methName = symbol.to_s
+    objAndMeth = jsMethName = nil
+
+    case symbol
+    when :<<
       lvalue = exp(arg0)
       res = "#{lvalue} += #{exp(n.children[2])}"
       res += " + error_infinf_on_parameter('#{lvalue}')" if @parameters[lvalue]
       return res
-    when "[]"
+    when :[]
       arg1 = n.children[2]
-      if arg1.type == :irange
-        return "#{ret}main.newRange(#{exp(arg0)}, #{exp(arg1.children[0])}, #{exp(arg1.children[1])})"
-      end
+      range = RANGE_FUNC[arg1.type]
+      return "#{ret}#{exp(arg0)}.#{range}(#{exp(arg1.children[0])}, #{exp(arg1.children[1])})" if range
       return "#{ret}#{exp(arg0)}[#{exp(arg1)}]"
-    when "[]="
+    when :[]=
       return "#{exp(arg0)}[#{exp(n.children[2])}] = #{exp(n.children[3])}"
-    when "-@", "+@", "!" #unary operators
+    when :-@, :+@, :! # unary operators
       return "#{ret}#{methName[0]}#{exp(arg0)}"
-    when "="
+    when :"=", :+, :-, :*, :/, :<, :>, :<=, :>= # binary operators
       return "#{ret}#{exp(arg0)} #{methName} #{exp(n.children[2])}"
-    when "+", "-", "*", "/", "<", ">", "<=", ">="
-      return "#{ret}#{exp(arg0)} #{methName} #{exp(n.children[2])}"
-    when "==", "!="
+    when :==, :!= # become === or !== in JS
       return "#{ret}#{exp(arg0)} #{methName}= #{exp(n.children[2])}"
-    when "==="
+    when :=== # regexp test
       return "#{ret}#{exp(arg0)}.test(#{exp(n.children[2])})"
-    when "slice"
+    when :slice # NB: ruby's slice is different than JS one - we only do the string one
       return "#{ret}#{exp(arg0)}[#{exp(n.children[2])}]" if !n.children[3]
       return "#{ret}#{exp(arg0)}.substr(#{exp(n.children[2])}, #{exp(n.children[3])})"
-    when "length"
-      return "#{ret}#{exp(arg0)}.length" # not a method in JS
-    when "first"
+    when :first
       return "#{ret}#{exp(arg0)}[0]"
-    when "last"
+    when :last
       val = exp(arg0)
-      return "#{ret}#{val}[#{val}.length-1]"
-    #TODO: gather standard methods so we can add checks and warnings if name used in user code
-    when "strip", "lstrip", "rstrip", "downcase", "upcase", "sort"
-      equiv = { "strip"=>"trim", "lstrip"=>"trimLeft", "rstrip"=>"trimRight",
-        "upcase"=>"toUpperCase", "downcase"=>"toLowerCase", "sort"=>"sort" }
-      return "#{ret}#{exp(arg0)}.#{equiv[methName]}()" if n.children.length==2 #NO PARAM
-    when "size"
-      return "#{ret}#{exp(arg0)}.length" if n.children.length==2 #NO PARAM
-    when "to_s"
+      return "#{ret}#{val}[#{val}.length-1]" # we could also implement .last()
+    when :length, :size
+      return "#{ret}#{exp(arg0)}.length" if num_param==0 # length is not a method in JS
+    when :to_s
       return "#{ret}#{arg0 ? exp(arg0) : 'this'}.toString()"
-    when "pop", "shift", "message"
-      return "#{ret}#{exp(arg0)}.#{methName}()" if n.children.length==2
-    when "split"
-      return "#{ret}#{exp(arg0)}.#{methName}()" if n.children.length==2
-      return "#{ret}#{exp(arg0)}.#{methName}(#{exp(n.children[2])})" if n.children.length==3
-    when "chop", "chop!" # "chop!" will break on purpose
-      return "#{ret}#{exp(arg0)}.#{methName}()" if n.children.length==2
-      return "#{ret}#{exp(arg0)}.#{methName}(#{exp(n.children[2])})" if n.children.length==3
-    when "%" #(send (str "%2d") :% (lvar :j))
+    when :% #(send (str "%2d") :% (lvar :j))
       return "#{ret}#{exp(arg0)}.format(#{exp(n.children[2])})" if arg0.type==:str
       return "#{ret}#{exp(arg0)} % #{exp(n.children[2])}" # % operator (modulo) on numbers
-    when "chr"
+    when :chr
       return "#{ret}String.fromCharCode(#{exp(arg0)})"
-    when "ord"
+    when :ord
       return "#{ret}(#{exp(arg0)}).charCodeAt()"
-    when "to_i"
+    when :to_i
       return "#{ret}parseInt(#{exp(arg0)}, 10)"
-    when "rand"
+    when :rand
       return "Math.random()" if n.children[2]==nil
       return "~~(Math.random()*~~(#{exp(n.children[2])}))"
-    when "round"
+    when :round
       return "Math.round(#{exp(arg0)})" if n.children[2]==nil
       arg1 = n.children[2]
       factor = arg1.type==:int ? 10**(arg1.children[0]) : "Math.power(10, #{exp(arg1)})"
       return "(Math.round((#{exp(arg0)})*#{factor})/#{factor})"
-    when "abs"
+    when :abs
       return "#{ret}Math.abs(#{exp(arg0)})"
-    when "max"
-      return "#{ret}Math.max.apply(Math,#{exp(arg0)})" if n.children.length==2
-    when "now"
+    when :max
+      return "#{ret}Math.max.apply(Math,#{exp(arg0)})" if num_param==0
+    when :now
       return "#{ret}Date.now()"
-    when "puts", "print"
-      objAndMeth = "console.log"
-    when "raise"
+    when :puts, :print
+      objAndMeth, ret = "console.log", "" if arg0==nil
+    when :raise
       return "throw #{@curException}" if n.children[2]==nil
       return "throw new Error(#{exp(n.children[2])})"
-    when "backtrace"
+    when :backtrace
       return "#{ret}#{exp(arg0)}.stack"
-    when "new"
-      objAndMeth = "#{ret}new #{exp(arg0)}"
-    when "class"
+    when :new
+      objAndMeth = "new #{exp(arg0)}"
+    when :class
       return "#{ret}#{exp(arg0)}.constructor"
-    when "name"
+    when :name
       return "#{ret}#{exp(arg0)}.name"
-    when "attr_reader"
-      n.children[2..-1].each {|v| @publicVars[v.children[0].to_s] = true }
-      return "//public read-only attribute: " + n.children[2..-1].map{|p| p.children[0]}.join(", ")
-    when "attr_writer" #(send nil :attr_writer (sym :merged_with) (sym :extra_lives))
-      #n.children[2..-1].each {|v| @publicVars[v.children[0]] = true }
-      return "//public read-write attribute: " + n.children[2..-1].map{|p| p.children[0]}.join(", ")
-    when "private"
+    when :attr_reader
+      n.children[2..-1].each {|v| @publicVars[v.children[0].to_s] = true; storeComments(v) }
+      return "//public read-only attribute: " + n.children[2..-1].map{|v| v.children[0]}.join(", ")
+    when :attr_writer #(send nil :attr_writer (sym :a) (sym :b))
+      n.children[2..-1].each {|v| storeComments(v) }
+      return "//public read-write attribute: " + n.children[2..-1].map{|v| v.children[0]}.join(", ")
+    when :private
       @private = true
       return "//private"
-    when "public"
+    when :public
       @private = false
       return "//public"
-    when "require","require_relative"
+    when :require, :require_relative
       return genRequire(n.children[2], methName=="require")
-    when "each" # we get here only if each could not be converted to a for loop earlier
+    when :each # we get here only if each could not be converted to a for loop earlier
       jsMethName = "forEach"
-    else #regular method call
-      jsMethName = jsName(methName)
-    end
+    end # else = regular method call
 
+    jsMethName = jsName(methName) if !jsMethName
     userMethod = !objAndMeth
-    objAndMeth = "#{ret}#{objScope(arg0, methName)}#{jsMethName}" if !objAndMeth
+    objAndMeth = "#{objScope(arg0, methName)}#{jsMethName}" if !objAndMeth
     #add parameters to method or constructor call
     params = n.children[2..-1].map{|p| exp(p)}.join(", ")
     params << "#{params.length > 0 ? ', ' : ''}#{block}" if block
-    return "#{objAndMeth}#{noParamsMethCall(methName)}" if params.length==0 and !block
+    return "#{ret}#{objAndMeth}#{noParamsMethCall(methName)}" if params.length==0 and !block
     #method call with parameters; check if we know the method
     if @showWarnings and userMethod and !@classMethods[methName] and !@publicMethods[methName]
       puts "W02: #{@rubyFile}: #{methName}(...) unknown method"
       @publicMethods[methName] = true # so we show it only once
     end
-    return "#{objAndMeth}(#{params})"
+    return "#{ret}#{objAndMeth}(#{params})"
   end
 
   # This decides if we put "()" or not for a method call that could be a data accessor too
