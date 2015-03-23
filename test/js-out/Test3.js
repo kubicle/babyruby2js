@@ -5,6 +5,7 @@
 // another class comment
 // attr_accessor comment
 attr_accessor('foo');
+//public read-only attribute: ra, rb; // trailing on ra // trailing on rb
 // method comment
 Foo.prototype.bar = function () {
     // expr comment

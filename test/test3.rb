@@ -5,6 +5,9 @@
 class Foo
   # attr_accessor comment
   attr_accessor :foo
+  attr_reader :ra, # trailing on ra
+    :rb # trailing on rb
+
 
   # method comment
   def bar
