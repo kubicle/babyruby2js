@@ -110,7 +110,7 @@ class RubyToJs
     # Parse the source and comments
     ast, comments = Parser::CurrentRuby.new.parse_with_comments(srcFile)
     associator = Parser::Source::Comment::Associator.new(ast, comments)
-    @commentMap = associator.associate_locations
+    @commentMap = associator.associate(true) # map_using_locations=true
     @usedComments = {}
 
     if @options.debug
