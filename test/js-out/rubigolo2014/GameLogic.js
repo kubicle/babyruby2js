@@ -85,15 +85,15 @@ GameLogic.prototype.play_one_move = function (move) {
         return this.play_a_stone(move);
     } else if (move === 'undo') {
         return this.request_undo();
-    } else if (move.start_with('resi')) {
+    } else if (move.startWith('resi')) {
         return this.resign();
     } else if (move === 'pass') {
         return this.pass_one_move();
-    } else if (move.start_with('hand')) {
+    } else if (move.startWith('hand')) {
         return this.set_handicap(move.split(':')[1]);
-    } else if (move.start_with('load:')) {
+    } else if (move.startWith('load:')) {
         return this.load_moves(move.range(5, -1));
-    } else if (move.start_with('log')) {
+    } else if (move.startWith('log')) {
         return this.set_log_level(move.split(':')[1]);
     } else {
         return this.error_msg('Invalid command: ' + move);
@@ -241,7 +241,7 @@ GameLogic.prototype.request_undo = function () {
         return this.error_msg('Nothing to undo');
     }
     for (var i = 1; i <= 2; i++) {
-        if (!this.history[this.history.length-1].end_with('pass')) { // no stone to remove for a pass
+        if (!this.history[this.history.length-1].endWith('pass')) { // no stone to remove for a pass
             Stone.undo(this.goban);
         }
         this.history.pop();
@@ -254,7 +254,7 @@ GameLogic.prototype.request_undo = function () {
 // Returns the game unchanged if it is not an SGF one.
 // Returns an empty move list if nothing should be played (a game is pending).
 GameLogic.prototype.sgf_to_game = function (game) {
-    if (!game.start_with('(;FF')) { // are they are always the 1st characters?
+    if (!game.startWith('(;FF')) { // are they are always the 1st characters?
         return game;
     }
     var reader = new SgfReader(game);

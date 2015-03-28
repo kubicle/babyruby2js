@@ -178,7 +178,7 @@ SgfReader.prototype.skip = function (t) {
 };
 
 SgfReader.prototype.get = function (lex, t) {
-    if (!t.start_with(lex)) {
+    if (!t.startWith(lex)) {
         this.error(lex + ' expected', t);
     }
     return t.sub(lex, '').trimLeft();

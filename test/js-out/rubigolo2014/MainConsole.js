@@ -68,14 +68,14 @@ ConsoleGame.prototype.get_move_or_cmd = function () {
 };
 
 ConsoleGame.prototype.play_move_or_cmd = function (move) {
-    if (move.start_with('cont')) {
+    if (move.startWith('cont')) {
         this.num_autoplay = parseInt(move.split(':')[1], 10);
         if (this.num_autoplay === 0) { // no arg is equivalent to continue:1
             this.num_autoplay = 1;
         }
-    } else if (move.start_with('pris')) {
+    } else if (move.startWith('pris')) {
         return this.show_prisoners();
-    } else if (move.start_with('hist')) {
+    } else if (move.startWith('hist')) {
         console.log(this.game.history_string());
     } else if (move === 'dbg') {
         return this.goban.debug_display();

@@ -201,7 +201,7 @@ MainServer.prototype.req_load_moves = function (args) {
     try {
         this.game.load_moves(moves);
     } catch (err) {
-        if (!err.message().start_with('Invalid move')) {
+        if (!err.message().startWith('Invalid move')) {
             throw err;
         }
         this.add_message(err.message());
