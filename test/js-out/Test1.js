@@ -13,8 +13,7 @@ TestStone.prototype.testDeco1 = function () {
     }
 };
 
-TestStone.prototype.test1 = function (a // test1 decoring comment
-) {
+TestStone.prototype.test1 = function (a) { // test1 decoring comment
     for (var n, n_array = a, n_ndx = 0; n=n_array[n_ndx], n_ndx < n_array.length; n_ndx++) {
         p(a.slice(1, 4) + a.range(-1, -4)); // block arg n comment
     }
