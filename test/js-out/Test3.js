@@ -22,3 +22,19 @@ main.prototype.foo = function () {
         return p('hi2');
     }
 };
+
+// #!/usr/bin/env ruby <- line 1
+// # coding: utf-8 <- line 2
+// # (if <- line 30
+// #   (true) <- line 31
+// #   (begin <- line 32
+// #     (send nil :p <- line 33
+// #       (str "hi1")) <- line 34
+// #     (if <- line 35
+// #       (send <- line 36
+// #         (send nil :x) :< <- line 37
+// #         (int 0)) <- line 38
+// #       (send nil :raise <- line 39
+// #         (int 0)) nil)) <- line 40
+// #   (send nil :p <- line 41
+// #     (str "hi2"))) <- line 42
