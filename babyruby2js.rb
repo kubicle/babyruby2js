@@ -9,15 +9,36 @@ MAIN_CLASS_PATH = "./"
 RANGE_FUNC = { :irange => "range", :erange => "slice" }
 
 NO_PARAM_FUNC = {
-  :strip=> "trim", :lstrip=> "trimLeft", :rstrip=> "trimRight",
-  :upcase=> "toUpperCase", :downcase=> "toLowerCase",
+  :strip => "trim", :lstrip => "trimLeft", :rstrip => "trimRight",
+  :upcase => "toUpperCase", :downcase => "toLowerCase",
   :split => "split", :chop => "chop", :chomp => "chomp",
   :chop! => "chop!", # will break on purpose
-  :sort=> "sort", :pop => "pop", :shift => "shift", :message => "message"
+  :sort => "sort", :pop => "pop", :shift => "shift", :message => "message",
+  :join => "join",
+  :count => "",
+  :first => "", :last => "", :length => "", :size => "",
+  :chr => "", :ord => "", :to_i => "",
+  :rand => "", :round => "",
+  :abs => "", :max => "", :now => "",
+  :raise => "", :backtrace => ""
 }
 ONE_PARAM_FUNC = {
-  :split => "split", :chomp => "chomp"
+  :split => "split", :chomp => "chomp",
+  :start_with? => "startWith", :end_with? => "endWith",
+  :join => "join",
+  :count => "",
+  :slice => "",
+  :rand => "", :round => "",
+  :raise => ""
 }
+TWO_PARAM_FUNC = {
+  :slice => ""
+}
+
+RENAMED_FUNC = {
+  :to_s => "toString"
+}
+
 
 class RubyToJs
 
@@ -32,9 +53,13 @@ class RubyToJs
     @indent = 0
     @indentSize = @cfg["tabSize"] # in spaces
     @camelCase = @cfg["camelCase"]
+
     @cur_comments = ""
     @cur_deco = ""
-  
+    @stacked_com = {}
+    @stacked_com["C"] = []
+    @stacked_com["D"] = []
+
     @rubyFilePath = MAIN_CLASS_PATH
     enterClass(MAIN_CLASS)
     enterMethod("")
@@ -72,7 +97,7 @@ class RubyToJs
   end
 
   def translateFile(filename, simple_visit=false)
-    @showWarnings = !simple_visit
+    @showErrors = !simple_visit
     cname, @rubyFilePath, @rubyFile = parseRubyFilename(filename)
     jsFile = "#{@targetDir}#{@rubyFilePath}#{cname}.js"
     createTargetDir(@targetDir+@rubyFilePath)
@@ -112,24 +137,26 @@ class RubyToJs
     associator = Parser::Source::Comment::Associator.new(ast, comments)
     @commentMap = associator.associate(true) # map_using_locations=true
     @usedComments = {}
+    @errors = ""
 
     if @options.debug
       puts "#{@rubyFile}:"
-      p ast, ""
+      p ast
+      puts ""
     end
     
     @dependencies = {}
     code = stmt(ast)
-
-    if @showWarnings and comments.length != @usedComments.length
-      comments.each do |c|
-        next if @usedComments[c.location]
-        puts "W04: #{@rubyFile}: lost comment: #{c.text}"
-      end
-    end
+    trackMissingComments(comments, srcFile.source)
 
     intro = "//Translated from #{@rubyFile} using babyruby2js\n'use strict';\n\n"
-    return doReplacements(intro + genAddedRequire() + code)
+    return doReplacements(intro + genAddedRequire() + code + @errors)
+  end
+
+  def logError(level, code, msg)
+    return unless @showErrors
+    puts "  #{@rubyFile}: #{level}#{'%02d' % code}: #{msg}" 
+    @errors << "\n// #{level}#{'%02d' % code}: #{msg}"
   end
 
   def doReplacements(jsCode)
@@ -138,6 +165,25 @@ class RubyToJs
     end
     return jsCode
   end
+
+  def cr(indentChange=0)
+    res = "\n"
+    @indent += indentChange
+    1.upto(@indent * @indentSize) { res<<" " }
+    return res
+  end
+
+  # CR at beginning of block
+  def crb
+    cr(1)
+  end
+
+  # CR at end of block
+  def cre
+    cr(-1)
+  end
+
+  #--- Class
 
   def newClass(name, parent)
     parentName = parent ? constOrClass(parent) : nil
@@ -170,76 +216,87 @@ class RubyToJs
     return res
   end
 
-  def cr(indentChange=0)
-    res = "\n"
-    @indent += indentChange
-    1.upto(@indent * @indentSize) { res<<" " }
-    return res
-  end
+  #--- Comments
 
-  # CR at beginning of block
-  def crb
-    cr(1)
-  end
-
-  # CR at end of block
-  def cre
-    cr(-1)
-  end
-
-  # Returns comments of a node, ready for JavaScript format
-  # (a paragraph of heading comments, and a line of decorative comments)
-  def getComments(n)
+  def _pushCom(n)
+    return "","" if !n or !n.location
     comments = @commentMap[n.location]
-    paragraph = ""
-    deco = ""
     comments.each do |c|
+      next if @usedComments[c.location]
       txt = c.text[1..-1]
       txt = txt[1..-1] if txt[0] == " "
       if c.location.line >= n.location.line
-        deco << " // #{txt}"
+        @cur_deco << " // #{txt}"
+        @stacked_com["D"].push(c)
       else
-        paragraph << "// #{txt}#{cr}"
+        @cur_comments << "// #{txt}#{cr}"
+        @stacked_com["C"].push(c)
       end
-      @usedComments[c.location] = true
     end
-    return paragraph, deco
   end
 
-  def storeComments(n)
-    comments, deco = getComments(n)
-    @cur_comments << comments
-    @cur_deco << deco
-  end
-
-  def genCom(mode, node=nil)
-    nodeCom, nodeDeco = "", ""
-    nodeCom, nodeDeco = getComments(node) if node
+  def _popCom(mode)
     case mode
     when "C" #comments
-      res = nodeCom + @cur_comments
+      res = @cur_comments
       @cur_comments = ""
     when "D" #decorative comments
-      res = @cur_deco + nodeDeco
+      res = @cur_deco
       @cur_deco = ""
+    end
+    @stacked_com[mode].each { |c| @usedComments[c.location] = true }
+    @stacked_com[mode].clear
+    return res
+  end
+
+  # Stores the comments of a node, ready for JavaScript format
+  def storeComments(n)
+    _pushCom(n)
+  end
+
+  # Returns the stored comments for given mode (C, D or P)
+  # If a node is passed, its comments are stored first
+  def genCom(mode, node=nil)
+    _pushCom(node) if node
+    case mode
+    when "C", "D"
+      return _popCom(mode)
     when "P" #parameters
-      return "" if @cur_comments=="" and @cur_deco==""
-      res = ""
-      res << "#{@cur_comments}" if @cur_comments!=""
-      res << "#{@cur_deco}" if @cur_deco!=""
-      res << "#{cr}"
-      @cur_comments = ""
-      @cur_deco = ""
+      res = _popCom("C") + _popCom("D")
+      return res == "" ? "" : "#{res}#{cr}"
     else
       raise "Invalid comment mode: #{mode}"
     end
-    return res
   end
+
+  def getCommentAssoc(c, src)
+    nodeLoc = @commentMap.each_key.find { |nloc| @commentMap[nloc].find_index(c) }
+    return "???" if !nodeLoc
+    code = src[nodeLoc.expression.begin_pos...nodeLoc.expression.end_pos].split("\n")
+    return code.length > 1 ? "#{code.first.strip}...#{code.last.strip}" : "#{code.first.strip}"
+  end
+
+  def trackMissingComments(comments, src)
+    if @options.debug
+      comments.each do |c|
+        assoc = getCommentAssoc(c, src)
+        puts "Comment: #{c.text} <- line #{c.location.line}: [#{assoc}]"
+      end
+    end
+    return if comments.length == @usedComments.length
+    comments.each do |c|
+      next if @usedComments[c.location]
+      assoc = getCommentAssoc(c, src)
+      logError("W", 1, "lost comment: #{c.text} <- line #{c.location.line}: [#{assoc}]")
+    end
+  end
+
+  #--- Statements and expressions
 
   def stmt(n, mustReturn=false)
     return "" if n == nil
     code = exp(n, true, mustReturn)
-    return "#{genCom('C',n)}#{localVarDecl()}#{code}#{genCom('D',n)}"
+    return "#{genCom('C',n)}#{localVarDecl()}#{code}#{genCom('D')}"
   end
 
   def exp(n, isStmt=false, mustReturn=false)
@@ -452,7 +509,7 @@ class RubyToJs
   end
 
   def varName(n)
-    vname = jsName(n.children[0].to_s, false)
+    vname = jsName(n.children[0])
     case vname[0]
     when "@"
       if vname[1] == "@"
@@ -468,12 +525,12 @@ class RubyToJs
     end
   end
 
+  # method=(send (int 1) :upto (int 5))  args=(args (arg :i))  code=exp
   def methodAsLoop(method, args, code)
     return nil if method.type != :send or args.children.length > 1
     methName = method.children[1]
     decl = test = incr = nil
     ndx = args.children.length == 1 ? args.children[0].children[0].to_s : "i"
-    pdeco = getComments(args)[1]
 
     case methName
     when :upto
@@ -526,7 +583,7 @@ class RubyToJs
     decl = "var #{ndx} = #{v1}" if !decl
     test = "#{ndx} <= #{v2}" if !test
     incr = "#{ndx}++" if !incr
-    return "for (#{decl}; #{test}; #{incr}) {#{pdeco}#{crb}#{stmt(code)}#{cre}}"
+    return "for (#{decl}; #{test}; #{incr}) {#{genCom('D')}#{crb}#{stmt(code)}#{cre}}"
   end
 
   def enterMethod(methName)
@@ -536,22 +593,27 @@ class RubyToJs
     @classMethods[methName] = true
   end
 
+  def newClassConstructor
+    @dependencies[@class] = false
+    proto = "#{cr}/** @class */#{cr}function #{@class}("
+    after = "#{cr}module.exports = #{@class};"
+    parent = @curClass[:parent]
+    if parent
+      after = "#{cr}inherits(#{@class}, #{parent});" + after
+      @dependencies["inherits"] = "require('util').inherits"
+    end
+    return proto, after
+  end
+
   def newMethod(n, static=false)
-    i = 0
-    i+=1 if static
-    methName = n.children[i].to_s
-    jsMethName = jsName(methName)
+    i = static ? 1 : 0
+    symbol = n.children[i]
+    methName = symbol.to_s
+    jsMethName = jsName(symbol)
     enterMethod(methName)
     after = ";"
-    if methName == "initialize"
-      @dependencies[@class] = false
-      proto = "#{cr}/** @class */#{cr}function #{@class}("
-      after = "#{cr}module.exports = #{@class};"
-      parent = @curClass[:parent]
-      if parent
-        after = "#{cr}inherits(#{@class}, #{parent});" + after
-        @dependencies["inherits"] = "require('util').inherits"
-      end
+    if symbol == :initialize
+      proto, after = newClassConstructor()
     elsif static
       proto = "#{@class}.#{jsMethName} = function ("
     else
@@ -559,7 +621,7 @@ class RubyToJs
     end
     args = n.children[i+1]
     proto << methodArgs(args)
-    pcom, pdeco = getComments(args)
+    lastParamCom = genCom("D")
     @hasYield = false
     @indent += 1
     defaultValues = methodDefaultArgs(args)
@@ -568,7 +630,8 @@ class RubyToJs
     # if callback was called in body we need to add it as parameter
     proto << (args.children.length ? ", cb" : "cb") if @hasYield
     @publicMethods[methName] = @class if !@private
-    return "#{pcom}#{proto}) {#{pdeco}#{crb}#{defaultValues}#{body}#{cre}}#{after}#{cr}"
+    checkConflictWithStdFunc(symbol, jsMethName, args.children.length + (@hasYield?1:0))
+    return "#{proto}) {#{lastParamCom}#{crb}#{defaultValues}#{body}#{cre}}#{after}#{cr}"
   end
 
   def methodArgs(n) #(args (arg :stone) (arg :lives))
@@ -578,9 +641,10 @@ class RubyToJs
       vname = a.children[0].to_s
       @localVars[vname] = @parameters[vname] = true
       storeComments(a)
+      break if a == n.children.last # for last param we don't want a "," and we want to leave its comments
       res << "#{vname}, #{genCom('P')}"
     end
-    return res.sub("#{vname}, ", "#{vname}")
+    return res + vname
   end
 
   def methodDefaultArgs(args) # (args (optarg :size (int 19)))
@@ -593,7 +657,7 @@ class RubyToJs
     return defaultValues
   end
 
-  # (block (send (int 1) :upto (int 5)) (args (arg :j)) exp
+  # (block (send (int 1) :upto (int 5)) (args (arg :j)) exp)
   def block(n, isStmt, mustReturn)
     semi = isStmt ? ";" : ""
     method = n.children[0]
@@ -603,8 +667,7 @@ class RubyToJs
     return asLoop if asLoop
     # Ruby: @grid.to_text(false,","){ |s| ... }
     # => (block (send (ivar :@grid) :to_text (false) (str ",")) (args (arg :s)) ...
-    pdeco = getComments(args)[1]
-    func = "function (#{methodArgs(args)}) {#{pdeco}#{crb}#{stmt(code,true)}#{cre}}"
+    func = "function (#{methodArgs(args)}) {#{genCom('D',args)}#{crb}#{stmt(code,true)}#{cre}}"
     return "#{methodCall(method, mustReturn, func)}#{semi}"
   end
 
@@ -646,7 +709,7 @@ class RubyToJs
       else
         cl = @classes[className]
         file = cl ? relative_path(@rubyFilePath, cl[:directory]) : "./"
-        puts "W03: #{@rubyFile}: #{className} unknown class" if @showWarnings and !cl
+        logError("E", 3, "#{className} unknown class") if !cl
         requ = "var #{className} = require('#{file}#{className}')"
       end
       requ = @replacements[requ] if @replacements[requ]
@@ -683,12 +746,11 @@ class RubyToJs
   end
 
   # e.g. "play_at!" => "playAt"
-  def jsName(rubyName, method=true)
-    name = rubyName
-    if method
-      name = name.chomp("?").chomp("!")
-      return "toString" if name == "to_s"
-    end
+  def jsName(rubyName)
+    renamed = RENAMED_FUNC[rubyName]
+    return renamed if renamed
+    name = rubyName.to_s
+    name = name.chomp("?").chomp("!")
     return name if !@camelCase
     # NB: we want to "preserve" a leading underscore hence using split("_") is awkward
     pos = 1
@@ -698,20 +760,108 @@ class RubyToJs
     return name
   end
 
-  def methodCall(n, mustReturn=false, block=nil)
-    ret = mustReturn ? "return " : ""
+  # if there is std method with same # parameters but != translation, it will go wrong
+  def checkConflictWithStdFunc(funcName, jsname, num_param)
+    return if !@showErrors
+    stdFunc = getStdMethodInfo(funcName, num_param)
+    if stdFunc and stdFunc != jsname
+      logError("E", 4, "user method hidden by standard one: #{funcName}")
+    end
+  end
+
+  #(send nil :attr_writer (sym :a) (sym :b))
+  def attributes(n)
+    names = ""
+    n.children[2..-1].each do |v|
+      vname = v.children[0]
+      jsname = jsName(vname)
+      checkConflictWithStdFunc(vname, jsname, 0)
+      @publicVars[vname.to_s] = true
+      storeComments(v)
+      names << ", #{jsname}"
+    end
+    type = n.children[1] == :attr_writer ? "read-write" : "read-only"
+    return "//public #{type} attribute: #{names[2..-1]}"
+  end
+
+  #  method handled here should be added to NO_PARAM_FUNC and others
+  def specialStdMethodCall(n, ret, block)
+    arg0 = n.children[0]
+    num_param = n.children.length - 2
+
+    case n.children[1]
+    when :slice # NB: ruby's slice is different than JS one - we only do the string one
+      return "#{ret}#{exp(arg0)}[#{exp(n.children[2])}]" if num_param==1
+      return "#{ret}#{exp(arg0)}.substr(#{exp(n.children[2])}, #{exp(n.children[3])})"
+    when :count　# count is "special" just because stdMethodCall does not handle blocks
+      return "#{ret}#{exp(arg0)}.count(#{block})" if num_param==0 and block
+      return "#{ret}#{exp(arg0)}.count()" if num_param==0
+      return "#{ret}#{exp(arg0)}.count(#{exp(n.children[2])})"
+    when :first
+      return "#{ret}#{exp(arg0)}[0]"
+    when :last
+      val = exp(arg0)
+      return "#{ret}#{val}[#{val}.length-1]" # we could also implement .last()
+    when :length, :size
+      return "#{ret}#{exp(arg0)}.length" # length is not a method in JS
+    when :to_i
+      return "#{ret}parseInt(#{exp(arg0)}, 10)"
+    when :chr
+      return "#{ret}String.fromCharCode(#{exp(arg0)})"
+    when :ord
+      return "#{ret}(#{exp(arg0)}).charCodeAt()"
+    when :rand # rand or rand(number) (global method in ruby)
+      return "#{ret}Math.random()" if num_param==0
+      return "#{ret}~~(Math.random()*~~(#{exp(n.children[2])}))"
+    when :round # number.round([number])
+      return "#{ret}Math.round(#{exp(arg0)})" if num_param==0
+      arg1 = n.children[2]
+      factor = arg1.type==:int ? 10**(arg1.children[0]) : "Math.power(10, #{exp(arg1)})"
+      return "#{ret}(Math.round((#{exp(arg0)})*#{factor})/#{factor})"
+    when :abs
+      return "#{ret}Math.abs(#{exp(arg0)})"
+    when :max # array.max
+      return "#{ret}Math.max.apply(Math,#{exp(arg0)})"
+    when :now # Time.now
+      return "#{ret}Date.now()"
+    when :raise # raise or raise exp
+      return "throw #{@curException}" if num_param==0
+      return "throw new Error(#{exp(n.children[2])})"
+    when :backtrace # exception.backtrace
+      return "#{ret}#{exp(arg0)}.stack"
+    else
+      return nil
+    end
+  end
+
+  def getStdMethodInfo(symbol, num_param)
+    return NO_PARAM_FUNC[symbol] if num_param == 0
+    return ONE_PARAM_FUNC[symbol] if num_param == 1
+    return TWO_PARAM_FUNC[symbol] if num_param == 2
+    return nil
+  end
+
+  def stdMethodCall(n, ret, block)
     arg0 = n.children[0]
     symbol = n.children[1]
-
     num_param = n.children.length - 2
-    if num_param == 0
-      arg0func = NO_PARAM_FUNC[symbol]
-      return "#{ret}#{exp(arg0)}.#{arg0func}()" if arg0func
-    elsif num_param == 1
-      arg1func = ONE_PARAM_FUNC[symbol]
-      return "#{ret}#{exp(arg0)}.#{arg1func}(#{exp(n.children[2])})" if arg1func
+    func = getStdMethodInfo(symbol, num_param)
+    return nil if !func
+    return specialStdMethodCall(n, ret, block) if func == ""
+    case num_param
+    when 0 then "#{ret}#{exp(arg0)}.#{func}()"
+    when 1 then "#{ret}#{exp(arg0)}.#{func}(#{exp(n.children[2])})"
+    when 2 then "#{ret}#{exp(arg0)}.#{func}(#{exp(n.children[2])},#{exp(n.children[3])})"
     end
+  end
 
+  def methodCall(n, mustReturn=false, block=nil)
+    ret = mustReturn ? "return " : ""
+    std = stdMethodCall(n, ret, block)
+    return std if std
+
+    arg0 = n.children[0]
+    symbol = n.children[1]
     methName = symbol.to_s
     objAndMeth = jsMethName = nil
 
@@ -736,60 +886,17 @@ class RubyToJs
       return "#{ret}#{exp(arg0)} #{methName}= #{exp(n.children[2])}"
     when :=== # regexp test
       return "#{ret}#{exp(arg0)}.test(#{exp(n.children[2])})"
-    when :slice # NB: ruby's slice is different than JS one - we only do the string one
-      return "#{ret}#{exp(arg0)}[#{exp(n.children[2])}]" if !n.children[3]
-      return "#{ret}#{exp(arg0)}.substr(#{exp(n.children[2])}, #{exp(n.children[3])})"
-    when :first
-      return "#{ret}#{exp(arg0)}[0]"
-    when :last
-      val = exp(arg0)
-      return "#{ret}#{val}[#{val}.length-1]" # we could also implement .last()
-    when :length, :size
-      return "#{ret}#{exp(arg0)}.length" if num_param==0 # length is not a method in JS
-    when :to_s
-      return "#{ret}#{arg0 ? exp(arg0) : 'this'}.toString()"
     when :% #(send (str "%2d") :% (lvar :j))
       return "#{ret}#{exp(arg0)}.format(#{exp(n.children[2])})" if arg0.type==:str
       return "#{ret}#{exp(arg0)} % #{exp(n.children[2])}" # % operator (modulo) on numbers
-    when :chr
-      return "#{ret}String.fromCharCode(#{exp(arg0)})"
-    when :ord
-      return "#{ret}(#{exp(arg0)}).charCodeAt()"
-    when :to_i
-      return "#{ret}parseInt(#{exp(arg0)}, 10)"
-    when :rand
-      return "Math.random()" if n.children[2]==nil
-      return "~~(Math.random()*~~(#{exp(n.children[2])}))"
-    when :round
-      return "Math.round(#{exp(arg0)})" if n.children[2]==nil
-      arg1 = n.children[2]
-      factor = arg1.type==:int ? 10**(arg1.children[0]) : "Math.power(10, #{exp(arg1)})"
-      return "(Math.round((#{exp(arg0)})*#{factor})/#{factor})"
-    when :abs
-      return "#{ret}Math.abs(#{exp(arg0)})"
-    when :max
-      return "#{ret}Math.max.apply(Math,#{exp(arg0)})" if num_param==0
-    when :now
-      return "#{ret}Date.now()"
-    when :puts, :print
-      objAndMeth, ret = "console.log", "" if arg0==nil
-    when :raise
-      return "throw #{@curException}" if n.children[2]==nil
-      return "throw new Error(#{exp(n.children[2])})"
-    when :backtrace
-      return "#{ret}#{exp(arg0)}.stack"
     when :new
       objAndMeth = "new #{exp(arg0)}"
     when :class
       return "#{ret}#{exp(arg0)}.constructor"
     when :name
       return "#{ret}#{exp(arg0)}.name"
-    when :attr_reader
-      n.children[2..-1].each {|v| @publicVars[v.children[0].to_s] = true; storeComments(v) }
-      return "//public read-only attribute: " + n.children[2..-1].map{|v| v.children[0]}.join(", ")
-    when :attr_writer #(send nil :attr_writer (sym :a) (sym :b))
-      n.children[2..-1].each {|v| storeComments(v) }
-      return "//public read-write attribute: " + n.children[2..-1].map{|v| v.children[0]}.join(", ")
+    when :attr_reader, :attr_writer
+      return attributes(n)
     when :private
       @private = true
       return "//private"
@@ -800,9 +907,11 @@ class RubyToJs
       return genRequire(n.children[2], methName=="require")
     when :each # we get here only if each could not be converted to a for loop earlier
       jsMethName = "forEach"
-    end # else = regular method call
+    when :puts, :print
+      objAndMeth, ret = "console.log", "" if arg0==nil
+    end # else = user method call
 
-    jsMethName = jsName(methName) if !jsMethName
+    jsMethName = jsName(symbol) if !jsMethName
     userMethod = !objAndMeth
     objAndMeth = "#{objScope(arg0, methName)}#{jsMethName}" if !objAndMeth
     #add parameters to method or constructor call
@@ -810,8 +919,8 @@ class RubyToJs
     params << "#{params.length > 0 ? ', ' : ''}#{block}" if block
     return "#{ret}#{objAndMeth}#{noParamsMethCall(methName)}" if params.length==0 and !block
     #method call with parameters; check if we know the method
-    if @showWarnings and userMethod and !@classMethods[methName] and !@publicMethods[methName]
-      puts "W02: #{@rubyFile}: #{methName}(...) unknown method"
+    if @showErrors and userMethod and !@classMethods[methName] and !@publicMethods[methName]
+      logError("E", 2, "unknown method #{methName}(...)")
       @publicMethods[methName] = true # so we show it only once
     end
     return "#{ret}#{objAndMeth}(#{params})"
@@ -827,8 +936,8 @@ class RubyToJs
     return "()" if meth and !var
     return "" if var and !meth
     return "() + error_both_var_and_method('#{methName}')" if var and meth
-    if @showWarnings
-      puts "W01: #{@rubyFile}: #{methName}() unknown no-arg method"
+    if @showErrors
+      logError("E", 1, "unknown no-arg method #{methName}()")
       @publicMethods[methName] = true # so we show it only once
     end
     return "()"
