@@ -11,6 +11,13 @@ class Obj
   def to_s
     "val=#{@val}"
   end
+
+  def func2
+    num_tournaments.times do |i| # TODO: Find a way to appreciate the progress
+      reproduction
+      control
+    end
+  end
 end
 
 o1 = Obj.new(1)

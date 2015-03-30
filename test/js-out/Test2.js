@@ -15,6 +15,13 @@ Obj.prototype.toString = function () {
     return 'val=' + this.val;
 };
 
+Obj.prototype.func2 = function () {
+    for (var i = 1; i <= num_tournaments(); i++) { // TODO: Find a way to appreciate the progress
+        reproduction();
+        control();
+    }
+};
+
 var o1 = new Obj(1);
 var o2 = new Obj(1);
 m[o1] = 'hello';
