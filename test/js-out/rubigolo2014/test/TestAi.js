@@ -328,3 +328,7 @@ TestAi.prototype.xtest_sees_attack_no_good = function () {
     this.play_and_check('c4', main.WHITE, 5); // kills 3 and saves 2
     return this.check_eval('c5', main.BLACK, 0); // silly move
 };
+
+// E02: unknown method assert_in_delta(...)
+// E02: unknown method throw(...)
+// E02: unknown method assert_equal(...)

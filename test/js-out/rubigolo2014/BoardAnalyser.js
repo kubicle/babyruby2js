@@ -329,3 +329,7 @@ BoardAnalyser.prototype.group_liveliness = function (g) {
         return z.owner === g.color;
     });
 };
+
+// E04: user method hidden by standard one: size
+// E02: unknown method add(...)
+// E02: unknown method count(...)

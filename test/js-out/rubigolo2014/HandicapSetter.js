@@ -110,3 +110,7 @@ HandicapSetter.set_standard_handicap = function (goban, count) {
     }
     return count;
 };
+
+// E02: unknown method is_a?(...)
+// E02: unknown method between?(...)
+// E02: unknown method modulo(...)

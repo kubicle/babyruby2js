@@ -35,3 +35,4 @@ main.log.level=(Logger.DEBUG);
 // NB: note this slows down everything if $debug is true even if the log level is not DEBUG
 main.debug = true;
 main.debug_group = false;
+// E02: unknown method level=(...)

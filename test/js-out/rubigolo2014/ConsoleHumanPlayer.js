@@ -54,3 +54,5 @@ ConsoleHumanPlayer.prototype.get_answer = function (valid_ones) {
         return answer;
     }
 };
+
+// E01: unknown no-arg method gets()

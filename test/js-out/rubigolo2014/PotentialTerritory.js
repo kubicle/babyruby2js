@@ -227,3 +227,5 @@ PotentialTerritory.prototype.connect_to_borders = function (yx) {
         } // if @goban.empty?(i,1) //   next2border = @goban.stone_at?(i,2).color //   if next2border != EMPTY and @goban.empty?(i+1,1) and @goban.empty?(i-1,1) //     Stone.play_at(@goban,i,1,next2border) //   end // end // if @goban.empty?(1,i) //   next2border = @goban.stone_at?(2,i).color //   if next2border != EMPTY and @goban.empty?(1,i+1) and @goban.empty?(1,i-1) //     Stone.play_at(@goban,1,i,next2border) //   end // end // if @goban.empty?(i,@size) //   next2border = @goban.stone_at?(i,@size-1).color //   if next2border != EMPTY and @goban.empty?(i+1,@size) and @goban.empty?(i-1,@size) //     Stone.play_at(@goban,i,@size,next2border) //   end // end // if @goban.empty?(@size,i) //   next2border = @goban.stone_at?(@size-1,i).color //   if next2border != EMPTY and @goban.empty?(@size,i+1) and @goban.empty?(@size,i-1) //     Stone.play_at(@goban,@size,i,next2border) //   end // end
     }
 };
+
+// E02: unknown method sprintf(...)

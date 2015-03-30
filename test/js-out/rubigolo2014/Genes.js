@@ -158,3 +158,8 @@ Genes.prototype.mutate_all = function () {
     });
     return this;
 };
+
+// E02: unknown method each_key(...)
+// E02: unknown method chomp!(...)
+// E02: unknown method dump(...)
+// E02: unknown method load(...)

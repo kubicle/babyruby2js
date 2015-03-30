@@ -28,3 +28,4 @@ m[o1] = 'hello';
 m[o2] = 'world';
 p(o1, o2);
 p(m);
+// E01: unknown no-arg method num_tournaments()

@@ -22,3 +22,5 @@ TestBreeder.prototype.test_bw_balance = function () {
     var num_wins = b.bw_balance_check(num_games, size);
     return assert_in_epsilon(num_wins, num_games / 2, tolerance);
 };
+
+// E02: unknown method assert_in_epsilon(...)

@@ -337,3 +337,7 @@ Group.prisoners = function (goban) {
     }
     return prisoners;
 };
+
+// E02: unknown method map(...)
+// E02: unknown method merged_with=(...)
+// E02: unknown method merged_by=(...)

@@ -184,3 +184,6 @@ TestSpeed.prototype.play_10_stones = function () {
         Stone.undo(this.goban);
     }
 };
+
+// E02: unknown method collect_concat(...)
+// E01: unknown no-arg method move()

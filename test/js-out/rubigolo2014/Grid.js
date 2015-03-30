@@ -187,3 +187,7 @@ Grid.move_as_string = function (col, row) {
 Grid.x_label = function (i) {
     return String.fromCharCode((i + Grid.NOTATION_A - 1));
 };
+
+// E04: user method hidden by standard one: size
+// E02: unknown method index(...)
+// E02: unknown method instance_of?(...)

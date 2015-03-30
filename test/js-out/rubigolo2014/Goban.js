@@ -165,3 +165,6 @@ Goban.prototype.undo = function () {
 Goban.prototype.previous_stone = function () {
     return this.history[this.history.length-1];
 };
+
+// E04: user method hidden by standard one: size
+// E02: unknown method concat(...)

@@ -111,3 +111,4 @@ opts = main.Trollop.options(function () {
 console.log('Command line options received: ' + opts);
 // Start the game
 new ConsoleGame(opts).play_game();
+// E01: unknown no-arg method ai()

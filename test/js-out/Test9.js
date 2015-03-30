@@ -2,4 +2,4 @@
 'use strict';
 
 
-// #!ruby <- line 1
+// W01: lost comment: #!ruby <- line 1: [???]

@@ -230,3 +230,5 @@ if (!main.test_all && !main.test) {
     var breeder = new Breeder(opts['size']);
     breeder.run(opts['num_tour'], opts['match_per_ai']);
 }
+// E02: unknown method opt(...)
+// E02: unknown method options(...)

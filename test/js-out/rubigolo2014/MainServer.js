@@ -391,3 +391,11 @@ MainServer.prototype.web_display = function (goban, ai_played, question) {
 
 var server = new MainServer();
 server.start();
+// E02: unknown method info(...)
+// E01: unknown no-arg method accept()
+// E02: unknown method recv_nonblock(...)
+// E02: unknown method decode(...)
+// E01: unknown no-arg method close()
+// E02: unknown method print(...)
+// E01: unknown no-arg method ctime()
+// E02: unknown method read(...)

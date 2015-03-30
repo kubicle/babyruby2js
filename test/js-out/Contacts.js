@@ -38,3 +38,6 @@ Contacts.prototype.size = function () {
 Contacts.prototype.[] = function (ndx) {
     return this.contacts[ndx];
 };
+
+// E02: unknown method find_index(...)
+// E04: user method hidden by standard one: size
