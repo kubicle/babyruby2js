@@ -595,14 +595,16 @@ class RubyToJs
 
   def newClassConstructor
     @dependencies[@class] = false
-    proto = "#{cr}/** @class */#{cr}function #{@class}("
-    after = "#{cr}module.exports = #{@class};"
     parent = @curClass[:parent]
+    proto = "#{cr}/** @class */#{cr}function #{@class}("
+    export = "#{@class}"
+    export = "main.tests.add(#{export})" if parent == "main.Test.Unit.TestCase"
+    afterConstr = "#{cr}module.exports = #{export};"
     if parent
-      after = "#{cr}inherits(#{@class}, #{parent});" + after
+      afterConstr = "#{cr}inherits(#{@class}, #{parent});" + afterConstr
       @dependencies["inherits"] = "require('util').inherits"
     end
-    return proto, after
+    return proto, afterConstr
   end
 
   def newMethod(n, static=false)
