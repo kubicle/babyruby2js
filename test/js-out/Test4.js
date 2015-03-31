@@ -1,10 +1,10 @@
 //Translated from test4.rb using babyruby2js
 'use strict';
 
-main.prototype.init_color = function () {
+main.prototype.initColor = function () {
     // For consultant heuristics we reverse the colors
     if (this.consultant) {
-        this.color = this.player.enemy_color;
+        this.color = this.player.enemyColor;
     } else {
         this.color = this.player.color;
     }

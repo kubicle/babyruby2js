@@ -9,19 +9,19 @@ var Stone = require('./Stone');
 // h can be a number or a string
 // string examples: "3" or "3=d4-p16-p4" or "d4-p16-p4"
 // Returns the handicap actual count
-HandicapSetter.set_handicap = function (goban, h) {
+HandicapSetter.setHandicap = function (goban, h) {
     if (h === 0 || h === '0') {
         return 0;
     }
     // Standard handicap?
-    if (h.is_a(main.String)) {
+    if (h.isA(main.String)) {
         var eq = h.index('=');
         if (h[0].between('0', '9') && !eq) {
             h = parseInt(h, 10);
         }
     }
-    if (h.is_a(main.Fixnum)) { // e.g. 3
-        return HandicapSetter.set_standard_handicap(goban, h);
+    if (h.isA(main.Fixnum)) { // e.g. 3
+        return HandicapSetter.setStandardHandicap(goban, h);
     }
     // Could be standard or not but we are given the stones so use them   
     if (eq) { // "3=d4-p16-p4" would become "d4-p16-p4"
@@ -30,11 +30,11 @@ HandicapSetter.set_handicap = function (goban, h) {
     var moves = h.split('-');
     for (var move, move_array = moves, move_ndx = 0; move=move_array[move_ndx], move_ndx < move_array.length; move_ndx++) {
         var i, j;
-        var _m = Grid.parse_move(move);
+        var _m = Grid.parseMove(move);
         i = _m[0];
         j = _m[1];
         
-        Stone.play_at(goban, i, j, main.BLACK);
+        Stone.playAt(goban, i, j, main.BLACK);
     }
     return moves.length;
 };
@@ -43,7 +43,7 @@ HandicapSetter.set_handicap = function (goban, h) {
 //   count: requested handicap
 // NB: a handicap of 1 stone does not make sense but we don't really need to care.
 // Returns the handicap actual count (if board is too small it can be smaller than count)
-HandicapSetter.set_standard_handicap = function (goban, count) {
+HandicapSetter.setStandardHandicap = function (goban, count) {
     // we want middle points only if the board is big enough 
     // and has an odd number of intersections
     var size = goban.length;
@@ -52,10 +52,10 @@ HandicapSetter.set_standard_handicap = function (goban, count) {
     }
     // Compute the distance from the handicap points to the border:
     // on boards smaller than 13, the handicap point is 2 points away from the border
-    var dist_to_border = (( size < 13 ? 2 : 3 ));
-    var short = 1 + dist_to_border;
+    var distToBorder = (( size < 13 ? 2 : 3 ));
+    var short = 1 + distToBorder;
     var middle = 1 + size / 2;
-    var long = size - dist_to_border;
+    var long = size - distToBorder;
     for (var ndx = 1; ndx <= count; ndx++) {
         // Compute coordinates from the index.
         // Indexes correspond to this map (with Black playing on North on the board)
@@ -106,7 +106,7 @@ HandicapSetter.set_standard_handicap = function (goban, count) {
         default: 
             break; // not more than 8
         }
-        Stone.play_at(goban, x, y, main.BLACK);
+        Stone.playAt(goban, x, y, main.BLACK);
     }
     return count;
 };

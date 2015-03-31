@@ -2,6 +2,7 @@
 {
   "src": ".",
   "target": "js-out",
+  "camelCase": true,
   
   "replacements": {}
 }

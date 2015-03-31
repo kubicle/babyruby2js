@@ -10,7 +10,7 @@ var main = require('../main');
 function ZoneFiller(goban, grid) {
     if (grid === undefined) grid = null;
     if (!grid) {
-        grid = goban.scoring_grid.convert(goban.grid);
+        grid = goban.scoringGrid.convert(goban.grid);
     }
     // $log.debug("ZoneFiller.new \n"+grid.to_s) if $debug
     this.goban = goban;
@@ -24,16 +24,16 @@ module.exports = ZoneFiller;
 // to_replace can be EMPTY or a zone code (but cannot be a real color like BLACK)
 // neighbors, if given should be an array of n arrays, with n == number of colors
 // if neighbors are not given, we do simple "coloring"
-ZoneFiller.prototype.fill_with_color = function (start_i, start_j, to_replace, color, neighbors) {
+ZoneFiller.prototype.fillWithColor = function (startI, startJ, toReplace, color, neighbors) {
     if (neighbors === undefined) neighbors = null;
     // $log.debug("fill #{start_i} #{start_j}; replace #{to_replace} with #{color}") if $debug
-    if (this.yx[start_j][start_i] !== to_replace) {
+    if (this.yx[startJ][startI] !== toReplace) {
         return 0;
     }
     var size = 0;
-    this.to_replace = to_replace;
+    this.toReplace = toReplace;
     this.groups = neighbors;
-    var gaps = [[start_i, start_j, start_j]];
+    var gaps = [[startI, startJ, startJ]];
     var gap;
     while ((gap = gaps.pop())) {
         // $log.debug("About to do gap: #{gap} (left #{gaps.size})") if $debug
@@ -43,7 +43,7 @@ ZoneFiller.prototype.fill_with_color = function (start_i, start_j, to_replace, c
         j0 = _m[1];
         j1 = _m[2];
         
-        if (this.yx[j0][i] !== to_replace) { // gap already done by another path
+        if (this.yx[j0][i] !== toReplace) { // gap already done by another path
             continue;
         }
         while (this._check(i, j0 - 1)) {
@@ -91,12 +91,12 @@ ZoneFiller.prototype._check = function (i, j) {
     if (color === main.BORDER) {
         return false;
     }
-    if (color === this.to_replace) {
+    if (color === this.toReplace) {
         return true;
     }
     if (this.groups && color < 2) {
-        var group = this.goban.stone_at(i, j).group;
-        if (group && !this.groups[color].find_index(group)) {
+        var group = this.goban.stoneAt(i, j).group;
+        if (group && !this.groups[color].findIndex(group)) {
             this.groups[color].push(group);
         }
     }

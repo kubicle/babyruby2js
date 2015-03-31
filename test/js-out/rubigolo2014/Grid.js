@@ -35,35 +35,35 @@ function Grid(size) {
 }
 module.exports = Grid;
 
-Grid.prototype.copy = function (source_grid) {
-    if (source_grid.length !== this.size) {
+Grid.prototype.copy = function (sourceGrid) {
+    if (sourceGrid.length !== this.size) {
         throw new Error('Cannot copy between different sized grids');
     }
-    var src_yx = source_grid.yx;
+    var srcYx = sourceGrid.yx;
     for (var j = 1; j <= this.size; j++) {
         for (var i = 1; i <= this.size; i++) {
-            this.yx[j][i] = src_yx[j][i];
+            this.yx[j][i] = srcYx[j][i];
         }
     }
     return this;
 };
 
 // Converts from goban grid (stones) to simple grid (colors) REVIEWME
-Grid.prototype.convert = function (source_grid) {
-    if (source_grid.length !== this.size) {
+Grid.prototype.convert = function (sourceGrid) {
+    if (sourceGrid.length !== this.size) {
         throw new Error('Cannot copy between different sized grids');
     }
-    var src_yx = source_grid.yx;
+    var srcYx = sourceGrid.yx;
     for (var j = 1; j <= this.size; j++) {
         for (var i = 1; i <= this.size; i++) {
-            this.yx[j][i] = src_yx[j][i].color;
+            this.yx[j][i] = srcYx[j][i].color;
         }
     }
     return this;
 };
 
 // Returns the "character" used to represent a stone in text style
-Grid.color_to_char = function (color) {
+Grid.colorToChar = function (color) {
     if (color >= Grid.ZONE_CODE) {
         return String.fromCharCode((('A').charCodeAt() + color - Grid.ZONE_CODE));
     }
@@ -75,20 +75,20 @@ Grid.color_to_char = function (color) {
 };
 
 // Returns the name of the color/player (e.g. "black")
-Grid.color_name = function (color) { // TODO remove me or?
+Grid.colorName = function (color) { // TODO remove me or?
     return Grid.COLOR_NAMES[color];
 };
 
-Grid.char_to_color = function (char) {
+Grid.charToColor = function (char) {
     return Grid.CIRCULAR_COLOR_CHARS.index(char) + Grid.DAME_COLOR;
 };
 
 // Receives a block of code and calls it for each vertex.
 // The block should return a string representation.
 // This method returns the concatenated string showing the grid.
-Grid.prototype.to_text = function (with_labels, end_of_row, cb) {
-    if (with_labels === undefined) with_labels = true;
-    if (end_of_row === undefined) end_of_row = '\n';
+Grid.prototype.toText = function (withLabels, endOfRow, cb) {
+    if (withLabels === undefined) withLabels = true;
+    if (endOfRow === undefined) endOfRow = '\n';
     var yx = new Grid(this.size).yx;
     var maxlen = 1;
     for (var j = this.size; j >= 1; j--) {
@@ -103,26 +103,26 @@ Grid.prototype.to_text = function (with_labels, end_of_row, cb) {
             }
         }
     }
-    var num_char = maxlen;
+    var numChar = maxlen;
     var white = '          ';
     var s = '';
     for (var j = this.size; j >= 1; j--) {
-        if (with_labels) {
+        if (withLabels) {
             s += '%2d'.format(j) + ' ';
         }
         for (var i = 1; i <= this.size; i++) {
             val = yx[j][i];
-            if (val.length < num_char) {
-                val = white.substr(1, num_char - val.length) + val;
+            if (val.length < numChar) {
+                val = white.substr(1, numChar - val.length) + val;
             }
             s += val;
         }
-        s += end_of_row;
+        s += endOfRow;
     }
-    if (with_labels) {
+    if (withLabels) {
         s += '   ';
         for (var i = 1; i <= this.size; i++) {
-            s += white.substr(1, num_char - 1) + Grid.x_label(i);
+            s += white.substr(1, numChar - 1) + Grid.xLabel(i);
         }
         s += '\n';
     }
@@ -133,7 +133,7 @@ Grid.prototype.toString = function () {
     var s = '';
     for (var j = this.size; j >= 1; j--) {
         for (var i = 1; i <= this.size; i++) {
-            s += Grid.color_to_char(this.yx[j][i]);
+            s += Grid.colorToChar(this.yx[j][i]);
         }
         s += '\n';
     }
@@ -144,20 +144,20 @@ Grid.prototype.toString = function () {
 // Image is upside-down to help compare with a copy paste from console log.
 // So last row (j==size) comes first in image
 Grid.prototype.image = function () {
-    if (this.yx[1][1].instance_of(Stone)) { // FIXME
-        return this.to_text(false, ',', function (s) {
-            return Grid.color_to_char(s.color);
+    if (this.yx[1][1].instanceOf(Stone)) { // FIXME
+        return this.toText(false, ',', function (s) {
+            return Grid.colorToChar(s.color);
         }).chop();
     } else {
-        return this.to_text(false, ',', function (c) {
-            return Grid.color_to_char(c);
+        return this.toText(false, ',', function (c) {
+            return Grid.colorToChar(c);
         }).chop();
     }
 };
 
 // Watch out our images are upside-down on purpose (to help copy paste from screen)
 // So last row (j==size) comes first in image
-Grid.prototype.load_image = function (image) {
+Grid.prototype.loadImage = function (image) {
     var rows = image.split(/'\"|,'/);
     if (rows.length !== this.size) {
         throw new Error('Invalid image: ' + rows.length + ' rows instead of ' + this.size);
@@ -168,23 +168,23 @@ Grid.prototype.load_image = function (image) {
             throw new Error('Invalid image: row ' + row);
         }
         for (var i = 1; i <= this.size; i++) {
-            this.yx[j][i] = Grid.char_to_color(row[i - 1]);
+            this.yx[j][i] = Grid.charToColor(row[i - 1]);
         }
     }
 };
 
 // Parses a move like "c12" into 3,12
-Grid.parse_move = function (move) {
+Grid.parseMove = function (move) {
     return [(move[0]).charCodeAt() - Grid.NOTATION_A + 1, parseInt(move[1], 10)];
 };
 
 // Builds a string representation of a move (3,12->"c12")  
-Grid.move_as_string = function (col, row) {
+Grid.moveAsString = function (col, row) {
     return String.fromCharCode((col + Grid.NOTATION_A - 1)) + row;
 };
 
 // Converts a numeric X coordinate in a letter (e.g 3->c)
-Grid.x_label = function (i) {
+Grid.xLabel = function (i) {
     return String.fromCharCode((i + Grid.NOTATION_A - 1));
 };
 

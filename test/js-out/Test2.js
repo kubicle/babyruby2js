@@ -16,7 +16,7 @@ Obj.prototype.toString = function () {
 };
 
 Obj.prototype.func2 = function () {
-    for (var i = 1; i <= num_tournaments(); i++) { // TODO: Find a way to appreciate the progress
+    for (var i = 1; i <= numTournaments(); i++) { // TODO: Find a way to appreciate the progress
         reproduction();
         control();
     }
