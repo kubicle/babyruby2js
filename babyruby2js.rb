@@ -23,7 +23,7 @@ NO_PARAM_FUNC = {
   :raise => "", :backtrace => ""
 }
 ONE_PARAM_FUNC = {
-  :split => "split", :chomp => "chomp",
+  :split => "split", :chomp => "chomp", :push => "push",
   :start_with? => "startWith", :end_with? => "endWith",
   :join => "join",
   :count => "",
