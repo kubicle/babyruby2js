@@ -28,7 +28,7 @@ function TestZoneFiller(testName) {
     return this.initBoard();
 }
 inherits(TestZoneFiller, main.TestCase);
-module.exports = TestZoneFiller;
+module.exports = main.tests.add(TestZoneFiller);
 
 TestZoneFiller.prototype.testFill1 = function () {
     // 5 +O+++

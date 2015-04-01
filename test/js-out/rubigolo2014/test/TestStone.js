@@ -19,7 +19,7 @@ function TestStone(testName) {
     return this.initBoard();
 }
 inherits(TestStone, main.TestCase);
-module.exports = TestStone;
+module.exports = main.tests.add(TestStone);
 
 TestStone.prototype.howManyLives = function (i, j) {
     var s = this.goban.stoneAt(i, j);

@@ -21,7 +21,7 @@ function TestGameLogic(testName) {
     return this.initBoard();
 }
 inherits(TestGameLogic, main.TestCase);
-module.exports = TestGameLogic;
+module.exports = main.tests.add(TestGameLogic);
 
 // 3 ways to load the same game with handicap...
 TestGameLogic.prototype.testHandicap = function () {

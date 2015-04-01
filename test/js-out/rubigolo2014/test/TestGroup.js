@@ -24,7 +24,7 @@ function TestGroup(testName) {
     return this.initBoard();
 }
 inherits(TestGroup, main.TestCase);
-module.exports = TestGroup;
+module.exports = main.tests.add(TestGroup);
 
 TestGroup.prototype.testGroupMerge = function () {
     // check the sentinel

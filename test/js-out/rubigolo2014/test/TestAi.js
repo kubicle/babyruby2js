@@ -25,7 +25,7 @@ function TestAi(xtestName) {
     return this.initBoard();
 }
 inherits(TestAi, main.TestCase);
-module.exports = TestAi;
+module.exports = main.tests.add(TestAi);
 
 // old method; rather use play_and_check below
 TestAi.prototype.letAiPlay = function () {

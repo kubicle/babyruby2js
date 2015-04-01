@@ -12,7 +12,7 @@ function TestBreeder(testName) {
     return main.TestCase.call(this, testName);
 }
 inherits(TestBreeder, main.TestCase);
-module.exports = TestBreeder;
+module.exports = main.tests.add(TestBreeder);
 
 TestBreeder.prototype.testBwBalance = function () {
     var numGames = 200;
