@@ -423,11 +423,6 @@ class RubyToJs
     return vname
   end
 
-  def declIf(vname)
-    return vname if !@stmtDecl.delete(vname)
-    return "var #{vname}"
-  end
-
   def localVarDecl()
     return "" if @stmtDecl.length==0
     res = "var " + @stmtDecl.join(", ") + ";#{cr}"
@@ -560,7 +555,7 @@ class RubyToJs
         end
       else
         stepVar = "_step#{ndx}"
-        decl = "#{declIf(ndx)} = #{v1}, #{stepVar} = #{exp(step)}"
+        decl = "var #{ndx} = #{v1}, #{stepVar} = #{exp(step)}"
         test = "(#{v2} - #{ndx}) * #{stepVar} > 0"
         incr = "#{ndx} += #{stepVar}"
       end
@@ -573,10 +568,10 @@ class RubyToJs
       arrayName = "#{item}_array"
       array = exp(method.children[0])
       if methName == :each
-        decl = "#{declIf(item)}, #{arrayName} = #{array}, #{ndx} = 0"
+        decl = "var #{item}, #{arrayName} = #{array}, #{ndx} = 0"
         test = "#{item}=#{arrayName}[#{ndx}], #{ndx} < #{arrayName}.length"
       else
-        decl = "#{declIf(item)}, #{arrayName} = #{array}, #{ndx} = #{arrayName}.length - 1"
+        decl = "var #{item}, #{arrayName} = #{array}, #{ndx} = #{arrayName}.length - 1"
         test = "#{item}=#{arrayName}[#{ndx}], #{ndx} >= 0"
         incr = "#{ndx}--"
       end
@@ -585,7 +580,7 @@ class RubyToJs
     else
       return nil
     end
-    decl = "#{declIf(ndx)} = #{v1}" if !decl
+    decl = "var #{ndx} = #{v1}" if !decl
     test = "#{ndx} <= #{v2}" if !test
     incr = "#{ndx}++" if !incr
     return "for (#{decl}; #{test}; #{incr}) {#{genCom('D')}#{crb}#{stmt(code)}#{cre}}"
