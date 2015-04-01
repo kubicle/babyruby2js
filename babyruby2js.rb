@@ -399,7 +399,7 @@ class RubyToJs
       arg1 = n.children[1]
       if arg1
         asgn = arg1.children[1]
-        vname = @curException = asgn ? asgn.children[0].to_s : "_exc"
+        vname = @curException = asgn ? jsName(asgn.children[0]) : "_exc"
         catche = " catch (#{vname}) {#{crb}#{stmt(arg1.children[2])}#{cre}}"
       end
       "try {#{crb}#{ret}#{stmt(arg0)}#{cre}}#{catche}"
@@ -414,11 +414,11 @@ class RubyToJs
     return "#{ret}#{@curClass[:parent]}#{method}.call(this#{params})#{semi}"
   end
 
-  def localVar(n)
-    vname = n.children[0].to_s
+  def localVar(n, loopIndex=false)
+    vname = jsName(n.children[0])
     if !@localVars[vname]
       @localVars[vname] = true
-      @stmtDecl.push(vname)
+      @stmtDecl.push(vname) if !loopIndex
     end
     return vname
   end
@@ -530,7 +530,7 @@ class RubyToJs
     return nil if method.type != :send or args.children.length > 1
     methName = method.children[1]
     decl = test = incr = nil
-    ndx = args.children.length == 1 ? args.children[0].children[0].to_s : "i"
+    ndx = args.children.length == 1 ? localVar(args.children[0], true) : "i"
 
     case methName
     when :upto
@@ -611,15 +611,15 @@ class RubyToJs
     i = static ? 1 : 0
     symbol = n.children[i]
     methName = symbol.to_s
-    jsMethName = jsName(symbol)
+    jsname = jsName(symbol)
     enterMethod(methName)
     after = ";"
     if symbol == :initialize
       proto, after = newClassConstructor()
     elsif static
-      proto = "#{@class}.#{jsMethName} = function ("
+      proto = "#{@class}.#{jsname} = function ("
     else
-      proto = "#{@class}.prototype.#{jsMethName} = function ("
+      proto = "#{@class}.prototype.#{jsname} = function ("
     end
     args = n.children[i+1]
     proto << methodArgs(args)
@@ -632,7 +632,7 @@ class RubyToJs
     # if callback was called in body we need to add it as parameter
     proto << (args.children.length ? ", cb" : "cb") if @hasYield
     @publicMethods[methName] = @class if !@private
-    checkConflictWithStdFunc(symbol, jsMethName, args.children.length + (@hasYield?1:0))
+    checkConflictWithStdFunc(symbol, jsname, args.children.length + (@hasYield?1:0))
     return "#{proto}) {#{lastParamCom}#{crb}#{defaultValues}#{body}#{cre}}#{after}#{cr}"
   end
 
@@ -640,7 +640,7 @@ class RubyToJs
     return "" if n.children.length==0
     res = vname = ""
     n.children.each do |a|
-      vname = a.children[0].to_s
+      vname = jsName(a.children[0])
       @localVars[vname] = @parameters[vname] = true
       storeComments(a)
       break if a == n.children.last # for last param we don't want a "," and we want to leave its comments
@@ -653,7 +653,8 @@ class RubyToJs
     defaultValues = ""
     args.children.each do |a|
       if a.type == :optarg
-        defaultValues << "if (#{a.children[0]} === undefined) #{a.children[0]} = #{exp(a.children[1])};#{cr}"
+        vname = jsName(a.children[0])
+        defaultValues << "if (#{vname} === undefined) #{vname} = #{exp(a.children[1])};#{cr}"
       end
     end
     return defaultValues
@@ -775,10 +776,10 @@ class RubyToJs
   def attributes(n)
     names = ""
     n.children[2..-1].each do |v|
-      vname = v.children[0]
-      jsname = jsName(vname)
-      checkConflictWithStdFunc(vname, jsname, 0)
-      @publicVars[vname.to_s] = true
+      symbol = v.children[0]
+      jsname = jsName(symbol)
+      checkConflictWithStdFunc(symbol, jsname, 0)
+      @publicVars[symbol.to_s] = true
       storeComments(v)
       names << ", #{jsname}"
     end
@@ -864,8 +865,7 @@ class RubyToJs
 
     arg0 = n.children[0]
     symbol = n.children[1]
-    methName = symbol.to_s
-    objAndMeth = jsMethName = nil
+    objAndMeth = jsname = nil
 
     case symbol
     when :<<
@@ -881,11 +881,11 @@ class RubyToJs
     when :[]=
       return "#{exp(arg0)}[#{exp(n.children[2])}] = #{exp(n.children[3])}"
     when :-@, :+@, :! # unary operators
-      return "#{ret}#{methName[0]}#{exp(arg0)}"
+      return "#{ret}#{symbol[0]}#{exp(arg0)}"
     when :"=", :+, :-, :*, :/, :<, :>, :<=, :>= # binary operators
-      return "#{ret}#{exp(arg0)} #{methName} #{exp(n.children[2])}"
+      return "#{ret}#{exp(arg0)} #{symbol} #{exp(n.children[2])}"
     when :==, :!= # become === or !== in JS
-      return "#{ret}#{exp(arg0)} #{methName}= #{exp(n.children[2])}"
+      return "#{ret}#{exp(arg0)} #{symbol}= #{exp(n.children[2])}"
     when :=== # regexp test
       return "#{ret}#{exp(arg0)}.test(#{exp(n.children[2])})"
     when :% #(send (str "%2d") :% (lvar :j))
@@ -906,22 +906,23 @@ class RubyToJs
       @private = false
       return "//public"
     when :require, :require_relative
-      return genRequire(n.children[2], methName=="require")
+      return genRequire(n.children[2], symbol == :require)
     when :each # we get here only if each could not be converted to a for loop earlier
-      jsMethName = "forEach"
+      jsname = "forEach"
     when :puts, :print
       objAndMeth, ret = "console.log", "" if arg0==nil
     end # else = user method call
 
-    jsMethName = jsName(symbol) if !jsMethName
-    userMethod = !objAndMeth
-    objAndMeth = "#{objScope(arg0, methName)}#{jsMethName}" if !objAndMeth
+    isUserMethod = objAndMeth==nil && jsname==nil
+    jsname = jsName(symbol) if !jsname
+    methName = symbol.to_s
+    objAndMeth = "#{objScope(arg0, methName)}#{jsname}" if !objAndMeth
     #add parameters to method or constructor call
     params = n.children[2..-1].map{|p| exp(p)}.join(", ")
     params << "#{params.length > 0 ? ', ' : ''}#{block}" if block
     return "#{ret}#{objAndMeth}#{noParamsMethCall(methName)}" if params.length==0 and !block
     #method call with parameters; check if we know the method
-    if @showErrors and userMethod and !@classMethods[methName] and !@publicMethods[methName]
+    if @showErrors and isUserMethod and !@classMethods[methName] and !@publicMethods[methName]
       logError("E", 2, "unknown method #{methName}(...)")
       @publicMethods[methName] = true # so we show it only once
     end

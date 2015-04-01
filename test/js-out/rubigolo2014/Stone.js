@@ -38,7 +38,7 @@ Stone.prototype.clear = function () {
 // NB: Stones next to side have only 3 neighbors, and the corner stones have 2
 Stone.prototype.findNeighbors = function () {
     this.neighbors.clear();
-    for (var coord_change, coord_change_array = Stone.XY_AROUND, coord_change_ndx = 0; coord_change=coord_change_array[coord_change_ndx], coord_change_ndx < coord_change_array.length; coord_change_ndx++) {
+    for (var coordChange, coordChange_array = Stone.XY_AROUND, coordChange_ndx = 0; coordChange=coordChange_array[coordChange_ndx], coordChange_ndx < coordChange_array.length; coordChange_ndx++) {
         var stone = this.goban.stoneAt(this.i + coordChange[0], this.j + coordChange[1]);
         if (stone !== main.BORDER) {
             this.neighbors.push(stone);
