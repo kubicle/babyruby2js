@@ -1,6 +1,7 @@
 //Translated from test3.rb using babyruby2js
 'use strict';
 
+var main = require('./main');
 // Class comment
 // another class comment
 // attr_accessor comment

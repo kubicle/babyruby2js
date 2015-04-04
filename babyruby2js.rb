@@ -61,7 +61,7 @@ class RubyToJs
     @stacked_com["D"] = []
 
     @rubyFilePath = MAIN_CLASS_PATH
-    enterClass(MAIN_CLASS)
+    enterClass(MAIN_CLASS) # also needed to know class "main" is in root dir
     enterMethod("")
   end
 
@@ -492,6 +492,7 @@ class RubyToJs
       return "#{exp(n.children[0])}.#{cname}"
     end
     if declare
+      mainClass if @class == MAIN_CLASS # identify dependency on class "main"
       @classConstants[cname] = true
     end
     if @classes[cname]
@@ -591,6 +592,8 @@ class RubyToJs
     @localVars = {}
     @curMethod = methName
     @classMethods[methName] = true
+    @publicMethods[methName] = @class if !@private
+    mainClass if @class == MAIN_CLASS and methName != "" # identify dependency on class "main"
   end
 
   def newClassConstructor
@@ -631,7 +634,6 @@ class RubyToJs
     @indent -= 1
     # if callback was called in body we need to add it as parameter
     proto << (args.children.length ? ", cb" : "cb") if @hasYield
-    @publicMethods[methName] = @class if !@private
     checkConflictWithStdFunc(symbol, jsname, args.children.length + (@hasYield?1:0))
     return "#{proto}) {#{lastParamCom}#{crb}#{defaultValues}#{body}#{cre}}#{after}#{cr}"
   end
