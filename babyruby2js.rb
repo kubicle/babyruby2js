@@ -3,7 +3,7 @@ require 'parser/current'
 require 'json'
 require_relative 'associator'
 
-MAIN_CLASS = "main"
+MAIN_CLASS = :main
 MAIN_CLASS_PATH = "./"
 
 RANGE_FUNC = { :irange => "range", :erange => "slice" }
@@ -208,7 +208,7 @@ class RubyToJs
 
   def classDef(n)
     prevClass = @class
-    enterClass(n.children[0].children[1].to_s, n.children[1])
+    enterClass(n.children[0].children[1], n.children[1])
 
     res = stmt(n.children[2])
 
@@ -486,7 +486,7 @@ class RubyToJs
 
   # This gets both constants and... classes!
   def constOrClass(n, declare=false) #(const nil :INFO) or (const (const nil :Logger) :DEBUG))
-    cname = n.children[1].to_s
+    cname = n.children[1]
     if n.children[0] and n.children[0].to_s != @class
       raise "Invalid const declaration outside scope: #{n.children[0]}.#{cname}" if declare
       return "#{exp(n.children[0])}.#{cname}"
@@ -605,7 +605,7 @@ class RubyToJs
     afterConstr = "#{cr}module.exports = #{export};"
     if parent
       afterConstr = "#{cr}inherits(#{@class}, #{parent});" + afterConstr
-      @dependencies["inherits"] = "require('util').inherits"
+      @dependencies[:inherits] = "require('util').inherits"
     end
     return proto, afterConstr
   end
@@ -746,7 +746,7 @@ class RubyToJs
     fname = fname[slash+1..-1] if slash
     fname = fname.chomp(".rb")
     
-    className = fname.split("_").map{|w| w.capitalize}.join
+    className = fname.split("_").map{|w| w.capitalize}.join.to_sym
     return className, path, fname+".rb"
   end
 
