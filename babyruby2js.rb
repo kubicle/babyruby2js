@@ -62,7 +62,7 @@ class RubyToJs
 
     @rubyFilePath = MAIN_CLASS_PATH
     enterClass(MAIN_CLASS) # also needed to know class "main" is in root dir
-    enterMethod("")
+    enterMethod(:"")
   end
 
   def readConfig
@@ -409,18 +409,19 @@ class RubyToJs
   end
 
   def superCall(args, semi, ret)
-    method = @curMethod=="initialize" ? "" : ".#{@curMethod}"
+    method = @curMethod == :initialize ? "" : ".#{@curMethod}"
     params = args.length>0 ? ", " + args.map{|p| exp(p)}.join(", ") : ""
     return "#{ret}#{@curClass[:parent]}#{method}.call(this#{params})#{semi}"
   end
 
   def localVar(n, loopIndex=false)
-    vname = jsName(n.children[0])
+    vname = n.children[0]
+    jsname = jsName(vname)
     if !@localVars[vname]
       @localVars[vname] = true
-      @stmtDecl.push(vname) if !loopIndex
+      @stmtDecl.push(jsname) if !loopIndex
     end
-    return vname
+    return jsname
   end
 
   def localVarDecl()
@@ -487,7 +488,7 @@ class RubyToJs
   # This gets both constants and... classes!
   def constOrClass(n, declare=false) #(const nil :INFO) or (const (const nil :Logger) :DEBUG))
     cname = n.children[1]
-    if n.children[0] and n.children[0].to_s != @class
+    if n.children[0] and n.children[0] != @class
       raise "Invalid const declaration outside scope: #{n.children[0]}.#{cname}" if declare
       return "#{exp(n.children[0])}.#{cname}"
     end
@@ -510,14 +511,15 @@ class RubyToJs
   end
 
   def varName(n)
-    vname = jsName(n.children[0])
+    symbol = n.children[0]
+    vname = jsName(symbol)
     case vname[0]
     when "@"
       if vname[1] == "@"
         return "#{@class}.#{vname[2..-1]}"
       end
       vname = vname[1..-1]
-      @classDataMembers[vname] = true
+      @classDataMembers[symbol[1..-1].to_sym] = true
       return "this.#{vname}"
     when "$"
       return "#{mainClass}.#{vname[1..-1]}"
@@ -593,7 +595,7 @@ class RubyToJs
     @curMethod = methName
     @classMethods[methName] = true
     @publicMethods[methName] = @class if !@private
-    mainClass if @class == MAIN_CLASS and methName != "" # identify dependency on class "main"
+    mainClass if @class == MAIN_CLASS and methName != :"" # identify dependency on class "main"
   end
 
   def newClassConstructor
@@ -613,9 +615,8 @@ class RubyToJs
   def newMethod(n, static=false)
     i = static ? 1 : 0
     symbol = n.children[i]
-    methName = symbol.to_s
     jsname = jsName(symbol)
-    enterMethod(methName)
+    enterMethod(symbol)
     after = ";"
     if symbol == :initialize
       proto, after = newClassConstructor()
@@ -640,15 +641,16 @@ class RubyToJs
 
   def methodArgs(n) #(args (arg :stone) (arg :lives))
     return "" if n.children.length==0
-    res = vname = ""
+    res = jsname = ""
     n.children.each do |a|
-      vname = jsName(a.children[0])
+      vname = a.children[0]
+      jsname = jsName(vname)
       @localVars[vname] = @parameters[vname] = true
       storeComments(a)
       break if a == n.children.last # for last param we don't want a "," and we want to leave its comments
-      res << "#{vname}, #{genCom('P')}"
+      res << "#{jsname}, #{genCom('P')}"
     end
-    return res + vname
+    return res + jsname
   end
 
   def methodDefaultArgs(args) # (args (optarg :size (int 19)))
@@ -781,7 +783,7 @@ class RubyToJs
       symbol = v.children[0]
       jsname = jsName(symbol)
       checkConflictWithStdFunc(symbol, jsname, 0)
-      @publicVars[symbol.to_s] = true
+      @publicVars[symbol] = true
       storeComments(v)
       names << ", #{jsname}"
     end
@@ -917,16 +919,15 @@ class RubyToJs
 
     isUserMethod = objAndMeth==nil && jsname==nil
     jsname = jsName(symbol) if !jsname
-    methName = symbol.to_s
-    objAndMeth = "#{objScope(arg0, methName)}#{jsname}" if !objAndMeth
+    objAndMeth = "#{objScope(arg0, symbol)}#{jsname}" if !objAndMeth
     #add parameters to method or constructor call
     params = n.children[2..-1].map{|p| exp(p)}.join(", ")
     params << "#{params.length > 0 ? ', ' : ''}#{block}" if block
-    return "#{ret}#{objAndMeth}#{noParamsMethCall(methName)}" if params.length==0 and !block
+    return "#{ret}#{objAndMeth}#{noParamsMethCall(symbol)}" if params.length==0 and !block
     #method call with parameters; check if we know the method
-    if @showErrors and isUserMethod and !@classMethods[methName] and !@publicMethods[methName]
-      logError("E", 2, "unknown method #{methName}(...)")
-      @publicMethods[methName] = true # so we show it only once
+    if @showErrors and isUserMethod and !@classMethods[symbol] and !@publicMethods[symbol]
+      logError("E", 2, "unknown method #{symbol}(...)")
+      @publicMethods[symbol] = true # so we show it only once
     end
     return "#{ret}#{objAndMeth}(#{params})"
   end
@@ -934,7 +935,7 @@ class RubyToJs
   # This decides if we put "()" or not for a method call that could be a data accessor too
   # NB:in doubt, () is safer because of runtime error "not a function"
   def noParamsMethCall(methName)
-    return "()" if @classMethods[methName] or (methName=="new")
+    return "()" if @classMethods[methName] or (methName == :new)
     return "" if @classDataMembers[methName]
     meth =  @publicMethods[methName]
     var = @publicVars[methName]
