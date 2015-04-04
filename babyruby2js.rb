@@ -13,14 +13,15 @@ NO_PARAM_FUNC = {
   :upcase => "toUpperCase", :downcase => "toLowerCase",
   :split => "split", :chop => "chop", :chomp => "chomp",
   :chop! => "chop!", # will break on purpose
-  :sort => "sort", :pop => "pop", :shift => "shift", :message => "message",
+  :sort => "sort", :pop => "pop", :shift => "shift",
   :join => "join",
+
   :count => "",
   :first => "", :last => "", :length => "", :size => "",
   :chr => "", :ord => "", :to_i => "",
   :rand => "", :round => "",
   :abs => "", :max => "", :now => "",
-  :raise => "", :backtrace => ""
+  :raise => "", :backtrace => "", :message => ""
 }
 ONE_PARAM_FUNC = {
   :split => "split", :chomp => "chomp", :push => "push",
@@ -836,6 +837,8 @@ class RubyToJs
       return "throw new Error(#{exp(n.children[2])})"
     when :backtrace # exception.backtrace
       return "#{ret}#{exp(arg0)}.stack"
+    when :message # message is not a method in JS
+      return "#{ret}#{exp(arg0)}.message"
     else
       return nil
     end
