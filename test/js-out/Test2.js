@@ -3,6 +3,7 @@
 
 var m = {};
 //public read-only attribute: hash;
+Obj.ACONSTANT = 0;
 
 /** @class */
 function Obj(n) {

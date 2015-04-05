@@ -3,6 +3,8 @@ m={}
 class Obj
   attr_reader :hash
 
+  ACONSTANT = 0
+
   def initialize(n)
     @val = n
     @hash = n
