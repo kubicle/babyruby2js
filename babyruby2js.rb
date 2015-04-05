@@ -3,11 +3,13 @@ require 'parser/current'
 require 'json'
 require_relative 'associator'
 
-MAIN_CLASS = :main
-MAIN_CLASS_PATH = "./"
 
 RANGE_FUNC = { :irange => "range", :erange => "slice" }
+RENAMED_FUNC = { :to_s => "toString" }
 
+# Functions for which translation is declared as "" here will be
+# translated by #specialStdMethodCall().
+# Functions which can accept 0 or 1 parameter appear twice
 NO_PARAM_FUNC = {
   :strip => "trim", :lstrip => "trimLeft", :rstrip => "trimRight",
   :upcase => "toUpperCase", :downcase => "toLowerCase",
@@ -15,7 +17,6 @@ NO_PARAM_FUNC = {
   :chop! => "chop!", # will break on purpose
   :sort => "sort", :pop => "pop", :shift => "shift",
   :join => "join",
-
   :count => "",
   :first => "", :last => "", :length => "", :size => "",
   :chr => "", :ord => "", :to_i => "",
@@ -27,6 +28,7 @@ ONE_PARAM_FUNC = {
   :split => "split", :chomp => "chomp", :push => "push",
   :start_with? => "startWith", :end_with? => "endWith",
   :join => "join",
+  :is_a? => "",
   :count => "",
   :slice => "",
   :rand => "", :round => "",
@@ -36,9 +38,10 @@ TWO_PARAM_FUNC = {
   :slice => ""
 }
 
-RENAMED_FUNC = {
-  :to_s => "toString"
-}
+STD_CLASSES = { :String => "String", :Fixnum => "Number", :Array => "Array" }
+
+MAIN_CLASS = :main
+MAIN_CLASS_PATH = "./"
 
 
 class RubyToJs
@@ -300,6 +303,15 @@ class RubyToJs
     return "#{genCom('C',n)}#{localVarDecl()}#{code}#{genCom('D')}"
   end
 
+  def pexp(n)
+    e = exp(n)
+    return e if n.type != :send
+    case n.children[1]
+    when :+, :-, :*, :/, :%, :modulo then return "(#{e})"
+    else return exp(n)
+    end
+  end
+
   def exp(n, isStmt=false, mustReturn=false)
     return "error_nil_exp()" if n == nil
     semi = isStmt ? ";" : ""
@@ -497,6 +509,7 @@ class RubyToJs
       mainClass if @class == MAIN_CLASS # identify dependency on class "main"
       @classConstants[cname] = true
     end
+    return STD_CLASSES[cname] if STD_CLASSES[cname]
     if @classes[cname]
       @dependencies[cname] = true if @dependencies[cname]==nil
       return cname
@@ -715,7 +728,7 @@ class RubyToJs
     res = ""
     @dependencies.each do |className,val|
       next if !val
-      if val.is_a?(String)
+      if val.is_a?(String) # special dependencies (we stored what to translate as a string)
         requ = "var #{className} = #{val}"
       else
         cl = @classes[className]
@@ -842,6 +855,10 @@ class RubyToJs
       return "#{ret}#{exp(arg0)}.stack"
     when :message # message is not a method in JS
       return "#{ret}#{exp(arg0)}.message"
+    when :is_a?
+      klass = n.children[2]
+      klass = klass.type==:const ? "'#{exp(klass)}'" : exp(klass) # surround by quotes if classname
+      return "#{ret}#{mainClass}.isA(#{klass}, #{exp(arg0)})"
     else
       return nil
     end
@@ -898,9 +915,9 @@ class RubyToJs
       return "#{ret}#{exp(arg0)} #{symbol}= #{exp(n.children[2])}"
     when :=== # regexp test
       return "#{ret}#{exp(arg0)}.test(#{exp(n.children[2])})"
-    when :% #(send (str "%2d") :% (lvar :j))
+    when :%, :modulo # modulo or format (send (str "%2d") :% (lvar :j))
       return "#{ret}#{exp(arg0)}.format(#{exp(n.children[2])})" if arg0.type==:str
-      return "#{ret}#{exp(arg0)} % #{exp(n.children[2])}" # % operator (modulo) on numbers
+      return "#{ret}#{exp(arg0)} % #{pexp(n.children[2])}" # % operator (modulo) on numbers
     when :new
       objAndMeth = "new #{exp(arg0)}"
     when :class
