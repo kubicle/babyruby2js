@@ -1,12 +1,11 @@
 //Translated from contacts.rb using babyruby2js
 'use strict';
 
-var main = require('./main');
 //public read-only attribute: contacts;
 
 /** @class */
 function Contacts() {
-    this.contacts = new main.Array(4);
+    this.contacts = new Array(4);
     return this.contacts.clear();
 }
 module.exports = Contacts;
