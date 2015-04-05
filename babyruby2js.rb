@@ -502,7 +502,10 @@ class RubyToJs
       return cname
     end
     return "#{@class}.#{cname}" if @classConstants[cname]
-    # nothing specified and unknown so we suppose it is in main class
+    # nothing specified so we look in main class
+    if !@classes[MAIN_CLASS][:constants][cname]
+      logError("W", 2, "Unknown class or constant supposed to be attached to main: #{cname}")
+    end
     return "#{mainClass}.#{cname}"
   end
 
