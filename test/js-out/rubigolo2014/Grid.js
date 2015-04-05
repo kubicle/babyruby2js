@@ -30,7 +30,7 @@ function Grid(size) {
     // In case of bug, e.g. for @yx[5][-1], Ruby returns you @yx[5][@yx.size] (looping back)
     // so having a real item (BORDER) on the way helps to detect a bug.
     this.yx = new Array(size + 2, function () {
-        return new Array(size + 2, main.BORDER);
+        return new main.Array(size + 2, main.BORDER);
     });
 }
 module.exports = Grid;
