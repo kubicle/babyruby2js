@@ -190,7 +190,7 @@ class RubyToJs
   #--- Class
 
   def newClass(name, parent)
-    parentName = parent ? constOrClass(parent) : nil
+    parentName = parent ? const(:class, parent) : nil
     return {
       name: name, parent: parentName, directory: @rubyFilePath,
       methods: {}, members: {}, constants: {}
@@ -360,9 +360,9 @@ class RubyToJs
     when :zsuper, :super
       return superCall(n.children, semi, ret)
     when :const
-      "#{ret}#{constOrClass(n)}#{semi}"
+      "#{ret}#{const(:use,n)}#{semi}"
     when :casgn #(casgn nil :ERROR (int 3))
-      "#{constOrClass(n,true)} = #{exp(n.children[2])}#{semi}"
+      "#{const(:decl,n)} = #{exp(n.children[2])}#{semi}"
     when :ivar, :cvar, :lvar, :gvar
       "#{ret}#{varName(n)}#{semi}"
     when :op_asgn #(op_asgn (Xvasgn :@num_groups) :+ (int 1))
@@ -499,13 +499,14 @@ class RubyToJs
   end
 
   # This gets both constants and... classes!
-  def constOrClass(n, declare=false) #(const nil :INFO) or (const (const nil :Logger) :DEBUG))
+  def const(type, n) #(const nil :INFO) or (const (const nil :Logger) :DEBUG))
     cname = n.children[1]
+    isConst = cname.upcase == cname
     if n.children[0] and n.children[0] != @class
-      raise "Invalid const declaration outside scope: #{n.children[0]}.#{cname}" if declare
+      raise "Invalid const declaration outside scope: #{n.children[0]}.#{cname}" if type==:decl
       return "#{exp(n.children[0])}.#{cname}"
     end
-    if declare
+    if type == :decl
       mainClass if @class == MAIN_CLASS # identify dependency on class "main"
       @classConstants[cname] = true
     end
@@ -517,7 +518,7 @@ class RubyToJs
     return "#{@class}.#{cname}" if @classConstants[cname]
     # nothing specified so we look in main class
     if !@classes[MAIN_CLASS][:constants][cname]
-      logError("W", 2, "Unknown class or constant supposed to be attached to main: #{cname}")
+      logError("W", 2, "Unknown #{isConst ? 'constant' : 'class'} supposed to be attached to main: #{cname}")
     end
     return "#{mainClass}.#{cname}"
   end
@@ -808,6 +809,14 @@ class RubyToJs
     return "//public #{type} attribute: #{names[2..-1]}"
   end
 
+  def methodNew(arg0, num_param)
+    return "new #{exp(arg0)}" if arg0.type != :const
+    storeComments(arg0)
+    klass = const(:class,arg0)
+    klass = "#{mainClass}.Array" if klass == "Array" and num_param > 1 # for 0 or 1 param JS is same as Ruby
+    return "new #{klass}"
+  end
+
   #  method handled here should be added to NO_PARAM_FUNC and others
   def specialStdMethodCall(n, ret, block)
     arg0 = n.children[0]
@@ -892,6 +901,7 @@ class RubyToJs
 
     arg0 = n.children[0]
     symbol = n.children[1]
+    num_param = n.children.length - 2
     objAndMeth = jsname = nil
 
     case symbol
@@ -919,7 +929,7 @@ class RubyToJs
       return "#{ret}#{exp(arg0)}.format(#{exp(n.children[2])})" if arg0.type==:str
       return "#{ret}#{exp(arg0)} % #{pexp(n.children[2])}" # % operator (modulo) on numbers
     when :new
-      objAndMeth = "new #{exp(arg0)}"
+      objAndMeth = methodNew(arg0, num_param)
     when :class
       return "#{ret}#{exp(arg0)}.constructor"
     when :name
