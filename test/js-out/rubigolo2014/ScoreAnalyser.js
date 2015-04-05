@@ -103,7 +103,7 @@ ScoreAnalyser.prototype.scoreWinnerToS = function (totals) {
         var diff = totals[0] - totals[1];
         return this.scoreDiffToS(diff);
     } else {
-        var max = Math.max.apply(Math,totals);
+        var max = Math.max.apply(Math, totals);
         var winners = [];
         for (var c = 1; c <= totals.length; c++) {
             if (totals[c] === max) {
