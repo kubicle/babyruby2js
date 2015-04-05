@@ -28,4 +28,7 @@ m[o1] = 'hello';
 m[o2] = 'world';
 p(o1, o2);
 p(m);
+// auto-add of parenthesis
+p(9 % (3 + 2));
+(3 % 2).toString();
 // E01: unknown no-arg method num_tournaments()

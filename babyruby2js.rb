@@ -308,7 +308,7 @@ class RubyToJs
     return e if n.type != :send
     case n.children[1]
     when :+, :-, :*, :/, :%, :modulo then return "(#{e})"
-    else return exp(n)
+    else return e
     end
   end
 
@@ -833,7 +833,7 @@ class RubyToJs
     when :chr
       return "#{ret}String.fromCharCode(#{exp(arg0)})"
     when :ord
-      return "#{ret}(#{exp(arg0)}).charCodeAt()"
+      return "#{ret}#{pexp(arg0)}.charCodeAt()"
     when :rand # rand or rand(number) (global method in ruby)
       return "#{ret}Math.random()" if num_param==0
       return "#{ret}~~(Math.random()*~~(#{exp(n.children[2])}))"
@@ -841,11 +841,11 @@ class RubyToJs
       return "#{ret}Math.round(#{exp(arg0)})" if num_param==0
       arg1 = n.children[2]
       factor = arg1.type==:int ? 10**(arg1.children[0]) : "Math.power(10, #{exp(arg1)})"
-      return "#{ret}(Math.round((#{exp(arg0)})*#{factor})/#{factor})"
+      return "#{ret}(Math.round(#{pexp(arg0)} * #{factor}) / #{factor})"
     when :abs
       return "#{ret}Math.abs(#{exp(arg0)})"
     when :max # array.max
-      return "#{ret}Math.max.apply(Math,#{exp(arg0)})"
+      return "#{ret}Math.max.apply(Math, #{exp(arg0)})"
     when :now # Time.now
       return "#{ret}Date.now()"
     when :raise # raise or raise exp
@@ -879,9 +879,9 @@ class RubyToJs
     return nil if !func
     return specialStdMethodCall(n, ret, block) if func == ""
     case num_param
-    when 0 then "#{ret}#{exp(arg0)}.#{func}()"
-    when 1 then "#{ret}#{exp(arg0)}.#{func}(#{exp(n.children[2])})"
-    when 2 then "#{ret}#{exp(arg0)}.#{func}(#{exp(n.children[2])},#{exp(n.children[3])})"
+    when 0 then "#{ret}#{pexp(arg0)}.#{func}()"
+    when 1 then "#{ret}#{pexp(arg0)}.#{func}(#{exp(n.children[2])})"
+    when 2 then "#{ret}#{pexp(arg0)}.#{func}(#{exp(n.children[2])}, #{exp(n.children[3])})"
     end
   end
 
@@ -973,7 +973,7 @@ class RubyToJs
   end
 
   def objScope(n, methName)
-    return "#{exp(n)}." if n
+    return "#{pexp(n)}." if n
     return "this." if @classMethods[methName] or @classDataMembers[methName]
     return ""
   end

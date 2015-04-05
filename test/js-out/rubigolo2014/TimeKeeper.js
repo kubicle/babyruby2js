@@ -33,7 +33,7 @@ TimeKeeper.prototype.calibrate = function (expected) {
             m[n.toString()] = n;
         }
         for (var n = 1; n <= 1000; n++) {
-            m[n.modulo(100).toString()] += 1;
+            m[(n % 100).toString()] += 1;
         }
     }
     var duration = Date.now() - t0;

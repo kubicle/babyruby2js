@@ -27,3 +27,7 @@ m[o2] = "world"
 
 p o1,o2
 p m
+
+# auto-add of parenthesis
+p 9.modulo(3+2)
+3.modulo(2).to_s()
