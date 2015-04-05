@@ -158,7 +158,7 @@ Grid.prototype.image = function () {
 // Watch out our images are upside-down on purpose (to help copy paste from screen)
 // So last row (j==size) comes first in image
 Grid.prototype.loadImage = function (image) {
-    var rows = image.split(/'\"|,'/);
+    var rows = image.split(/\"|,/);
     if (rows.length !== this.size) {
         throw new Error('Invalid image: ' + rows.length + ' rows instead of ' + this.size);
     }

@@ -68,7 +68,7 @@ GameLogic.prototype.loadMoves = function (game) {
         return true;
     } catch (err) {
         this.errorMsg('Failed loading moves. Please double check the format of your input.');
-        this.errorMsg('Error: ' + err.message() + ' (' + err.constructor.name + ')');
+        this.errorMsg('Error: ' + err.message + ' (' + err.constructor.name + ')');
         main.log.error('Error while loading moves:\n' + err + '\n' + err.stack);
         return false;
     }
@@ -81,7 +81,7 @@ GameLogic.prototype.playOneMove = function (move) {
         return this.errorMsg('Game already ended');
     }
     // $log.debug("GameLogic playing #{Grid.color_name(@cur_color)}: #{move}") if $debug
-    if (/'^[a-z][1-2]?[0-9]$'/.test(move)) {
+    if (/^[a-z][1-2]?[0-9]$/.test(move)) {
         return this.playAStone(move);
     } else if (move === 'undo') {
         return this.requestUndo();
