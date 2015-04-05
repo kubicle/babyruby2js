@@ -338,7 +338,7 @@ class RubyToJs
       "#{ret}'#{arg0.to_s}'#{semi}"
     when :regexp #(regexp (str "\\\"|,") (regopt)) for /\"|,/
       opt = n.children[1].children[1]
-      "#{ret}/#{exp(arg0)}/#{opt ? opt : ''}#{semi}" 
+      "#{ret}/#{exp(arg0)[1..-2]}/#{opt ? opt : ''}#{semi}" # we strip the str quotes
     when :dstr #"abc#{@size}efg" -> (dstr (str "abc") (begin (ivar :@size)) (str "efg"))
       "#{ret}#{extrapolStr(n)}#{semi}"
     when :array
