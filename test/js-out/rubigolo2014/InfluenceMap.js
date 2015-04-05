@@ -9,8 +9,8 @@ var Grid = require('./Grid');
 function InfluenceMap(goban) {
     this.goban = goban;
     this.size = goban.length;
-    this.map = new Array(this.size + 1, function () {
-        return new Array(this.size + 1, function () {
+    this.map = new main.Array(this.size + 1, function () {
+        return new main.Array(this.size + 1, function () {
             return [0, 0];
         });
     });

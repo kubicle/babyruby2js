@@ -809,11 +809,11 @@ class RubyToJs
     return "//public #{type} attribute: #{names[2..-1]}"
   end
 
-  def methodNew(arg0, num_param)
+  def methodNew(arg0, num_param, block)
     return "new #{exp(arg0)}" if arg0.type != :const
     storeComments(arg0)
     klass = const(:class,arg0)
-    klass = "#{mainClass}.Array" if klass == "Array" and num_param > 1 # for 0 or 1 param JS is same as Ruby
+    klass = "#{mainClass}.Array" if klass == "Array" and (num_param > 1 or block) # for 0 or 1 param JS is same as Ruby
     return "new #{klass}"
   end
 
@@ -929,7 +929,7 @@ class RubyToJs
       return "#{ret}#{exp(arg0)}.format(#{exp(n.children[2])})" if arg0.type==:str
       return "#{ret}#{exp(arg0)} % #{pexp(n.children[2])}" # % operator (modulo) on numbers
     when :new
-      objAndMeth = methodNew(arg0, num_param)
+      objAndMeth = methodNew(arg0, num_param, block)
     when :class
       return "#{ret}#{exp(arg0)}.constructor"
     when :name

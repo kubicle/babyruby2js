@@ -29,7 +29,7 @@ function Grid(size) {
     // Idea is to avoid to have to check i,j against size in many places.
     // In case of bug, e.g. for @yx[5][-1], Ruby returns you @yx[5][@yx.size] (looping back)
     // so having a real item (BORDER) on the way helps to detect a bug.
-    this.yx = new Array(size + 2, function () {
+    this.yx = new main.Array(size + 2, function () {
         return new main.Array(size + 2, main.BORDER);
     });
 }
