@@ -1,6 +1,7 @@
 //Translated from test2.rb using babyruby2js
 'use strict';
 
+var main = require('./main');
 var m = {};
 //public read-only attribute: hash;
 Obj.ACONSTANT = 0;
@@ -32,4 +33,10 @@ p(m);
 // auto-add of parenthesis
 p(9 % (3 + 2));
 (3 % 2).toString();
+// use of is_a?
+p(main.isA('Float', 3.2));
+p(main.isA('Fixnum', 3));
+p(main.isA(String, 't'));
+p(main.isA(Array, []));
 // E01: unknown no-arg method num_tournaments()
+// W03: isA('Float',n) is true for all numbers

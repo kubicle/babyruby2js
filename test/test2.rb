@@ -33,3 +33,9 @@ p m
 # auto-add of parenthesis
 p 9.modulo(3+2)
 3.modulo(2).to_s()
+
+# use of is_a?
+p 3.2.is_a?(Float)
+p 3.is_a?(Fixnum)
+p "t".is_a?(String)
+p [].is_a?(Array)

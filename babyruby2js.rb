@@ -38,7 +38,10 @@ TWO_PARAM_FUNC = {
   :slice => ""
 }
 
-STD_CLASSES = { :String => "String", :Fixnum => "Number", :Array => "Array" }
+STD_CLASSES = {
+  :String => "String", :Array => "Array",
+  :Fixnum => "'Fixnum'", :Float => "'Float'"
+}
 
 MAIN_CLASS = :main
 MAIN_CLASS_PATH = "./"
@@ -866,8 +869,8 @@ class RubyToJs
       return "#{ret}#{exp(arg0)}.message"
     when :is_a?
       klass = n.children[2]
-      klass = klass.type==:const ? "'#{exp(klass)}'" : exp(klass) # surround by quotes if classname
-      return "#{ret}#{mainClass}.isA(#{klass}, #{exp(arg0)})"
+      logError("W", 3, "isA('Float',n) is true for all numbers") if klass.type==:const and klass.children[1]==:Float
+      return "#{ret}#{mainClass}.isA(#{exp(klass)}, #{exp(arg0)})"
     else
       return nil
     end
