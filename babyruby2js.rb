@@ -624,7 +624,7 @@ class RubyToJs
     parent = @curClass[:parent]
     proto = "#{cr}/** @class */#{cr}function #{@class}("
     export = "#{@class}"
-    export = "main.tests.add(#{export})" if parent == "main.Test.Unit.TestCase"
+    export = "main.tests.add(#{export})" if parent == "main.Minitest.Test"
     afterConstr = "#{cr}module.exports = #{export};"
     if parent
       afterConstr = "#{cr}inherits(#{@class}, #{parent});" + afterConstr

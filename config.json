@@ -4,7 +4,7 @@
   "camelCase": false,
 
   "replacements": {
-    "//require 'test/unit'": "var assert_equal = main.assert_equal",
+    "//require 'minitest/autorun'": "var assert_equal = main.assert_equal",
     "main.Test.Unit.TestCase": "main.TestCase"
   }
 }
