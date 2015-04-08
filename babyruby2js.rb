@@ -961,7 +961,7 @@ class RubyToJs
     #add parameters to method or constructor call
     params = n.children[2..-1].map{|p| exp(p)}.join(", ")
     params << "#{params.length > 0 ? ', ' : ''}#{block}" if block
-    return "#{ret}#{objAndMeth}#{noParamsMethCall(symbol)}" if params.length==0 and !block
+    return "#{ret}#{objAndMeth}#{noParamsMethCall(symbol, isUserMethod)}" if params.length==0 and !block
     #method call with parameters; check if we know the method
     if @showErrors and isUserMethod and !@classMethods[symbol] and !@publicMethods[symbol]
       logError("E", 2, "unknown method #{symbol}(...)")
@@ -972,8 +972,8 @@ class RubyToJs
 
   # This decides if we put "()" or not for a method call that could be a data accessor too
   # NB:in doubt, () is safer because of runtime error "not a function"
-  def noParamsMethCall(methName)
-    return "()" if @classMethods[methName] or (methName == :new)
+  def noParamsMethCall(methName, isUserMethod)
+    return "()" if @classMethods[methName] or !isUserMethod
     return "" if @classDataMembers[methName]
     meth =  @publicMethods[methName]
     var = @publicVars[methName]

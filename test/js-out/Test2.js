@@ -40,11 +40,9 @@ p(main.isA(String, 't'));
 p(main.isA(Array, []));
 // call a block
 main.prototype.fnBlock = function (p1, block) {
+    block();
+    return block(3);
 };
 
 // E01: unknown no-arg method num_tournaments()
-// E01: unknown no-arg method reproduction()
-// E01: unknown no-arg method control()
-// E02: unknown method p(...)
 // W03: isA('Float',n) is true for all numbers
-// E01: unknown no-arg method call()
