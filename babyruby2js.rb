@@ -660,7 +660,7 @@ class RubyToJs
     return "#{proto}) {#{lastParamCom}#{crb}#{defaultValues}#{body}#{cre}}#{after}#{cr}"
   end
 
-  def methodArgs(n) #(args (arg :stone) (arg :lives))
+  def methodArgs(n) #(args (arg :stone) (arg :lives) (blockarg :fn))
     return "" if n.children.length==0
     res = jsname = ""
     n.children.each do |a|
@@ -951,6 +951,8 @@ class RubyToJs
       jsname = "forEach"
     when :puts, :print
       objAndMeth, ret = "console.log", "" if arg0==nil
+    when :call
+      objAndMeth = "#{exp(arg0)}"
     end # else = user method call
 
     isUserMethod = objAndMeth==nil && jsname==nil

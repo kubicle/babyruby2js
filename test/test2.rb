@@ -39,3 +39,10 @@ p 3.2.is_a?(Float)
 p 3.is_a?(Fixnum)
 p "t".is_a?(String)
 p [].is_a?(Array)
+
+# call a block
+def fnBlock(p1, &block)
+  block.call
+  block.call(3)
+end
+
