@@ -15,16 +15,17 @@ Foo.prototype.bar = function () {
 
 main.prototype.foo = function () {
     if (true) {
-        p('hi1');
+        console.log('hi1');
         if (x() < 0) { // deco on trailing if
             throw new Error(0);
         }
     } else {
-        return p('hi2');
+        console.log('hi2');
     }
 };
 
 // E02: unknown method attr_accessor(...)
+// E02: unknown method x()
 // W01: lost comment: #!/usr/bin/env ruby <- line 1: [???]
 // W01: lost comment: # coding: utf-8 <- line 2: [???]
 // W01: lost comment: # (if <- line 30: [???]

@@ -56,3 +56,4 @@ ConsoleHumanPlayer.prototype.getAnswer = function (validOnes) {
 };
 
 // E02: unknown method gets()
+// E02: unknown method find_index(...)

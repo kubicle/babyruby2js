@@ -112,4 +112,7 @@ console.log('Command line options received: ' + opts);
 // Start the game
 new ConsoleGame(opts).playGame();
 // E02: unknown method ai()
+// E02: unknown method load()
+// E02: unknown method opt(...)
 // W02: Unknown class supposed to be attached to main: Trollop
+// E02: unknown method options(...)

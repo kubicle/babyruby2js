@@ -189,4 +189,7 @@ SgfReader.prototype.error = function (reason, t) {
 };
 
 // E02: unknown method to_f()
+// E02: unknown method info(...)
+// E02: unknown method between?(...)
+// E02: unknown method index(...)
 // E02: unknown method sub(...)

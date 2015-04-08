@@ -28,16 +28,16 @@ var o1 = new Obj(1);
 var o2 = new Obj(1);
 m[o1] = 'hello';
 m[o2] = 'world';
-p(o1, o2);
-p(m);
+console.log(o1, o2);
+console.log(m);
 // auto-add of parenthesis
-p(9 % (3 + 2));
+console.log(9 % (3 + 2));
 (3 % 2).toString();
 // use of is_a?
-p(main.isA('Float', 3.2));
-p(main.isA('Fixnum', 3));
-p(main.isA(String, 't'));
-p(main.isA(Array, []));
+console.log(main.isA('Float', 3.2));
+console.log(main.isA('Fixnum', 3));
+console.log(main.isA(String, 't'));
+console.log(main.isA(Array, []));
 // call a block
 main.prototype.fnBlock = function (p1, block) {
     block();

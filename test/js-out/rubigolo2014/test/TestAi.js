@@ -331,4 +331,3 @@ TestAi.prototype.xtestSeesAttackNoGood = function () {
 
 // E02: unknown method assert_in_delta(...)
 // E02: unknown method throw(...)
-// E02: unknown method assert_equal(...)

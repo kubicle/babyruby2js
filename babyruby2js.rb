@@ -16,8 +16,7 @@ NO_PARAM_FUNC = {
   :split => "split", :chop => "chop", :chomp => "chomp",
   :chop! => "chop!", # will break on purpose
   :sort => "sort", :pop => "pop", :shift => "shift",
-  :join => "join",
-  :count => "",
+  :join => "join", :count => "count",
   :first => "", :last => "", :length => "", :size => "",
   :chr => "", :ord => "", :to_i => "",
   :rand => "", :round => "",
@@ -27,15 +26,15 @@ NO_PARAM_FUNC = {
 ONE_PARAM_FUNC = {
   :split => "split", :chomp => "chomp", :push => "push",
   :start_with? => "startWith", :end_with? => "endWith",
-  :join => "join",
+  :join => "join", :count => "count",
   :is_a? => "",
-  :count => "",
   :slice => "",
   :rand => "", :round => "",
   :raise => ""
 }
 TWO_PARAM_FUNC = {
-  :slice => ""
+  :slice => "",
+  :assert_equal => "assertEqual"
 }
 
 STD_CLASSES = {
@@ -145,6 +144,7 @@ class RubyToJs
     @commentMap = associator.associate(true) # map_using_locations=true
     @usedComments = {}
     @errors = ""
+    @unknownMethods = {}
 
     if @options.debug
       puts "#{@rubyFile}:"
@@ -829,10 +829,6 @@ class RubyToJs
     when :slice # NB: ruby's slice is different than JS one - we only do the string one
       return "#{ret}#{exp(arg0)}[#{exp(n.children[2])}]" if num_param==1
       return "#{ret}#{exp(arg0)}.substr(#{exp(n.children[2])}, #{exp(n.children[3])})"
-    when :count　# count is "special" just because stdMethodCall does not handle blocks
-      return "#{ret}#{exp(arg0)}.count(#{block})" if num_param==0 and block
-      return "#{ret}#{exp(arg0)}.count()" if num_param==0
-      return "#{ret}#{exp(arg0)}.count(#{exp(n.children[2])})"
     when :first
       return "#{ret}#{exp(arg0)}[0]"
     when :last
@@ -890,11 +886,8 @@ class RubyToJs
     func = getStdMethodInfo(symbol, num_param)
     return nil if !func
     return specialStdMethodCall(n, ret, block) if func == ""
-    case num_param
-    when 0 then "#{ret}#{pexp(arg0)}.#{func}()"
-    when 1 then "#{ret}#{pexp(arg0)}.#{func}(#{exp(n.children[2])})"
-    when 2 then "#{ret}#{pexp(arg0)}.#{func}(#{exp(n.children[2])}, #{exp(n.children[3])})"
-    end
+    return "#{ret}#{func}(#{genMethParam(n, block)})" if !arg0
+    return "#{ret}#{pexp(arg0)}.#{func}(#{genMethParam(n, block)})"
   end
 
   def methodCall(n, mustReturn=false, block=nil)
@@ -949,7 +942,7 @@ class RubyToJs
       return genRequire(n.children[2], symbol == :require)
     when :each # we get here only if each could not be converted to a for loop earlier
       jsname = "forEach"
-    when :puts, :print
+    when :puts, :print, :p
       objAndMeth, ret = "console.log", "" if arg0==nil
     when :call
       objAndMeth = "#{exp(arg0)}"
@@ -960,10 +953,15 @@ class RubyToJs
     objAndMeth = "#{objScope(arg0, symbol)}#{jsname}" if !objAndMeth
     
     #add parameters to method
-    params = n.children[2..-1].map{|p| exp(p)}.join(", ")
-    params << "#{params.length > 0 ? ', ' : ''}#{block}" if block
+    params = genMethParam(n, block)
     params = "(#{params})" if isSpecial or isMethod(symbol, num_param + (block ? 1 : 0))
     return "#{ret}#{objAndMeth}#{params}"
+  end
+
+  def genMethParam(n, block)
+    params = n.children[2..-1].map{|p| exp(p)}.join(", ")
+    params << "#{params.length > 0 ? ', ' : ''}#{block}" if block
+    return params
   end
 
   # This decides if we put "()" or not for a method call that could be a data accessor too
@@ -979,9 +977,9 @@ class RubyToJs
     return true if !@showErrors # in doubt use "()" is safer
     if isVar and isMeth
       logError("E", 1, "both variable and method: #{methName}")
-    else # unknown
+    elsif !@unknownMethods[methName]
       logError("E", 2, "unknown method #{methName}(#{num_param>0 ? '...' : ''})")
-      @publicMethods[methName] = true # so we show it only once @@@per file!
+      @unknownMethods[methName] = true # so we show it only once per file
     end
     return true
   end
