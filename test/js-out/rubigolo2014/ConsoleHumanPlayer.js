@@ -55,4 +55,4 @@ ConsoleHumanPlayer.prototype.getAnswer = function (validOnes) {
     }
 };
 
-// E01: unknown no-arg method gets()
+// E02: unknown method gets()

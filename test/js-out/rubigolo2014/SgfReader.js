@@ -188,5 +188,5 @@ SgfReader.prototype.error = function (reason, t) {
     throw new Error('Syntax error: \'' + reason + '\' at ...' + t[0] + '...');
 };
 
-// E01: unknown no-arg method to_f()
+// E02: unknown method to_f()
 // E02: unknown method sub(...)

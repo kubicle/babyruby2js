@@ -111,5 +111,5 @@ opts = main.Trollop.options(function () {
 console.log('Command line options received: ' + opts);
 // Start the game
 new ConsoleGame(opts).playGame();
-// E01: unknown no-arg method ai()
+// E02: unknown method ai()
 // W02: Unknown class supposed to be attached to main: Trollop

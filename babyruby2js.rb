@@ -955,36 +955,35 @@ class RubyToJs
       objAndMeth = "#{exp(arg0)}"
     end # else = user method call
 
-    isUserMethod = objAndMeth==nil && jsname==nil
+    isSpecial = objAndMeth!=nil || jsname!=nil
     jsname = jsName(symbol) if !jsname
     objAndMeth = "#{objScope(arg0, symbol)}#{jsname}" if !objAndMeth
-    #add parameters to method or constructor call
+    
+    #add parameters to method
     params = n.children[2..-1].map{|p| exp(p)}.join(", ")
     params << "#{params.length > 0 ? ', ' : ''}#{block}" if block
-    return "#{ret}#{objAndMeth}#{noParamsMethCall(symbol, isUserMethod)}" if params.length==0 and !block
-    #method call with parameters; check if we know the method
-    if @showErrors and isUserMethod and !@classMethods[symbol] and !@publicMethods[symbol]
-      logError("E", 2, "unknown method #{symbol}(...)")
-      @publicMethods[symbol] = true # so we show it only once
-    end
-    return "#{ret}#{objAndMeth}(#{params})"
+    params = "(#{params})" if isSpecial or isMethod(symbol, num_param + (block ? 1 : 0))
+    return "#{ret}#{objAndMeth}#{params}"
   end
 
   # This decides if we put "()" or not for a method call that could be a data accessor too
   # NB:in doubt, () is safer because of runtime error "not a function"
-  def noParamsMethCall(methName, isUserMethod)
-    return "()" if @classMethods[methName] or !isUserMethod
-    return "" if @classDataMembers[methName]
-    meth =  @publicMethods[methName]
-    var = @publicVars[methName]
-    return "()" if meth and !var
-    return "" if var and !meth
-    return "() + error_both_var_and_method('#{methName}')" if var and meth
-    if @showErrors
-      logError("E", 1, "unknown no-arg method #{methName}()")
-      @publicMethods[methName] = true # so we show it only once
+  def isMethod(methName, num_param)
+    return true if @classMethods[methName] # we could compare the # of arguments
+    return false if num_param == 0 and @classDataMembers[methName]
+    isMeth = @publicMethods[methName]
+    isVar = num_param == 0 ? @publicVars[methName] : false
+    return true if isMeth and !isVar
+    return false if isVar and !isMeth
+    
+    return true if !@showErrors # in doubt use "()" is safer
+    if isVar and isMeth
+      logError("E", 1, "both variable and method: #{methName}")
+    else # unknown
+      logError("E", 2, "unknown method #{methName}(#{num_param>0 ? '...' : ''})")
+      @publicMethods[methName] = true # so we show it only once @@@per file!
     end
-    return "()"
+    return true
   end
 
   def objScope(n, methName)

@@ -186,4 +186,4 @@ TestSpeed.prototype.play10Stones = function () {
 };
 
 // E02: unknown method collect_concat(...)
-// E01: unknown no-arg method move()
+// E02: unknown method move()

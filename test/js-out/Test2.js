@@ -44,5 +44,5 @@ main.prototype.fnBlock = function (p1, block) {
     return block(3);
 };
 
-// E01: unknown no-arg method num_tournaments()
+// E02: unknown method num_tournaments()
 // W03: isA('Float',n) is true for all numbers

@@ -34,8 +34,8 @@ TestStone.prototype.test2 = function () {
 };
  // bug1.3
 // E02: unknown method p(...)
-// E01: unknown no-arg method x()
+// E02: unknown method x()
 // E02: unknown method block_fn(...)
-// E01: unknown no-arg method f1()
-// E01: unknown no-arg method c()
+// E02: unknown method f1()
+// E02: unknown method c()
 // E02: unknown method f3(...)
