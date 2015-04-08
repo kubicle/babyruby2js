@@ -4,7 +4,7 @@
 var main = require('../../main');
 var inherits = require('util').inherits;
 var Stone = require('../Stone');
-var assert_equal = main.assert_equal;
+var assertEqual = main.assertEqual;
 var Logging = require('../Logging');
 var GameLogic = require('../GameLogic');
 // NB: for debugging think of using @goban.debug_display
