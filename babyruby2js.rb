@@ -521,7 +521,7 @@ class RubyToJs
     return "#{@class}.#{cname}" if @classConstants[cname]
     # nothing specified so we look in main class
     if !@classes[MAIN_CLASS][:constants][cname]
-      logError("W", 2, "Unknown #{isConst ? 'constant' : 'class'} supposed to be attached to main: #{cname}")
+      logError("W", 2, "Unknown #{isConst ? 'constant' : 'class'} supposed to be attached to #{MAIN_CLASS}: #{cname}")
     end
     return "#{mainClass}.#{cname}"
   end
@@ -624,7 +624,7 @@ class RubyToJs
     parent = @curClass[:parent]
     proto = "#{cr}/** @class */#{cr}function #{@class}("
     export = "#{@class}"
-    export = "main.tests.add(#{export})" if parent == "main.Minitest.Test"
+    export = "#{mainClass}.tests.add(#{export})" if parent == "#{MAIN_CLASS}.Minitest.Test"
     afterConstr = "#{cr}module.exports = #{export};"
     if parent
       afterConstr = "#{cr}inherits(#{@class}, #{parent});" + afterConstr
