@@ -175,7 +175,7 @@ Grid.prototype.loadImage = function (image) {
 
 // Parses a move like "c12" into 3,12
 Grid.parseMove = function (move) {
-    return [move[0].charCodeAt() - Grid.NOTATION_A + 1, parseInt(move[1], 10)];
+    return [move[0].charCodeAt() - Grid.NOTATION_A + 1, parseInt(move[1])];
 };
 
 // Builds a string representation of a move (3,12->"c12")  

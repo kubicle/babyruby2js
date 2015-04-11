@@ -68,15 +68,15 @@ SgfReader.prototype.getGameInfo = function () {
         var val = header[p + 1];
         switch (name) {
         case 'FF':
-            if (parseInt(val, 10) < 4) {
+            if (parseInt(val) < 4) {
                 main.log.warn('SGF version FF[' + val + ']. Not sure we handle it.');
             }
             break;
         case 'SZ':
-            this.boardSize = parseInt(val, 10);
+            this.boardSize = parseInt(val);
             break;
         case 'HA':
-            this.handicap = parseInt(val, 10);
+            this.handicap = parseInt(val);
             break;
         case 'AB':
             this.handicapStones.push(this.convertMove(val));

@@ -17,7 +17,7 @@ HandicapSetter.setHandicap = function (goban, h) {
     if (main.isA(String, h)) {
         var eq = h.index('=');
         if (h[0].between('0', '9') && !eq) {
-            h = parseInt(h, 10);
+            h = parseInt(h);
         }
     }
     if (main.isA('Fixnum', h)) { // e.g. 3
