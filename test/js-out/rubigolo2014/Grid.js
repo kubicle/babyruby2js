@@ -144,7 +144,7 @@ Grid.prototype.toString = function () {
 // Image is upside-down to help compare with a copy paste from console log.
 // So last row (j==size) comes first in image
 Grid.prototype.image = function () {
-    if (this.yx[1][1].instanceOf(Stone)) { // FIXME
+    if (main.instanceOf(Stone, this.yx[1][1])) { // FIXME
         return this.toText(false, ',', function (s) {
             return Grid.colorToChar(s.color);
         }).chop();
@@ -190,4 +190,3 @@ Grid.xLabel = function (i) {
 
 // E04: user method hidden by standard one: size
 // E02: unknown method index(...)
-// E02: unknown method instance_of?(...)
