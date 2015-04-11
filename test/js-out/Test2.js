@@ -38,6 +38,11 @@ console.log(main.isA('Float', 3.2));
 console.log(main.isA('Fixnum', 3));
 console.log(main.isA(String, 't'));
 console.log(main.isA(Array, []));
+// use of gsub
+console.log('abcbd'.replaceAll('b', 'x'));
+console.log('abcbd'.replace(/b/g, 'x'));
+console.log('abcbd'.replace(/B/ig, 'x'));
+console.log('abcbd'.replaceAll(func2(), 'x'));
 // call a block
 main.prototype.fnBlock = function (p1, block) {
     block();

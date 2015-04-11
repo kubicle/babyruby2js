@@ -40,6 +40,12 @@ p 3.is_a?(Fixnum)
 p "t".is_a?(String)
 p [].is_a?(Array)
 
+# use of gsub
+p "abcbd".gsub("b", "x")
+p "abcbd".gsub(/b/, "x")
+p "abcbd".gsub(/B/i, "x")
+p "abcbd".gsub(func2(), "x")
+
 # call a block
 def fnBlock(p1, &block)
   block.call
