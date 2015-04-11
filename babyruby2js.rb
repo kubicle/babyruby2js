@@ -18,7 +18,7 @@ NO_PARAM_FUNC = {
   :sort => "sort", :pop => "pop", :shift => "shift",
   :join => "join", :count => "count",
   :first => "", :last => "", :length => "", :size => "",
-  :chr => "", :ord => "", :to_i => "",
+  :chr => "", :ord => "", :to_i => "", :to_f => "",
   :rand => "", :round => "",
   :abs => "", :max => "", :now => "",
   :raise => "", :backtrace => "", :message => ""
@@ -33,8 +33,9 @@ ONE_PARAM_FUNC = {
   :raise => ""
 }
 TWO_PARAM_FUNC = {
-  :slice => "",
-  :assert_equal => "assertEqual"
+  :assert_equal => "assertEqual",
+  :sub => "replace",
+  :gsub => "", :slice => ""
 }
 
 STD_CLASSES = {
@@ -349,7 +350,7 @@ class RubyToJs
     when :sym
       "#{ret}'#{arg0.to_s}'#{semi}"
     when :regexp #(regexp (str "\\\"|,") (regopt)) for /\"|,/
-      opt = n.children[1].children[1]
+      opt = n.children[1].children[0]
       "#{ret}/#{exp(arg0)[1..-2]}/#{opt ? opt : ''}#{semi}" # we strip the str quotes
     when :dstr #"abc#{@size}efg" -> (dstr (str "abc") (begin (ivar :@size)) (str "efg"))
       "#{ret}#{extrapolStr(n)}#{semi}"
@@ -836,6 +837,10 @@ class RubyToJs
     when :to_f then return "#{ret}parseFloat(#{exp(arg0)})"
     when :chr then return "#{ret}String.fromCharCode(#{exp(arg0)})"
     when :ord then return "#{ret}#{pexp(arg0)}.charCodeAt()"
+    when :gsub
+      pattern = "#{exp(n.children[2])}"
+      return "#{ret}#{exp(arg0)}.replace(#{pattern}g, #{exp(n.children[3])})" if n.children[2].type == :regexp
+      return "#{ret}#{exp(arg0)}.replaceAll(#{pattern}, #{exp(n.children[3])})"
     when :rand # rand or rand(number) (global method in ruby)
       return "#{ret}Math.random()" if num_param==0
       return "#{ret}~~(Math.random()*~~(#{exp(n.children[2])}))"
