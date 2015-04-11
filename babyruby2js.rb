@@ -27,7 +27,7 @@ ONE_PARAM_FUNC = {
   :split => "split", :chomp => "chomp", :push => "push",
   :start_with? => "startWith", :end_with? => "endWith",
   :join => "join", :count => "count",
-  :is_a? => "",
+  :is_a? => "", :instance_of? => "",
   :slice => "",
   :rand => "", :round => "",
   :raise => ""
@@ -94,11 +94,15 @@ class RubyToJs
     @targetDir += "/" if @targetDir[-1]!="/"
   end
 
-  def translateAll
+  def translateAll(single_file)
     sources = getFiles(".")
-    # we "visit" all files once to learn about all classes, then translate them all
-    2.times do |i|
-      sources.each { |src| translateFile(src, i==0) }
+    # we "visit" all files once to learn about all classes
+    sources.each { |src| translateFile(src, true) }
+    # ...then we translate 1 or all of them
+    if single_file
+      translateFile(single_file)
+    else
+      sources.each { |src| translateFile(src) }
     end
   end
 
@@ -107,12 +111,11 @@ class RubyToJs
     cname, @rubyFilePath, @rubyFile = parseRubyFilename(filename)
     jsFile = "#{@targetDir}#{@rubyFilePath}#{cname}.js"
     createTargetDir(@targetDir+@rubyFilePath)
-    puts "Translating #{@rubyFile} into #{jsFile}..." if !simple_visit
+    puts "Translating #{@rubyFile} into #{jsFile}..." unless simple_visit
     srcFile = Parser::Source::Buffer.new(@rubyFile)
     srcFile.source = File.read(@srcDir+@rubyFilePath+@rubyFile)
     jsCode = translateSrc(srcFile)
-    File.write(jsFile, jsCode)
-    puts "Completed #{jsFile}" if @options.debug
+    File.write(jsFile, jsCode) unless simple_visit
   end
 
   def getFiles(dir, files=nil)
@@ -140,18 +143,12 @@ class RubyToJs
   def translateSrc(srcFile)
     # Parse the source and comments
     ast, comments = Parser::CurrentRuby.new.parse_with_comments(srcFile)
+    p ast if @options.debug
     associator = Parser::Source::Comment::Associator.new(ast, comments)
     @commentMap = associator.associate(true) # map_using_locations=true
     @usedComments = {}
     @errors = ""
     @unknownMethods = {}
-
-    if @options.debug
-      puts "#{@rubyFile}:"
-      p ast
-      puts ""
-    end
-    
     @dependencies = {}
     code = stmt(ast)
     trackMissingComments(comments, srcFile.source)
@@ -816,7 +813,8 @@ class RubyToJs
     return "new #{exp(arg0)}" if arg0.type != :const
     storeComments(arg0)
     klass = const(:class,arg0)
-    klass = "#{mainClass}.Array" if klass == "Array" and (num_param > 1 or block) # for 0 or 1 param JS is same as Ruby
+    # for 0 or 1 param JS is same as Ruby (except items are filled with "undefined" instead of null)
+    return "Array.new" if klass == "Array" and (num_param > 1 or block)
     return "new #{klass}"
   end
 
@@ -829,19 +827,15 @@ class RubyToJs
     when :slice # NB: ruby's slice is different than JS one - we only do the string one
       return "#{ret}#{exp(arg0)}[#{exp(n.children[2])}]" if num_param==1
       return "#{ret}#{exp(arg0)}.substr(#{exp(n.children[2])}, #{exp(n.children[3])})"
-    when :first
-      return "#{ret}#{exp(arg0)}[0]"
+    when :first then return "#{ret}#{exp(arg0)}[0]"
     when :last
       val = exp(arg0)
       return "#{ret}#{val}[#{val}.length-1]" # we could also implement .last()
-    when :length, :size
-      return "#{ret}#{exp(arg0)}.length" # length is not a method in JS
-    when :to_i
-      return "#{ret}parseInt(#{exp(arg0)}, 10)"
-    when :chr
-      return "#{ret}String.fromCharCode(#{exp(arg0)})"
-    when :ord
-      return "#{ret}#{pexp(arg0)}.charCodeAt()"
+    when :length, :size then return "#{ret}#{exp(arg0)}.length" # length is not a method in JS
+    when :to_i then return "#{ret}parseInt(#{exp(arg0)})"
+    when :to_f then return "#{ret}parseFloat(#{exp(arg0)})"
+    when :chr then return "#{ret}String.fromCharCode(#{exp(arg0)})"
+    when :ord then return "#{ret}#{pexp(arg0)}.charCodeAt()"
     when :rand # rand or rand(number) (global method in ruby)
       return "#{ret}Math.random()" if num_param==0
       return "#{ret}~~(Math.random()*~~(#{exp(n.children[2])}))"
@@ -850,23 +844,19 @@ class RubyToJs
       arg1 = n.children[2]
       factor = arg1.type==:int ? 10**(arg1.children[0]) : "Math.power(10, #{exp(arg1)})"
       return "#{ret}(Math.round(#{pexp(arg0)} * #{factor}) / #{factor})"
-    when :abs
-      return "#{ret}Math.abs(#{exp(arg0)})"
-    when :max # array.max
-      return "#{ret}Math.max.apply(Math, #{exp(arg0)})"
-    when :now # Time.now
-      return "#{ret}Date.now()"
+    when :abs then return "#{ret}Math.abs(#{exp(arg0)})"
+    when :max then return "#{ret}Math.max.apply(Math, #{exp(arg0)})" # array.max
+    when :now then return "#{ret}Date.now()" # Time.now
     when :raise # raise or raise exp
       return "throw #{@curException}" if num_param==0
       return "throw new Error(#{exp(n.children[2])})"
-    when :backtrace # exception.backtrace
-      return "#{ret}#{exp(arg0)}.stack"
-    when :message # message is not a method in JS
-      return "#{ret}#{exp(arg0)}.message"
+    when :backtrace then return "#{ret}#{exp(arg0)}.stack" # exception.backtrace
+    when :message then return "#{ret}#{exp(arg0)}.message" # message is not a method in JS
     when :is_a?
       klass = n.children[2]
       logError("W", 3, "isA('Float',n) is true for all numbers") if klass.type==:const and klass.children[1]==:Float
       return "#{ret}#{mainClass}.isA(#{exp(klass)}, #{exp(arg0)})"
+    when :instance_of? then return "#{ret}#{mainClass}.instanceOf(#{exp(n.children[2])}, #{exp(arg0)})"
     else
       return nil
     end
@@ -995,14 +985,14 @@ end
 
 opts = Trollop::options do
   opt :src, "Source root directory (can be in ruby2js.json as well)", :type => :string
-  opt :file, "Source file (optional)", :type => :string
+  opt :debug, "Debug test file (optional)", :type => :string
+  opt :file, "Single source file (optional)", :type => :string
   opt :target, "Target root directory (can be in ruby2js.json as well)", :type => :string
-  opt :debug, "Show debug info", :default => false
 end
 
 t = RubyToJs.new(opts)
-if opts.file
-  t.translateFile(opts.file)
+if opts.debug
+  t.translateFile(opts.debug)
 else
-  t.translateAll
+  t.translateAll(opts.file)
 end
