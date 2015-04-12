@@ -33,7 +33,7 @@ ONE_PARAM_FUNC = {
   :raise => ""
 }
 TWO_PARAM_FUNC = {
-  :assert_equal => "assertEqual",
+  :assert_equal => "assertEqual", :between? => "between",
   :sub => "replace",
   :gsub => "", :slice => ""
 }
