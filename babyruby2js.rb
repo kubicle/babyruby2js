@@ -171,21 +171,23 @@ class RubyToJs
     return jsCode
   end
 
-  def cr(indentChange=0)
-    res = "\n"
-    @indent += indentChange
+  def cr(code=nil)
+    return "" if code == ""
+    res = "#{code ? code : ''}\n"
     1.upto(@indent * @indentSize) { res<<" " }
     return res
   end
 
   # CR at beginning of block
   def crb
-    cr(1)
+    @indent += 1
+    cr
   end
 
   # CR at end of block
   def cre
-    cr(-1)
+    @indent -= 1
+    cr
   end
 
   #--- Class
@@ -214,8 +216,18 @@ class RubyToJs
   def classDef(n)
     prevClass = @class
     enterClass(n.children[0].children[1], n.children[1])
+    body = n.children[2]
 
-    res = stmt(n.children[2])
+    # Pick up the initialize methods first
+    res = ""
+    if body and body.type == :begin
+      body.children.each do |m|
+        next if m.type != :def or m.children[0] != :initialize
+        res << cr(newMethod(m, true))
+      end
+    end
+
+    res << stmt(body)
 
     enterClass(prevClass)
     return res
@@ -242,9 +254,13 @@ class RubyToJs
 
   def _popCom(mode)
     case mode
-    when "C" #comments
+    when "C", "R" #comments, raw comments
       res = @cur_comments
       @cur_comments = ""
+      if mode=="R"
+        res = res[3..-1].gsub(/\/\/ /, " *  ")+" " if res!=""
+        mode = "C"
+      end
     when "D" #decorative comments
       res = @cur_deco
       @cur_deco = ""
@@ -264,7 +280,7 @@ class RubyToJs
   def genCom(mode, node=nil)
     _pushCom(node) if node
     case mode
-    when "C", "D"
+    when "C", "D", "R"
       return _popCom(mode)
     when "P" #parameters
       res = _popCom("C") + _popCom("D")
@@ -324,22 +340,13 @@ class RubyToJs
     when :send
       call = "#{methodCall(n,mustReturn)}"
       call != "" ? "#{call}#{semi}" : "" #e.g. empty require do not generate a lone ";"
-    when :begin
-      return isStmt ? beginBlock(n, mustReturn) : bracketExp(n)
-    when :block
-      block(n, isStmt, mustReturn)
-    when :class
-      classDef(n)
-    when :def
-      newMethod(n)
-    when :defs
-      newMethod(n, true)
-    when :self
-      "#{ret}this#{semi}"
-    when :int, :float
-      "#{ret}#{arg0}#{semi}"
-    when :true, :false
-      "#{ret}#{n.type}#{semi}"
+    when :begin then return isStmt ? beginBlock(n, mustReturn) : bracketExp(n)
+    when :block then block(n, isStmt, mustReturn)
+    when :class then classDef(n)
+    when :def, :defs then newMethod(n)
+    when :self then "#{ret}this#{semi}"
+    when :int, :float then "#{ret}#{arg0}#{semi}"
+    when :true, :false then "#{ret}#{n.type}#{semi}"
     when :nil
       return "null" if !isStmt
       return "#{ret}null#{semi}" if mustReturn
@@ -347,25 +354,20 @@ class RubyToJs
     when :str
       str = arg0.to_s.gsub(/[\n\r\t']/, "\n"=>"\\n", "\r"=>"\\r", "\t"=>"\\t", "'"=>"\\'")
       "#{ret}'#{str}'#{semi}"
-    when :sym
-      "#{ret}'#{arg0.to_s}'#{semi}"
+    when :sym then "#{ret}'#{arg0}'#{semi}"
     when :regexp #(regexp (str "\\\"|,") (regopt)) for /\"|,/
       opt = n.children[1].children[0]
       "#{ret}/#{exp(arg0)[1..-2]}/#{opt ? opt : ''}#{semi}" # we strip the str quotes
     when :dstr #"abc#{@size}efg" -> (dstr (str "abc") (begin (ivar :@size)) (str "efg"))
       "#{ret}#{extrapolStr(n)}#{semi}"
-    when :array
-      "#{ret}[" + n.children.map{|v| exp(v)}.join(", ") + "]#{semi}"
+    when :array then "#{ret}[" + n.children.map{|v| exp(v)}.join(", ") + "]#{semi}"
     when :hash #(hash (pair (int 1) (str "a")) (pair (int 2) (str "b"))...
       "#{ret}{" + n.children.map{|p| "#{exp(p.children[0])}:#{exp(p.children[1])}"}.join(", ") +"}#{semi}"
-    when :zsuper, :super
-      return superCall(n.children, semi, ret)
-    when :const
-      "#{ret}#{const(:use,n)}#{semi}"
+    when :zsuper, :super then return superCall(n.children, semi, ret)
+    when :const then "#{ret}#{const(:use,n)}#{semi}"
     when :casgn #(casgn nil :ERROR (int 3))
       "#{const(:decl,n)} = #{exp(n.children[2])}#{semi}"
-    when :ivar, :cvar, :lvar, :gvar
-      "#{ret}#{varName(n)}#{semi}"
+    when :ivar, :cvar, :lvar, :gvar then "#{ret}#{varName(n)}#{semi}"
     when :op_asgn #(op_asgn (Xvasgn :@num_groups) :+ (int 1))
       op = n.children[1].to_s
       "#{exp(arg0)} #{op}= #{exp(n.children[2])}#{semi}"
@@ -617,10 +619,10 @@ class RubyToJs
     mainClass if @class == MAIN_CLASS and methName != :"" # identify dependency on class "main"
   end
 
-  def newClassConstructor
+  def newClassConstructor(n)
     @dependencies[@class] = false
     parent = @curClass[:parent]
-    proto = "#{cr}/** @class */#{cr}function #{@class}("
+    proto = "#{cr}/** @class #{genCom('R',n)}*/#{cr}function #{@class}("
     export = "#{@class}"
     export = "#{mainClass}.tests.add(#{export})" if parent == "#{MAIN_CLASS}.Minitest.Test"
     afterConstr = "#{cr}module.exports = #{export};"
@@ -631,15 +633,17 @@ class RubyToJs
     return proto, afterConstr
   end
 
-  def newMethod(n, static=false)
-    i = static ? 1 : 0
+  def newMethod(n, doInitialize=false)
+    isStatic = n.type == :defs
+    i = isStatic ? 1 : 0
     symbol = n.children[i]
+    return "" if symbol == :initialize and !doInitialize
     jsname = jsName(symbol)
     enterMethod(symbol)
     after = ";"
     if symbol == :initialize
-      proto, after = newClassConstructor()
-    elsif static
+      proto, after = newClassConstructor(n)
+    elsif isStatic
       proto = "#{@class}.#{jsname} = function ("
     else
       proto = "#{@class}.prototype.#{jsname} = function ("
@@ -697,13 +701,11 @@ class RubyToJs
     return "#{methodCall(method, mustReturn, func)}#{semi}"
   end
 
+  # Handles list of methods/constants in a class, list of statements in a method, etc.
   def beginBlock(n, mustReturn)
     res = ""
-    n.children[0..-2].each do |e|
-      res += "#{stmt(e)}#{cr}"
-    end
-    res += "#{stmt(n.children.last, mustReturn)}"
-    return res
+    n.children[0..-2].each { |e| res += cr(stmt(e)) }
+    return res + stmt(n.children.last, mustReturn)
   end
 
   def bracketExp(n, inDstr=false)

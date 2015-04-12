@@ -12,7 +12,6 @@ ruby ../babyruby2js.rb --src=. --target=js-out --debug=1 --file=./test1.rb
 
 # Not handled:
 - generated "require" need review
-- class constants need to be moved *after* the constructor
 - constants added to main class need to be "required" at least once
 - standard method names are tranlated without type-check (e.g. size => length)
 - next & return not translated right in callbacks
@@ -25,7 +24,7 @@ ruby ../babyruby2js.rb --src=. --target=js-out --debug=1 --file=./test1.rb
 - local var declared in "then" or "else" stmt but used after the "if" block
 - 2 loops using same var for index => dupe decl in JS
 - self instead of this (we could detect we are in a cb block)
-- method calls with no params can be data members (Warning)
+- method calls with no params can be data members (but an error is logged)
 - object.rw_attrib=(exp); the method is "rw_attrib=" and it works by chance, no issue...
 - break(value)
 - retry exception
