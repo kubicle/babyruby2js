@@ -82,7 +82,7 @@ SgfReader.prototype.getGameInfo = function () {
             this.handicapStones.push(this.convertMove(val));
             break;
         case 'KM':
-            this.komi = val.toF();
+            this.komi = parseFloat(val);
             break;
         case 'RU':
         case 'RE':
@@ -181,15 +181,12 @@ SgfReader.prototype.get = function (lex, t) {
     if (!t.startWith(lex)) {
         this.error(lex + ' expected', t);
     }
-    return t.sub(lex, '').trimLeft();
+    return t.replace(lex, '').trimLeft();
 };
 
 SgfReader.prototype.error = function (reason, t) {
     throw new Error('Syntax error: \'' + reason + '\' at ...' + t[0] + '...');
 };
 
-// E02: unknown method to_f()
 // E02: unknown method info(...)
-// E02: unknown method between?(...)
 // E02: unknown method index(...)
-// E02: unknown method sub(...)
