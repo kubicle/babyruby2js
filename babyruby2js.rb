@@ -35,7 +35,7 @@ ONE_PARAM_FUNC = {
 TWO_PARAM_FUNC = {
   :assert_equal => "assertEqual", :between? => "between",
   :sub => "replace",
-  :gsub => "", :slice => ""
+  :gsub => "", :slice => "", :[] => ""
 }
 
 STD_CLASSES = {
@@ -827,7 +827,7 @@ class RubyToJs
     num_param = n.children.length - 2
 
     case n.children[1]
-    when :slice # NB: ruby's slice is different than JS one - we only do the string one
+    when :slice, :[] # NB: ruby's slice is different than JS one - we only do the string one
       return "#{ret}#{exp(arg0)}[#{exp(n.children[2])}]" if num_param==1
       return "#{ret}#{exp(arg0)}.substr(#{exp(n.children[2])}, #{exp(n.children[3])})"
     when :first then return "#{ret}#{exp(arg0)}[0]"
