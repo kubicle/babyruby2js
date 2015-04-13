@@ -7,19 +7,19 @@ var Stone = require('../Stone');
 var assertEqual = main.assertEqual;
 var Logging = require('../Logging');
 var Goban = require('../Goban');
-// NB: for debugging think of using @goban.console_display
-TestStone.prototype.initBoard = function () {
-    this.goban = new Goban(5);
-};
 
-
-/** @class */
+/** @class NB: for debugging think of using @goban.console_display
+ */
 function TestStone(testName) {
     main.TestCase.call(this, testName);
     return this.initBoard();
 }
 inherits(TestStone, main.TestCase);
 module.exports = main.tests.add(TestStone);
+
+TestStone.prototype.initBoard = function () {
+    this.goban = new Goban(5);
+};
 
 TestStone.prototype.howManyLives = function (i, j) {
     var s = this.goban.stoneAt(i, j);

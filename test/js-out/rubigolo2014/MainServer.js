@@ -13,13 +13,10 @@ var Logging = require('./Logging');
 var GameLogic = require('./GameLogic');
 var ScoreAnalyser = require('./ScoreAnalyser');
 var Ai1Player = require('./Ai1Player');
-// Very simple server that can be used to play a single *local* game
-// using a web browser as GUI.
-MainServer.PORT = 8080;
-MainServer.INDEX_PAGE = './help-index.html';
-MainServer.INDEX_LINK = '<a href=\'index\'>Back to index</a>';
 
-/** @class */
+/** @class Very simple server that can be used to play a single *local* game
+ *  using a web browser as GUI.
+ */
 function MainServer() {
     this.game = null;
     this.scorer = new ScoreAnalyser();
@@ -30,6 +27,9 @@ function MainServer() {
 }
 module.exports = MainServer;
 
+MainServer.PORT = 8080;
+MainServer.INDEX_PAGE = './help-index.html';
+MainServer.INDEX_LINK = '<a href=\'index\'>Back to index</a>';
 MainServer.prototype.start = function () {
     main.log.info('Starting the server...');
     console.log('Please open a web browser on http://localhost:' + MainServer.PORT + '/index');
@@ -303,7 +303,7 @@ MainServer.prototype.handleRequest = function (req) {
         return reply;
     } catch (err) {
         console.log('*** Exception: ' + err);
-        for (var s, s_array = err.stack[0], s_ndx = 0; s=s_array[s_ndx], s_ndx < s_array.length; s_ndx++) {
+        for (var s, s_array = err.stack.substr(0, 10), s_ndx = 0; s=s_array[s_ndx], s_ndx < s_array.length; s_ndx++) {
             console.log(s);
         }
         return 'Unexpected issue when handling request (' + req + ')<br>' + err + '<br><br>' + MainServer.INDEX_LINK;

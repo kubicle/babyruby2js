@@ -18,9 +18,9 @@ var PotentialTerritory = require('./PotentialTerritory');
 var AllHeuristics = require('ai/AllHeuristics');
 var TimeKeeper = require('./TimeKeeper');
 var Genes = require('./Genes');
-//public read-only attribute: goban, inf, ter, enemyColor, genes, lastMoveScore;
 
-/** @class */
+/** @class public read-only attribute: goban, inf, ter, enemyColor, genes, lastMoveScore
+ */
 function Ai1Player(goban, color, genes) {
     if (genes === undefined) genes = null;
     main.Player.call(this, false, goban);

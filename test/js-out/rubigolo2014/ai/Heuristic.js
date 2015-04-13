@@ -1,11 +1,11 @@
 //Translated from heuristic.rb using babyruby2js
 'use strict';
 
-// Base class for all heuristics.
-// Anything useful for all of them should be stored as data member here.
-//public read-only attribute: negative;
 
-/** @class */
+/** @class Base class for all heuristics.
+ *  Anything useful for all of them should be stored as data member here.
+ *  public read-only attribute: negative
+ */
 function Heuristic(player, consultant) {
     if (consultant === undefined) consultant = false;
     this.player = player;

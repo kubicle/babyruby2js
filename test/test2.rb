@@ -52,3 +52,9 @@ def fnBlock(p1, &block)
   block.call(3)
 end
 
+# slice or []
+s = "abcdef"
+p s[2]
+p s[2,1]
+p s.slice(2)
+p s.slice(2,1)

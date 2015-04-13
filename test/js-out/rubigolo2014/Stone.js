@@ -5,16 +5,14 @@ var main = require('../main');
 var Grid = require('./Grid');
 var Group = require('./Group');
 var StoneConstants = require('./StoneConstants');
-// Always require goban instead of stone
-// A "stone" stores everything we want to keep track of regarding an intersection on the board.
-// By extension, an empty intersection is also a stone, with a color attribute equals to EMPTY.
-// This class is also the entry point for moves in general, so it has methods to play or undo,
-// and verify if a planned move is authorized.
-Stone.XY_AROUND = [[0, 1], [1, 0], [0, -1], [-1, 0]]; // top, right, bottom, left
-Stone.XY_DIAGONAL = [[1, 1], [1, -1], [-1, -1], [-1, 1]]; // top-right, bottom-right, bottom-left, top-left
-//public read-only attribute: goban, group, color, i, j, neighbors;
 
-/** @class */
+/** @class Always require goban instead of stone
+ *  A "stone" stores everything we want to keep track of regarding an intersection on the board.
+ *  By extension, an empty intersection is also a stone, with a color attribute equals to EMPTY.
+ *  This class is also the entry point for moves in general, so it has methods to play or undo,
+ *  and verify if a planned move is authorized.
+ *  public read-only attribute: goban, group, color, i, j, neighbors
+ */
 function Stone(goban, i, j, color) {
     this.goban = goban;
     this.i = i;
@@ -29,6 +27,8 @@ function Stone(goban, i, j, color) {
 }
 module.exports = Stone;
 
+Stone.XY_AROUND = [[0, 1], [1, 0], [0, -1], [-1, 0]]; // top, right, bottom, left
+Stone.XY_DIAGONAL = [[1, 1], [1, -1], [-1, -1], [-1, 1]]; // top-right, bottom-right, bottom-left, top-left
 Stone.prototype.clear = function () {
     this.color = main.EMPTY;
     this.group = null;

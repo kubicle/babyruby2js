@@ -1,9 +1,9 @@
 //Translated from contacts.rb using babyruby2js
 'use strict';
 
-//public read-only attribute: contacts;
 
-/** @class */
+/** @class public read-only attribute: contacts
+ */
 function Contacts() {
     this.contacts = new Array(4);
     return this.contacts.clear();

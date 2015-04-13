@@ -4,7 +4,23 @@
 var main = require('../main');
 var Stone = require('./Stone');
 var StoneConstants = require('./StoneConstants');
-// A generic grid - a Goban owns a grid
+
+/** @class A generic grid - a Goban owns a grid
+ *  public read-only attribute: size, yx
+ */
+function Grid(size) {
+    if (size === undefined) size = 19;
+    this.size = size;
+    // TODO: use only 1 extra "nil" cell (0..size instead of 0..size+1)
+    // Idea is to avoid to have to check i,j against size in many places.
+    // In case of bug, e.g. for @yx[5][-1], Ruby returns you @yx[5][@yx.size] (looping back)
+    // so having a real item (BORDER) on the way helps to detect a bug.
+    this.yx = Array.new(size + 2, function () {
+        return Array.new(size + 2, main.BORDER);
+    });
+}
+module.exports = Grid;
+
 Grid.COLOR_NAMES = ['black', 'white'];
 Grid.NOTATION_A = 'a'.charCodeAt(); // notation origin; could be A or a
 Grid.EMPTY_CHAR = '+';
@@ -19,22 +35,6 @@ Grid.DEAD_COLOR = 2;
 Grid.TERRITORY_COLOR = 4;
 Grid.CIRCULAR_COLOR_CHARS = Grid.DAME_CHAR + Grid.EMPTY_CHAR + Grid.COLOR_CHARS;
 Grid.ZONE_CODE = 100; // used for zones (100, 101, etc.); must be > COLOR_CHARS.size
-//public read-only attribute: size, yx;
-
-/** @class */
-function Grid(size) {
-    if (size === undefined) size = 19;
-    this.size = size;
-    // TODO: use only 1 extra "nil" cell (0..size instead of 0..size+1)
-    // Idea is to avoid to have to check i,j against size in many places.
-    // In case of bug, e.g. for @yx[5][-1], Ruby returns you @yx[5][@yx.size] (looping back)
-    // so having a real item (BORDER) on the way helps to detect a bug.
-    this.yx = Array.new(size + 2, function () {
-        return Array.new(size + 2, main.BORDER);
-    });
-}
-module.exports = Grid;
-
 Grid.prototype.copy = function (sourceGrid) {
     if (sourceGrid.length !== this.size) {
         throw new Error('Cannot copy between different sized grids');
@@ -175,7 +175,7 @@ Grid.prototype.loadImage = function (image) {
 
 // Parses a move like "c12" into 3,12
 Grid.parseMove = function (move) {
-    return [move[0].charCodeAt() - Grid.NOTATION_A + 1, parseInt(move[1])];
+    return [move[0].charCodeAt() - Grid.NOTATION_A + 1, parseInt(move.substr(1, 2))];
 };
 
 // Builds a string representation of a move (3,12->"c12")  

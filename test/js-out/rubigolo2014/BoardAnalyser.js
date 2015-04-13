@@ -7,14 +7,14 @@ var Group = require('./Group');
 //require 'set';
 var Goban = require('./Goban');
 var ZoneFiller = require('./ZoneFiller');
-// Class used by BoardAnalyser class.
-// A void in an empty zone surrounded by (and including) various groups.
-// NB: when a void has a single color around; we call this an eye. Can be discussed...
-//public read-only attribute: code, i, j, size, groups, eyeColor, owner;
-// code is the void code (like a color but higher index)
-// neighbors is an array of n arrays, with n == number of colors
 
-/** @class */
+/** @class Class used by BoardAnalyser class.
+ *  A void in an empty zone surrounded by (and including) various groups.
+ *  NB: when a void has a single color around; we call this an eye. Can be discussed...
+ *  public read-only attribute: code, i, j, size, groups, eyeColor, owner
+ *  code is the void code (like a color but higher index)
+ *  neighbors is an array of n arrays, with n == number of colors
+ */
 function Void(analyser, code, i, j, size, neighbors) {
     this.analyzer = analyser;
     this.goban = analyser.goban;
@@ -89,9 +89,9 @@ Void.prototype.debugDump = function () {
     console.log('\n');
 };
 
-//public read-only attribute: goban, scores, prisoners;
 
-/** @class */
+/** @class public read-only attribute: goban, scores, prisoners
+ */
 function BoardAnalyser() {
     this.goban = null;
     this.voids = [];

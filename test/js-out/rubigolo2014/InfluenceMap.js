@@ -3,9 +3,9 @@
 
 var main = require('../main');
 var Grid = require('./Grid');
-//public read-only attribute: map;
 
-/** @class */
+/** @class public read-only attribute: map
+ */
 function InfluenceMap(goban) {
     this.goban = goban;
     this.size = goban.length;

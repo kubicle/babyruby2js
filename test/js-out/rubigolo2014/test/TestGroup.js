@@ -7,7 +7,16 @@ var Stone = require('../Stone');
 var assertEqual = main.assertEqual;
 var Logging = require('../Logging');
 var GameLogic = require('../GameLogic');
-// NB: for debugging think of using @goban.debug_display
+
+/** @class NB: for debugging think of using @goban.debug_display
+ */
+function TestGroup(testName) {
+    main.TestCase.call(this, testName);
+    return this.initBoard();
+}
+inherits(TestGroup, main.TestCase);
+module.exports = main.tests.add(TestGroup);
+
 TestGroup.prototype.initBoard = function (size, handicap) {
     if (size === undefined) size = 5;
     if (handicap === undefined) handicap = 0;
@@ -16,15 +25,6 @@ TestGroup.prototype.initBoard = function (size, handicap) {
     this.game.messagesToConsole();
     this.goban = this.game.goban;
 };
-
-
-/** @class */
-function TestGroup(testName) {
-    main.TestCase.call(this, testName);
-    return this.initBoard();
-}
-inherits(TestGroup, main.TestCase);
-module.exports = main.tests.add(TestGroup);
 
 TestGroup.prototype.testGroupMerge = function () {
     // check the sentinel

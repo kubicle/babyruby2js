@@ -8,10 +8,10 @@ var Group = require('./Group');
 var Goban = require('./Goban');
 var SgfReader = require('./SgfReader');
 var HandicapSetter = require('./HandicapSetter');
-// GameLogic enforces the game logic.
-//public read-only attribute: goban, komi, curColor, gameEnded, gameEnding, whoResigned;
 
-/** @class */
+/** @class GameLogic enforces the game logic.
+ *  public read-only attribute: goban, komi, curColor, gameEnded, gameEnding, whoResigned
+ */
 function GameLogic() {
     this.console = false;
     this.history = [];

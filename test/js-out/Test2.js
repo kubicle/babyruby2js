@@ -3,16 +3,16 @@
 
 var main = require('./main');
 var m = {};
-//public read-only attribute: hash;
-Obj.ACONSTANT = 0;
 
-/** @class */
+/** @class public read-only attribute: hash
+ */
 function Obj(n) {
     this.val = n;
     this.hash = n;
 }
 module.exports = Obj;
 
+Obj.ACONSTANT = 0;
 Obj.prototype.toString = function () {
     return 'val=' + this.val;
 };
@@ -49,5 +49,11 @@ main.prototype.fnBlock = function (p1, block) {
     return block(3);
 };
 
+// slice or []
+var s = 'abcdef';
+console.log(s[2]);
+console.log(s.substr(2, 1));
+console.log(s[2]);
+console.log(s.substr(2, 1));
 // E02: unknown method num_tournaments()
 // W03: isA('Float',n) is true for all numbers

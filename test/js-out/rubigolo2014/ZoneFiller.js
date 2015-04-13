@@ -2,11 +2,11 @@
 'use strict';
 
 var main = require('../main');
-//public read-only attribute: grid;
-// if a grid is given, it is used as starting point; 
-// otherwise, the goban scoring_grid is used.
 
-/** @class */
+/** @class public read-only attribute: grid
+ *  if a grid is given, it is used as starting point; 
+ *  otherwise, the goban scoring_grid is used.
+ */
 function ZoneFiller(goban, grid) {
     if (grid === undefined) grid = null;
     if (!grid) {

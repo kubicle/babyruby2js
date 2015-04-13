@@ -1,9 +1,9 @@
 //Translated from player.rb using babyruby2js
 'use strict';
 
-//public read-only attribute: goban, color, isHuman;
 
-/** @class */
+/** @class public read-only attribute: goban, color, isHuman
+ */
 function Player(isHuman, goban) {
     this.isHuman = isHuman;
     this.goban = goban;
