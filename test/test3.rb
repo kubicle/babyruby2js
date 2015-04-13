@@ -8,6 +8,9 @@ class Foo
   attr_reader :ra, # trailing on ra
     :rb # trailing on rb
 
+  def initialize
+    @ra = @rb = 0
+  end
 
   # method comment
   def bar
@@ -27,16 +30,4 @@ def foo
   end
 end
 
-# (if
-#   (true)
-#   (begin
-#     (send nil :p
-#       (str "hi1"))
-#     (if
-#       (send
-#         (send nil :x) :<
-#         (int 0))
-#       (send nil :raise
-#         (int 0)) nil))
-#   (send nil :p
-#     (str "hi2")))
+#trailing comment after func foo
