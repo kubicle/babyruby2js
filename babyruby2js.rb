@@ -221,9 +221,11 @@ class RubyToJs
     # Pick up the initialize methods first
     res = ""
     if body and body.type == :begin
-      body.children.each do |m|
-        next if m.type != :def or m.children[0] != :initialize
-        res << cr(newMethod(m, true))
+      init = body.children.find { |m| m.type == :def && m.children[0] == :initialize }
+      if init
+        storeComments(n) # class comments go with contructor
+        attributes(body)
+        res << cr(newMethod(init, true))
       end
     end
 
@@ -231,6 +233,29 @@ class RubyToJs
 
     enterClass(prevClass)
     return res
+  end
+
+  def attributes(body)
+    body.children.each do |a|
+      next if a.type != :send or a.children[0] != nil
+      meth = a.children[1]
+      attribute(a) if meth == :attr_reader or meth == :attr_writer
+    end
+  end
+
+  #(send nil :attr_writer (sym :a) (sym :b))
+  def attribute(n)
+    names = ""
+    n.children[2..-1].each do |v|
+      symbol = v.children[0]
+      jsname = jsName(symbol)
+      checkConflictWithStdFunc(symbol, jsname, 0)
+      @publicVars[symbol] = true
+      storeComments(v)
+      names << ", #{jsname}"
+    end
+    type = n.children[1] == :attr_writer ? "write" : "read-only"
+    @cur_comments << "// public #{type} attribute: #{names[2..-1]}#{genCom('D')}#{cr}"
   end
 
   #--- Comments
@@ -797,21 +822,6 @@ class RubyToJs
     end
   end
 
-  #(send nil :attr_writer (sym :a) (sym :b))
-  def attributes(n)
-    names = ""
-    n.children[2..-1].each do |v|
-      symbol = v.children[0]
-      jsname = jsName(symbol)
-      checkConflictWithStdFunc(symbol, jsname, 0)
-      @publicVars[symbol] = true
-      storeComments(v)
-      names << ", #{jsname}"
-    end
-    type = n.children[1] == :attr_writer ? "read-write" : "read-only"
-    return "//public #{type} attribute: #{names[2..-1]}"
-  end
-
   def methodNew(arg0, num_param, block)
     return "new #{exp(arg0)}" if arg0.type != :const
     storeComments(arg0)
@@ -921,28 +931,22 @@ class RubyToJs
     when :%, :modulo # modulo or format (send (str "%2d") :% (lvar :j))
       return "#{ret}#{exp(arg0)}.format(#{exp(n.children[2])})" if arg0.type==:str
       return "#{ret}#{exp(arg0)} % #{pexp(n.children[2])}" # % operator (modulo) on numbers
-    when :new
-      objAndMeth = methodNew(arg0, num_param, block)
-    when :class
-      return "#{ret}#{exp(arg0)}.constructor"
-    when :name
-      return "#{ret}#{exp(arg0)}.name"
-    when :attr_reader, :attr_writer
-      return attributes(n)
+    when :new then objAndMeth = methodNew(arg0, num_param, block)
+    when :class then return "#{ret}#{exp(arg0)}.constructor"
+    when :name then return "#{ret}#{exp(arg0)}.name"
+    when :attr_reader, :attr_writer then return "" # see attributes()
     when :private
       @private = true
       return "//private"
     when :public
       @private = false
       return "//public"
-    when :require, :require_relative
-      return genRequire(n.children[2], symbol == :require)
+    when :require, :require_relative then return genRequire(n.children[2], symbol == :require)
     when :each # we get here only if each could not be converted to a for loop earlier
       jsname = "forEach"
     when :puts, :print, :p
       objAndMeth, ret = "console.log", "" if arg0==nil
-    when :call
-      objAndMeth = "#{exp(arg0)}"
+    when :call then objAndMeth = "#{exp(arg0)}"
     end # else = user method call
 
     isSpecial = objAndMeth!=nil || jsname!=nil
