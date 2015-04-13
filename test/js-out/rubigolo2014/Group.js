@@ -12,13 +12,12 @@ var StoneConstants = require('./StoneConstants');
  *  Note that most of the work here is to keep this status information up to date.
  *  public read-only attribute: goban, stones, lives, color
  *  public read-only attribute: mergedWith, mergedBy, killedBy, ndx
- *  public write attribute: mergedWith, mergedBy, extraLives
- *  public read-only attribute: eyes, voids, extraLives
+ *  public write attribute: mergedWith, mergedBy, extraLives  *  only used in this file
+ *  public read-only attribute: eyes, voids, extraLives  *  for analyser
  *  Create a new group. Always with a single stone.
  *  Do not call this using Group.new but Goban#new_group instead.
  */
-function Group(goban,  // only used in this file // for analyser
-stone, lives, ndx) {
+function Group(goban, stone, lives, ndx) {
     this.goban = goban;
     this.stones = [stone];
     this.lives = lives;
