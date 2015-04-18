@@ -110,9 +110,9 @@ class RubyToJs
 
   def translateFile(filename, simple_visit=false)
     @showErrors = !simple_visit
-    cname, @rubyFilePath, @rubyFile = parseRubyFilename(filename)
+    @jsFile, @rubyFilePath, @rubyFile = parseRubyFilename(filename)
     targetDir = path_join(@targetDir, @rubyFilePath)
-    jsFile = "#{targetDir}#{cname}.js"
+    jsFile = "#{targetDir}#{@jsFile}.js"
     createTargetDir(targetDir)
     puts "Translating #{@rubyFile} into #{jsFile}..." unless simple_visit
     srcFile = Parser::Source::Buffer.new(@rubyFile)
@@ -227,7 +227,13 @@ class RubyToJs
         constructorCode << cr(newMethod(init, true))
       end
     end
-    @dependencies[@class] = true if constructorCode == ""
+    if constructorCode == "" # no constructor
+      if @jsFile == @class # if filename matches class name we create an empty constructor
+        constructorCode = "#{cr}/** @class */#{cr}function #{@class}() {}#{cr}module.exports = #{@class};#{cr}#{cr}"
+      else # filename does not match class name => we are extending a class in a separate file
+        @dependencies[@class] = true
+      end
+    end
 
     classCode = constructorCode + stmt(body)
 
@@ -791,10 +797,11 @@ class RubyToJs
     return path + (path2.start_with?("./") ? path2[2..-1] : path2)
   end
 
-  # e.g. "./test/test_stone" => ["TestStone", "./test/", "test_stone.rb"]
+  # e.g. "./test/test_stone" => [:TestStone, "./test/", "test_stone.rb"]
   def parseRubyFilename(fname)
     fname = fname[1..-2] if fname.start_with?("'") or fname.start_with?('"')
 
+    fname = fname.gsub(/\\/, "/")
     slash = fname.rindex("/")
     path = slash ? fname[0..slash] : "./"
     path = "./" + path if !path.start_with?(".")

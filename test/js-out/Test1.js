@@ -1,9 +1,13 @@
 //Translated from test1.rb using babyruby2js
 'use strict';
 
-var TestStone = require('./rubigolo2014/test/TestStone');
 // comm1
-TestStone.prototype.testDeco1 = function () {
+
+/** @class */
+function Test1() {}
+module.exports = Test1;
+
+Test1.prototype.testDeco1 = function () {
     if (true) {
         console.log('hi');
         if (x() < 0) { // deco on trailing if
@@ -14,7 +18,7 @@ TestStone.prototype.testDeco1 = function () {
     }
 };
 
-TestStone.prototype.test1 = function (a) { // test1 decoring comment
+Test1.prototype.test1 = function (a) { // test1 decoring comment
     for (var n, n_array = a, n_ndx = 0; n=n_array[n_ndx], n_ndx < n_array.length; n_ndx++) { // block arg n comment
         console.log(a.slice(1, 4) + a.range(-1, -4));
     }
@@ -24,7 +28,7 @@ TestStone.prototype.test1 = function (a) { // test1 decoring comment
 };
 
 // bug2.1
-TestStone.prototype.test2 = function () {
+Test1.prototype.test2 = function () {
     var a = 1; // first time
     // call f1
     f1();

@@ -1,7 +1,7 @@
 
 #comm1
 
-class TestStone
+class Test1
 
 def testDeco1
   if true
