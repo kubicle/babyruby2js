@@ -782,7 +782,8 @@ class RubyToJs
     while f.first and f.first == t.first do f.shift; t.shift end
     f.size.times do res << "../" end
     res << t.join("/") + "/" if t.first
-    return res != "" ? res : "./"
+    res = "./" + res if !res.start_with?(".")
+    return res
   end
 
   # e.g. "./test/test_stone" => ["TestStone", "./test/", "test_stone.rb"]
@@ -791,6 +792,7 @@ class RubyToJs
 
     slash = fname.rindex("/")
     path = slash ? fname[0..slash] : "./"
+    path = "./" + path if !path.start_with?(".")
     fname = fname[slash+1..-1] if slash
     fname = fname.chomp(".rb")
     
