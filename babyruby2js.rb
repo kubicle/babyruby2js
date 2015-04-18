@@ -5,7 +5,9 @@ require_relative 'associator'
 
 
 RANGE_FUNC = { :irange => "range", :erange => "slice" }
-RENAMED_FUNC = { :to_s => "toString" }
+
+# Names renamed "brutaly" (can include reserved JS keywords)
+RENAMED_WORDS = { :to_s => "toString", :eval => "_eval", :void => "_void" }
 
 # Functions for which translation is declared as "" here will be
 # translated by #specialStdMethodCall().
@@ -91,8 +93,6 @@ class RubyToJs
       puts "Invalid arguments. Use --help or -h for help."
       exit
     end
-    @srcDir += "/" if @srcDir[-1]!="/"
-    @targetDir += "/" if @targetDir[-1]!="/"
   end
 
   def translateAll(single_file)
@@ -110,21 +110,22 @@ class RubyToJs
   def translateFile(filename, simple_visit=false)
     @showErrors = !simple_visit
     cname, @rubyFilePath, @rubyFile = parseRubyFilename(filename)
-    jsFile = "#{@targetDir}#{@rubyFilePath}#{cname}.js"
-    createTargetDir(@targetDir+@rubyFilePath)
+    targetDir = path_join(@targetDir, @rubyFilePath)
+    jsFile = "#{targetDir}#{cname}.js"
+    createTargetDir(targetDir)
     puts "Translating #{@rubyFile} into #{jsFile}..." unless simple_visit
     srcFile = Parser::Source::Buffer.new(@rubyFile)
-    srcFile.source = File.read(@srcDir+@rubyFilePath+@rubyFile)
+    srcFile.source = File.read(path_join(@srcDir, @rubyFilePath) + @rubyFile)
     jsCode = translateSrc(srcFile)
     File.write(jsFile, jsCode) unless simple_visit
   end
 
   def getFiles(dir, files=nil)
     files = [] if !files
-    Dir.entries(@srcDir+dir).each do |e|
+    Dir.entries(path_join(@srcDir, dir)).each do |e|
       next if e[0] == "."
       path = dir+"/"+e
-      if Dir.exists?(@srcDir+path) # subdir
+      if Dir.exists?(path_join(@srcDir, path)) # subdir
         getFiles(path, files)
       else
         files.push(path) if e[-3..-1] == ".rb"
@@ -786,6 +787,11 @@ class RubyToJs
     return res
   end
 
+  def path_join(path1, path2)
+    path = (path1.end_with?("/") ? path1 : path1 + "/")
+    return path + (path2.start_with?("./") ? path2[2..-1] : path2)
+  end
+
   # e.g. "./test/test_stone" => ["TestStone", "./test/", "test_stone.rb"]
   def parseRubyFilename(fname)
     fname = fname[1..-2] if fname.start_with?("'") or fname.start_with?('"')
@@ -802,7 +808,7 @@ class RubyToJs
 
   # e.g. "play_at!" => "playAt"
   def jsName(rubyName)
-    renamed = RENAMED_FUNC[rubyName]
+    renamed = RENAMED_WORDS[rubyName]
     return renamed if renamed
     name = rubyName.to_s
     name = name.chomp("?").chomp("!")
