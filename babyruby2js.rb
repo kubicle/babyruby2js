@@ -220,20 +220,21 @@ class RubyToJs
     body = n.children[2]
 
     # Pick up the initialize methods first
-    res = ""
+    constructorCode = ""
     if body and body.type == :begin
       init = body.children.find { |m| m.type == :def && m.children[0] == :initialize }
       if init
         storeComments(n) # class comments go with contructor
         attributes(body)
-        res << cr(newMethod(init, true))
+        constructorCode << cr(newMethod(init, true))
       end
     end
+    @dependencies[@class] = true if constructorCode == ""
 
-    res << stmt(body)
+    classCode = constructorCode + stmt(body)
 
     enterClass(prevClass)
-    return res
+    return classCode
   end
 
   def attributes(body)

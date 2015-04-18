@@ -1,6 +1,7 @@
 //Translated from test1.rb using babyruby2js
 'use strict';
 
+var TestStone = require('./rubigolo2014/test/TestStone');
 // comm1
 TestStone.prototype.testDeco1 = function () {
     if (true) {
