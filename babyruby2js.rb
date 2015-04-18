@@ -42,7 +42,8 @@ TWO_PARAM_FUNC = {
 
 STD_CLASSES = {
   :String => "String", :Array => "Array",
-  :Fixnum => "'Fixnum'", :Float => "'Float'"
+  :Fixnum => "'Fixnum'", :Float => "'Float'",
+  :Minitest => "main.TestCase"
 }
 
 MAIN_CLASS = :main
@@ -193,20 +194,17 @@ class RubyToJs
 
   #--- Class
 
-  def newClass(name, parent)
-    parentName = parent ? const(:class, parent) : nil
-    return {
-      name: name, parent: parentName, directory: @rubyFilePath,
-      methods: {}, members: {}, constants: {}
-    }
-  end
-
   def enterClass(name, parent=nil)
+    parentName = parent ? const(:class, parent) : nil
     @class = name
     @curClass = @classes[name]
     if !@curClass
-      @curClass = newClass(name, parent);
-      @classes[name] = @curClass
+      @classes[name] = @curClass = {
+        name: name, parent: parentName, directory: @rubyFilePath,
+        methods: {}, members: {}, constants: {}
+      }
+    else
+      @curClass[:parent] = parentName
     end
     @classMethods = @curClass[:methods]
     @classDataMembers = @curClass[:members]
@@ -651,7 +649,7 @@ class RubyToJs
     parent = @curClass[:parent]
     proto = "#{cr}/** @class #{genCom('R',n)}*/#{cr}function #{@class}("
     export = "#{@class}"
-    export = "#{mainClass}.tests.add(#{export})" if parent == "#{MAIN_CLASS}.Minitest.Test"
+    export = "#{mainClass}.tests.add(#{export})" if parent == "#{MAIN_CLASS}.TestCase.Test"
     afterConstr = "#{cr}module.exports = #{export};"
     if parent
       afterConstr = "#{cr}inherits(#{@class}, #{parent});" + afterConstr

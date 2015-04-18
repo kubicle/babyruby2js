@@ -5,6 +5,6 @@
 
   "replacements": {
     "//require 'minitest/autorun'": "var assertEqual = main.assertEqual",
-    "main.Minitest.Test": "main.TestCase"
+    "main.TestCase.Test": "main.TestCase"
   }
 }
