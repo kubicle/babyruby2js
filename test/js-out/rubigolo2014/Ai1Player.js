@@ -72,6 +72,7 @@ Ai1Player.prototype.getGene = function (name, defVal, lowLimit, highLimit) {
 // Returns the move chosen (e.g. c4 or pass)
 // One can check last_move_score to see the score of the move returned
 Ai1Player.prototype.getMove = function () {
+    var bestScore, secondBest, bestI, bestJ;
     // @timer.start("AI move",0.5,3)
     this.numMoves += 1;
     if (this.numMoves >= this.size * this.size) { // force pass after too many moves
@@ -79,9 +80,7 @@ Ai1Player.prototype.getMove = function () {
         return 'pass';
     }
     this.prepareEval();
-    var bestScore, secondBest;
     bestScore = secondBest = this.minimumScore;
-    var bestI, bestJ;
     bestI = bestJ = -1;
     var bestNumTwin = 0; // number of occurrence of the current best score (so we can randomly pick any of them)
     for (var j = 1; j <= this.size; j++) {

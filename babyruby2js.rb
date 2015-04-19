@@ -153,6 +153,7 @@ class RubyToJs
     @errors = ""
     @unknownMethods = {}
     @dependencies = {}
+    @blocks = []
     code = stmt(ast)
     trackMissingComments(comments, srcFile.source)
 
@@ -348,14 +349,14 @@ class RubyToJs
   def stmt(n, mustReturn=false)
     return "" if n == nil
     code = exp(n, true, mustReturn)
-    return "#{genCom('C',n)}#{localVarDecl()}#{code}#{genCom('D')}"
+    return "#{genCom('C',n)}#{code}#{genCom('D')}"
   end
 
   def pexp(n)
     e = exp(n)
     return e if n.type != :send
     case n.children[1]
-    when :+, :-, :*, :/, :%, :modulo then return "(#{e})"
+    when :+, :-, :*, :/, :%, :modulo, :==, :"!=" then return "(#{e})"
     else return e
     end
   end
@@ -375,7 +376,7 @@ class RubyToJs
     when :block then block(n, isStmt, mustReturn)
     when :class then classDef(n)
     when :def, :defs then newMethod(n)
-    when :self then "#{ret}this#{semi}"
+    when :self then "#{ret}#{this}#{semi}"
     when :int, :float then "#{ret}#{arg0}#{semi}"
     when :true, :false then "#{ret}#{n.type}#{semi}"
     when :nil
@@ -421,26 +422,20 @@ class RubyToJs
       return "return #{exp(arg0)}#{semi}" if arg0
       "return#{semi}"
     when :if
-      return ifElse(n, isStmt, mustReturn)
-    when :case
-      return caseWhen(n, isStmt, mustReturn)
-    when :while
-      cond = exp(arg0)
-      return "#{localVarDecl()}while (#{cond}) {#{crb}#{stmt(n.children[1])}#{cre}}"
-    when :next
-      "continue#{semi}"
+      return "( #{exp(arg0)} ? #{exp(n.children[1])} : #{exp(n.children[2])} )" if !isStmt
+      return ifElse(n, mustReturn)
+    when :case then return caseWhen(n, isStmt, mustReturn)
+    when :while then return enterBlock + exitBlock("while (#{exp(arg0)}) {#{crb}#{stmt(n.children[1])}#{cre}}")
+    when :next then return "continue#{semi}"
     when :break
       return "error_break_value(#{exp(arg0)})#{semi}" if arg0
       "break#{semi}"
-    when :or
-      "#{exp(arg0)} || #{exp(n.children[1])}"
-    when :and
-      "#{exp(arg0)} && #{exp(n.children[1])}"
+    when :or then return "#{exp(arg0)} || #{exp(n.children[1])}"
+    when :and then return "#{exp(arg0)} && #{exp(n.children[1])}"
     when :yield
       @hasYield = true
       "#{ret}cb(#{exp(arg0)})#{semi}"
-    when :kwbegin
-      stmt(arg0)
+    when :kwbegin then return stmt(arg0)
     when :rescue
       catche = ""
       arg1 = n.children[1]
@@ -458,7 +453,7 @@ class RubyToJs
   def superCall(args, semi, ret)
     method = @curMethod == :initialize ? "" : ".#{@curMethod}"
     params = args.length>0 ? ", " + args.map{|p| exp(p)}.join(", ") : ""
-    return "#{ret}#{@curClass[:parent]}#{method}.call(this#{params})#{semi}"
+    return "#{ret}#{@curClass[:parent]}#{method}.call(#{this}#{params})#{semi}"
   end
 
   def localVar(n, loopIndex=false)
@@ -471,7 +466,7 @@ class RubyToJs
     return jsname
   end
 
-  def localVarDecl()
+  def localVarDecl
     return "" if @stmtDecl.length==0
     res = "var " + @stmtDecl.join(", ") + ";#{cr}"
     @stmtDecl = []
@@ -482,31 +477,58 @@ class RubyToJs
     vname = localVar(n)
     semi = isStmt ? ";" : ""
     value = exp(n.children[1])
-    if isStmt and @stmtDecl.length == 1 and @stmtDecl[0] == vname
-      @stmtDecl = []
+    if isStmt and @stmtDecl.last == vname
+      @stmtDecl.pop
       return "var #{vname} = #{value}#{semi}" 
     end
-    return "#{vname} = #{value}#{semi}" # if !isStmt or @stmtDecl.length==0
+    return "#{vname} = #{value}#{semi}"
   end
 
-  def ifElse(n, isStmt, mustReturn)
-    cond = exp(n.children[0])
-    res = isStmt ? localVarDecl() : ""
-    if isStmt
-      if n.children[1]==nil # "unless" has no "then" block but an "else"
-        return "#{res}if (!(#{cond})) {#{genCom('D')}#{crb}#{stmt(n.children[2],mustReturn)}#{cre}}"
+  def this
+    return "this" if !@insideBlockFunc
+    if !@localVars[:self]
+      @localVars[:self] = true
+      (@blocks.count - 1).downto(0) do |i|
+        block = @blocks[i]
+        block[0][:self] = true
+        if !block[2]
+          block[1].push("self = this")
+          break
+        end
       end
-      res += "if (#{cond}) {#{genCom('D')}#{crb}#{stmt(n.children[1],mustReturn)}#{cre}}"
-      return res if !n.children[2]
-      if n.children[2].type == :if
-        return "#{res} else #{stmt(n.children[2],mustReturn)}" # else if...
-      else
-        return "#{res} else {#{crb}#{stmt(n.children[2],mustReturn)}#{cre}}"
-      end
-    else
-      ret = mustReturn ? "return " : ""
-      ifFalse = n.children[2] ? "#{exp(n.children[2])}" : "error_missing_else()"
-      return "#{ret}( #{cond} ? #{exp(n.children[1])} : #{ifFalse} )"
+    end
+    return "self"
+  end
+
+  def enterBlock(type=:stmt)
+    @blocks.push([@localVars, @stmtDecl, @insideBlockFunc])
+    @localVars = @localVars.clone if type != :stmt
+    @stmtDecl = []
+    @insideBlockFunc = @insideBlockFunc || type == :func
+    return ""
+  end
+  
+  def exitBlock(code)
+    decl = localVarDecl
+    @localVars, @stmtDecl, @insideBlockFunc = @blocks.pop
+    return decl + code
+  end
+
+  def ifElse(n, mustReturn)
+    enterBlock
+    cond = n.children[0]
+    if !n.children[1] # "unless" has no "then" block but an "else"
+      return exitBlock("if (!#{pexp(cond)}) {#{genCom('D')}#{crb}#{stmt(n.children[2],mustReturn)}#{cre}}")
+    end
+    ifPart = "if (#{exp(cond)}) {#{genCom('D')}"
+    if !n.children[2] # if without else - variables in stmt can be declared in stmt
+      return exitBlock(ifPart) + "#{crb}" + enterBlock + exitBlock(stmt(n.children[1],mustReturn)) + "#{cre}}"
+    end
+    ifPart << "#{crb}#{stmt(n.children[1],mustReturn)}#{cre}}"
+    if n.children[2].type == :if # elsif
+      return exitBlock("#{ifPart} else #{stmt(n.children[2],mustReturn)}")
+    else # if else
+      return exitBlock("#{ifPart} else {#{crb}#{stmt(n.children[2],mustReturn)}#{cre}}")
     end
   end
 
@@ -572,7 +594,7 @@ class RubyToJs
       end
       vname = vname[1..-1]
       @classDataMembers[symbol[1..-1].to_sym] = true
-      return "this.#{vname}"
+      return "#{this}.#{vname}"
     when "$"
       return "#{mainClass}.#{vname[1..-1]}"
     else
@@ -644,6 +666,7 @@ class RubyToJs
   def enterMethod(methName)
     @parameters = {}
     @localVars = {}
+    @insideBlockFunc = false
     @curMethod = methName
     @classMethods[methName] = true
     @publicMethods[methName] = @class if !@private
@@ -685,7 +708,7 @@ class RubyToJs
     @hasYield = false
     @indent += 1
     defaultValues = methodDefaultArgs(args)
-    body = "#{stmt(n.children[i+2],true)}"
+    body = "#{enterBlock(:meth)}#{exitBlock(stmt(n.children[i+2],true))}"
     @indent -= 1
     # if callback was called in body we need to add it as parameter
     proto << (args.children.length ? ", cb" : "cb") if @hasYield
@@ -728,7 +751,8 @@ class RubyToJs
     return asLoop if asLoop
     # Ruby: @grid.to_text(false,","){ |s| ... }
     # => (block (send (ivar :@grid) :to_text (false) (str ",")) (args (arg :s)) ...
-    func = "function (#{methodArgs(args)}) {#{genCom('D',args)}#{crb}#{stmt(code,true)}#{cre}}"
+    func = "function (#{methodArgs(args)}) {#{genCom('D',args)}#{crb}" +
+      enterBlock(:func) + exitBlock(stmt(code, true)) + "#{cre}}"
     return "#{methodCall(method, mustReturn, func)}#{semi}"
   end
 
@@ -1001,7 +1025,7 @@ class RubyToJs
 
   def objScope(n, methName)
     return "#{pexp(n)}." if n
-    return "this." if @classMethods[methName] or @classDataMembers[methName]
+    return "#{this}." if @classMethods[methName] or @classDataMembers[methName]
     return ""
   end
 

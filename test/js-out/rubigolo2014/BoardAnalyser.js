@@ -226,6 +226,7 @@ BoardAnalyser.prototype.findStrongerOwners = function () {
 
 // Reviews the groups and declare "dead" the ones who do not own any void
 BoardAnalyser.prototype.findDyingGroups = function () {
+    var ownedVoids, size, oneOwner, myVoid;
     for (var g, g_array = this.allGroups, g_ndx = 0; g=g_array[g_ndx], g_ndx < g_array.length; g_ndx++) {
         if (g.eyes.length >= 2) {
             continue;
@@ -238,9 +239,7 @@ BoardAnalyser.prototype.findDyingGroups = function () {
             continue;
         }
         // we need to look at voids around (fake eyes, etc.)
-        var ownedVoids, size;
         ownedVoids = size = 0;
-        var oneOwner, myVoid;
         oneOwner = myVoid = null;
         for (var v, v_array = g.voids, v_ndx = 0; v=v_array[v_ndx], v_ndx < v_array.length; v_ndx++) {
             if (v.owner) {

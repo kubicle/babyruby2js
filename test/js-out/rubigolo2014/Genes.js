@@ -27,18 +27,20 @@ Genes.prototype.setLimits = function (limits) {
 };
 
 Genes.prototype.toString = function () {
+    var self = this;
     var s = '';
     this.map.eachKey(function (k) {
-        s += k + ':' + '%.02f'.format(this.map[k]) + ', ';
+        s += k + ':' + '%.02f'.format(self.map[k]) + ', ';
     });
     return s.chomp(', ');
 };
 
 // Returns a distance between 2 sets of genes
 Genes.prototype.distance = function (gene2) {
+    var self = this;
     var dist = 0.0;
     this.map.eachKey(function (k) {
-        var m = this.map[k];
+        var m = self.map[k];
         var n = gene2.map[k];
         // first handle sign differences
         if ((n < 0) !== (m < 0)) {
@@ -100,6 +102,7 @@ Genes.unserialize = function (dump) {
 // wide_mutation_rate: 0.20 for 20% chances to pick any value in limit range
 // if wide mutation is not picked, a value near to the old value is picked
 Genes.prototype.mate = function (parent2, kid1, kid2, mutationRate, wideMutationRate) {
+    var self = this;
     var p1 = this.map;
     var p2 = parent2.map;
     kid1.setLimits(this.limits);
@@ -118,10 +121,10 @@ Genes.prototype.mate = function (parent2, kid1, kid2, mutationRate, wideMutation
             k2[key] = p1[key];
         }
         if (Math.random() < mutationRate) {
-            k1[key] = this.mutation1(key, k1[key], wideMutationRate);
+            k1[key] = self.mutation1(key, k1[key], wideMutationRate);
         }
         if (Math.random() < mutationRate) {
-            k2[key] = this.mutation1(key, k2[key], wideMutationRate);
+            k2[key] = self.mutation1(key, k2[key], wideMutationRate);
         }
         pos += 1;
     });
@@ -153,8 +156,9 @@ Genes.prototype.mutation1 = function (name, oldVal, wideMutationRate) {
 };
 
 Genes.prototype.mutateAll = function () {
+    var self = this;
     this.map.eachKey(function (key) {
-        this.map[key] = this.mutation1(key, this.map[key], 1.0);
+        self.map[key] = self.mutation1(key, self.map[key], 1.0);
     });
     return this;
 };

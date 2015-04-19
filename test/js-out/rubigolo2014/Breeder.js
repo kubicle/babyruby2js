@@ -165,11 +165,11 @@ Breeder.prototype.pickParent = function () {
 };
 
 Breeder.prototype.control = function () {
+    var totalScore, numWins, numWinsW;
     var previous = main.debugBreed;
     main.debugBreed = false;
     var numControlGames = 30;
     main.log.debug('Playing ' + numControlGames * 2 + ' games to measure the current winner against our control AI...');
-    var totalScore, numWins, numWinsW;
     totalScore = numWins = numWinsW = 0;
     for (var i = 1; i <= numControlGames; i++) {
         var score = this.playGame('control', 'winner', this.controlGenes, this.winner);
@@ -200,9 +200,9 @@ Breeder.prototype.control = function () {
 
 // Play many games AI VS AI to verify black/white balance
 Breeder.prototype.bwBalanceCheck = function (numGames, size) {
+    var totalScore, numWins;
     this.timer.start('bw_balance_check', numGames / 1000.0 * 50, numGames / 1000.0 * 512);
     main.log.debug('Checking black/white balance by playing ' + numGames + ' games (komi=' + Breeder.KOMI + ')...');
-    var totalScore, numWins;
     totalScore = numWins = 0;
     for (var i = 1; i <= numGames; i++) {
         var score = this.playGame('control', 'control', this.controlGenes, this.controlGenes);
@@ -221,8 +221,7 @@ Breeder.prototype.bwBalanceCheck = function (numGames, size) {
 };
 
 if (!main.testAll && !main.test) {
-    opts = main.Trollop.options(function () {
-        var opts;
+    var opts = main.Trollop.options(function () {
         opt('size', 'Goban size', {'default':9});
         opt('num_tour', 'Number of tournaments', {'default':2});
         return opt('match_per_ai', 'Number of matches per AI per tournament', {'default':3});

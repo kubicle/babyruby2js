@@ -7,10 +7,11 @@ var Grid = require('./Grid');
 /** @class public read-only attribute: map
  */
 function InfluenceMap(goban) {
+    var self = this;
     this.goban = goban;
     this.size = goban.length;
     this.map = Array.new(this.size + 1, function () {
-        return Array.new(this.size + 1, function () {
+        return Array.new(self.size + 1, function () {
             return [0, 0];
         });
     });

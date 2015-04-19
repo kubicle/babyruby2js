@@ -153,8 +153,9 @@ Group.prototype.livesAddedByStone = function (stone) {
         if (life.color !== main.EMPTY) {
             continue;
         }
+        var self = this;
         if (!(true === life.neighbors.forEach(function (s) {
-            if (s.group === this && s !== stone) {
+            if (s.group === self && s !== stone) {
                 error_break_value((true));
             }
         }))) {
