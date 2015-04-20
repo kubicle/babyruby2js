@@ -654,7 +654,7 @@ class RubyToJs
         test = "#{item}=#{arrayName}[#{ndx}], #{ndx} >= 0"
         incr = "#{ndx}--"
       end
-    when :each_keys
+    when :each_key
       return "for (#{declNdx}#{ndx} in #{exp(n.children[0])}) {#{crb}#{stmt(code)}#{cre}}"
     when :loop
       return "for (;;) {#{crb}#{stmt(code)}#{cre}}"

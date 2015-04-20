@@ -68,5 +68,5 @@ def testLoops
   3.times { |j| p j }
   3.times { |j| p j }
   3.times { p x }
-  x.each_keys { |k| p x.keys }
+  x.each_key { |k| p x.keys }
 end
