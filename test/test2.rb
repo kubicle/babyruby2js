@@ -58,3 +58,15 @@ p s[2]
 p s[2,1]
 p s.slice(2)
 p s.slice(2,1)
+
+def testLoops
+  x = 2
+  0.step(10,2) { |i| p i }
+  0.step(-10,-2) { |i| p i }
+  0.step(10,x) { |i3| p i3 }
+  0.step(10,x) { |i3| p i3 }
+  3.times { |j| p j }
+  3.times { |j| p j }
+  3.times { p x }
+  x.each_keys { |k| p x.keys }
+end

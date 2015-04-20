@@ -19,7 +19,7 @@ NO_PARAM_FUNC = {
   :chop! => "chop!", # will break on purpose
   :sort => "sort", :pop => "pop", :shift => "shift",
   :join => "join", :count => "count",
-  :first => "", :last => "", :length => "", :size => "",
+  :first => "", :last => "", :length => "", :size => "", :keys => "",
   :chr => "", :ord => "", :to_i => "", :to_f => "",
   :rand => "", :round => "",
   :abs => "", :max => "", :now => "",
@@ -456,12 +456,12 @@ class RubyToJs
     return "#{ret}#{@curClass[:parent]}#{method}.call(#{this}#{params})#{semi}"
   end
 
-  def localVar(n, loopIndex=false)
-    vname = n.children[0]
+  def localVar(n)
+    vname = n.is_a?(String) ? n.to_sym : n.children[0]
     jsname = jsName(vname)
     if !@localVars[vname]
       @localVars[vname] = true
-      @stmtDecl.push(jsname) if !loopIndex
+      @stmtDecl.push(jsname)
     end
     return jsname
   end
@@ -603,25 +603,27 @@ class RubyToJs
   end
 
   # method=(send (int 1) :upto (int 5))  args=(args (arg :i))  code=exp
-  def methodAsLoop(method, args, code)
-    return nil if method.type != :send or args.children.length > 1
-    methName = method.children[1]
+  def methodAsLoop(n, args, code)
+    return nil if n.type != :send or args.children.length > 1
+    methName = n.children[1]
     decl = test = incr = nil
-    ndx = args.children.length == 1 ? localVar(args.children[0], true) : "i"
+    ndx = args.children.length == 1 ? localVar(args.children[0]) : localVar("_i")
+    declNdx = @stmtDecl.last == ndx ? "var " : nil
+    @stmtDecl.pop if declNdx # we will declare the index inside the "for"
 
     case methName
     when :upto
-      v1 = exp(method.children[0])
-      v2 = exp(method.children[2])
+      v1 = exp(n.children[0])
+      v2 = exp(n.children[2])
     when :downto
-      v1 = exp(method.children[0])
-      v2 = exp(method.children[2])
+      v1 = exp(n.children[0])
+      v2 = exp(n.children[2])
       test = "#{ndx} >= #{v2}"
       incr = "#{ndx}--"
     when :step
-      v1 = exp(method.children[0])
-      v2 = exp(method.children[2])
-      step = method.children[3]
+      v1 = exp(n.children[0])
+      v2 = exp(n.children[2])
+      step = n.children[3]
       if step.type == :int
         stepVal = step.children[0]
         if stepVal > 0
@@ -632,32 +634,34 @@ class RubyToJs
         end
       else
         stepVar = "_step#{ndx}"
-        decl = "var #{ndx} = #{v1}, #{stepVar} = #{exp(step)}"
+        decl = "#{declNdx}#{ndx} = #{v1}, #{stepVar} = #{exp(step)}"
         test = "(#{v2} - #{ndx}) * #{stepVar} > 0"
         incr = "#{ndx} += #{stepVar}"
       end
     when :times
       v1 = 1
-      v2 = exp(method.children[0])
+      v2 = exp(n.children[0])
     when :each, :reverse_each
       item = ndx
       ndx = "#{item}_ndx"
       arrayName = "#{item}_array"
-      array = exp(method.children[0])
+      array = exp(n.children[0])
       if methName == :each
-        decl = "var #{item}, #{arrayName} = #{array}, #{ndx} = 0"
+        decl = "#{declNdx}#{item}, #{arrayName} = #{array}, #{ndx} = 0"
         test = "#{item}=#{arrayName}[#{ndx}], #{ndx} < #{arrayName}.length"
       else
-        decl = "var #{item}, #{arrayName} = #{array}, #{ndx} = #{arrayName}.length - 1"
+        decl = "#{declNdx}#{item}, #{arrayName} = #{array}, #{ndx} = #{arrayName}.length - 1"
         test = "#{item}=#{arrayName}[#{ndx}], #{ndx} >= 0"
         incr = "#{ndx}--"
       end
+    when :each_keys
+      return "for (#{declNdx}#{ndx} in #{exp(n.children[0])}) {#{crb}#{stmt(code)}#{cre}}"
     when :loop
       return "for (;;) {#{crb}#{stmt(code)}#{cre}}"
     else
       return nil
     end
-    decl = "var #{ndx} = #{v1}" if !decl
+    decl = "#{declNdx}#{ndx} = #{v1}" if !decl
     test = "#{ndx} <= #{v2}" if !test
     incr = "#{ndx}++" if !incr
     return "for (#{decl}; #{test}; #{incr}) {#{genCom('D')}#{crb}#{stmt(code)}#{cre}}"
@@ -883,6 +887,7 @@ class RubyToJs
       val = exp(arg0)
       return "#{ret}#{val}[#{val}.length-1]" # we could also implement .last()
     when :length, :size then return "#{ret}#{exp(arg0)}.length" # length is not a method in JS
+    when :keys then return "#{ret}Object.keys(#{exp(arg0)})"
     when :to_i then return "#{ret}parseInt(#{exp(arg0)})"
     when :to_f then return "#{ret}parseFloat(#{exp(arg0)})"
     when :chr then return "#{ret}String.fromCharCode(#{exp(arg0)})"

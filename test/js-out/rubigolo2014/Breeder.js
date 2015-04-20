@@ -105,8 +105,8 @@ Breeder.prototype.oneTournament = function (numMatchPerAi) {
     for (var p1 = 1; p1 <= this.genSize; p1++) {
         this.scoreDiff[p1] = 0;
     }
-    for (var i = 1; i <= numMatchPerAi; i++) {
-        for (var p1 = 1; p1 <= this.genSize; p1++) {
+    for (var _i = 1; _i <= numMatchPerAi; _i++) {
+        for (p1 = 1; p1 <= this.genSize; p1++) {
             var p2 = ~~(Math.random()*~~(this.genSize - 1));
             if (p2 === p1) {
                 p2 = this.genSize - 1;
@@ -141,7 +141,7 @@ Breeder.prototype.reproduction = function () {
         parent1.mate(parent2, this.newGeneration[i], this.newGeneration[i + 1], Breeder.MUTATION_RATE, Breeder.WIDE_MUTATION_RATE);
     }
     if (main.debugBreed) {
-        for (var i = 1; i <= this.genSize; i++) {
+        for (i = 1; i <= this.genSize; i++) {
             main.log.debug('#' + i + ', score ' + this.scoreDiff[i] + ', picked ' + this.picked[i] + ' times');
         }
     }
@@ -171,7 +171,7 @@ Breeder.prototype.control = function () {
     var numControlGames = 30;
     main.log.debug('Playing ' + numControlGames * 2 + ' games to measure the current winner against our control AI...');
     totalScore = numWins = numWinsW = 0;
-    for (var i = 1; i <= numControlGames; i++) {
+    for (var _i = 1; _i <= numControlGames; _i++) {
         var score = this.playGame('control', 'winner', this.controlGenes, this.winner);
         var scoreW = this.playGame('winner', 'control', this.winner, this.controlGenes);
         if (score > 0) {
@@ -204,7 +204,7 @@ Breeder.prototype.bwBalanceCheck = function (numGames, size) {
     this.timer.start('bw_balance_check', numGames / 1000.0 * 50, numGames / 1000.0 * 512);
     main.log.debug('Checking black/white balance by playing ' + numGames + ' games (komi=' + Breeder.KOMI + ')...');
     totalScore = numWins = 0;
-    for (var i = 1; i <= numGames; i++) {
+    for (var _i = 1; _i <= numGames; _i++) {
         var score = this.playGame('control', 'control', this.controlGenes, this.controlGenes);
         if (score > 0) {
             numWins += 1;

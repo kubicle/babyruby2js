@@ -25,8 +25,8 @@ function Goban(size) {
             this.ban[j][i] = new Stone(this, i, j, main.EMPTY);
         }
     }
-    for (var j = 1; j <= size; j++) {
-        for (var i = 1; i <= size; i++) {
+    for (j = 1; j <= size; j++) {
+        for (i = 1; i <= size; i++) {
             this.ban[j][i].findNeighbors();
         }
     }
@@ -98,7 +98,7 @@ Goban.prototype.debugDisplay = function () {
     console.log('Full info on groups and stones:');
     var groups = {};
     for (var row, row_array = this.grid.yx, row_ndx = 0; row=row_array[row_ndx], row_ndx < row_array.length; row_ndx++) {
-        for (var s, s_array = row, s_ndx = 0; s=s_array[s_ndx], s_ndx < s_array.length; s_ndx++) {
+        for (s, s_array = row, s_ndx = 0; s=s_array[s_ndx], s_ndx < s_array.length; s_ndx++) {
             if (s && s.group) {
                 groups[s.group.ndx] = s.group;
             }

@@ -74,7 +74,7 @@ InfluenceMap.prototype.debugDump = function () {
             console.log('\n');
         }
         console.log('  ');
-        for (var i = 1; i <= this.size; i++) {
+        for (i = 1; i <= this.size; i++) {
             console.log(' ' + Grid.xLabel(i) + ' ');
         }
         console.log('\n');

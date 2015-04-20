@@ -106,11 +106,11 @@ Grid.prototype.toText = function (withLabels, endOfRow, cb) {
     var numChar = maxlen;
     var white = '          ';
     var s = '';
-    for (var j = this.size; j >= 1; j--) {
+    for (j = this.size; j >= 1; j--) {
         if (withLabels) {
             s += '%2d'.format(j) + ' ';
         }
-        for (var i = 1; i <= this.size; i++) {
+        for (i = 1; i <= this.size; i++) {
             val = yx[j][i];
             if (val.length < numChar) {
                 val = white.substr(1, numChar - val.length) + val;
@@ -121,7 +121,7 @@ Grid.prototype.toText = function (withLabels, endOfRow, cb) {
     }
     if (withLabels) {
         s += '   ';
-        for (var i = 1; i <= this.size; i++) {
+        for (i = 1; i <= this.size; i++) {
             s += white.substr(1, numChar - 1) + Grid.xLabel(i);
         }
         s += '\n';

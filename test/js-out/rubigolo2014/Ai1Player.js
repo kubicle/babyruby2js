@@ -58,7 +58,7 @@ Ai1Player.prototype.setColor = function (color) {
     for (var h, h_array = this.heuristics, h_ndx = 0; h=h_array[h_ndx], h_ndx < h_array.length; h_ndx++) {
         h.initColor();
     }
-    for (var h, h_array = this.negativeHeuristics, h_ndx = 0; h=h_array[h_ndx], h_ndx < h_array.length; h_ndx++) {
+    for (h, h_array = this.negativeHeuristics, h_ndx = 0; h=h_array[h_ndx], h_ndx < h_array.length; h_ndx++) {
         h.initColor();
     }
 };
@@ -142,7 +142,7 @@ Ai1Player.prototype.evalMove = function (i, j, bestScore) {
     }
     // we run negative heuristics only if this move was a potential candidate
     if (score >= bestScore) {
-        for (var h, h_array = this.negativeHeuristics, h_ndx = 0; h=h_array[h_ndx], h_ndx < h_array.length; h_ndx++) {
+        for (h, h_array = this.negativeHeuristics, h_ndx = 0; h=h_array[h_ndx], h_ndx < h_array.length; h_ndx++) {
             score += h.evalMove(i, j);
             if (score < bestScore) {
                 break;

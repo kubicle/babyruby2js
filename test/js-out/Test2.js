@@ -55,5 +55,33 @@ console.log(s[2]);
 console.log(s.substr(2, 1));
 console.log(s[2]);
 console.log(s.substr(2, 1));
+main.prototype.testLoops = function () {
+    var x = 2;
+    for (var i = 0; i <= 10; i += 2) {
+        console.log(i);
+    }
+    for (i = 0; i >= -10; i -= 2) {
+        console.log(i);
+    }
+    for (var i3 = 0, _stepi3 = x; (10 - i3) * _stepi3 > 0; i3 += _stepi3) {
+        console.log(i3);
+    }
+    for (i3 = 0, _stepi3 = x; (10 - i3) * _stepi3 > 0; i3 += _stepi3) {
+        console.log(i3);
+    }
+    for (var j = 1; j <= 3; j++) {
+        console.log(j);
+    }
+    for (j = 1; j <= 3; j++) {
+        console.log(j);
+    }
+    for (var _i = 1; _i <= 3; _i++) {
+        console.log(x);
+    }
+    for (var k in x) {
+        console.log(Object.keys(x));
+    }
+};
+
 // E02: unknown method num_tournaments()
 // W03: isA('Float',n) is true for all numbers

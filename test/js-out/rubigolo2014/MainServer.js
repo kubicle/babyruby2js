@@ -347,7 +347,7 @@ MainServer.prototype.webDisplay = function (goban, aiPlayed, question) {
         s += '</tr>';
     }
     s += '<tr><td></td>';
-    for (var i = 1; i <= size; i++) {
+    for (i = 1; i <= size; i++) {
         s += '<th>' + Grid.xLabel(i) + '</th>';
     }
     s += '</tr></table>';
