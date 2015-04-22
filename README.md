@@ -1,16 +1,17 @@
 # babyruby2js
 Basic translator from Ruby to Javascript
+See much more complete/evolved translator at https://github.com/rubys/ruby2js
 
-# Run the test:
+## Run the test:
 cd .\test
 ruby ../babyruby2js.rb
 (this uses ruby2js.json in test directory for config src & target)
 
-# Translate a single file: (for debugging)
-ruby ../babyruby2js.rb --src=. --target=js-out --debug=1 --file=./test1.rb
+## Translate a single file: (for debugging)
+ruby ../babyruby2js.rb --src=. --target=js-out --debug=./test1.rb
 
 
-# Not handled:
+## Not handled:
 - generated "require" need review
 - constants added to main class need to be "required" at least once
 - standard method names are tranlated without type-check (e.g. size => length)
@@ -36,3 +37,4 @@ ruby ../babyruby2js.rb --src=. --target=js-out --debug=1 --file=./test1.rb
 - for the reason above, we leave find_index untranslated
 - negative index on arrays does not "loop back" from last item
 - only 1 class exported per file
+- call to super (parent class construction) does not pass the current parameters
