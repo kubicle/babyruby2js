@@ -451,7 +451,7 @@ class RubyToJs
   end
 
   def superCall(args, semi, ret)
-    method = @curMethod == :initialize ? "" : ".#{@curMethod}"
+    method = @curMethod == :initialize ? "" : ".prototype.#{jsName(@curMethod)}"
     params = args.length>0 ? ", " + args.map{|p| exp(p)}.join(", ") : ""
     return "#{ret}#{@curClass[:parent]}#{method}.call(#{this}#{params})#{semi}"
   end
