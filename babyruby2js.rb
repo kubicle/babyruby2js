@@ -1028,9 +1028,19 @@ class RubyToJs
     return true
   end
 
+  def typeofClassMember(name)
+    klass = @curClass
+    loop do
+      return 0 if !klass
+      return 1 if klass[:members][name]
+      return 2 if klass[:methods][name]
+      klass = @classes[klass[:parent]]
+    end
+  end
+
   def objScope(n, methName)
     return "#{pexp(n)}." if n
-    return "#{this}." if @classMethods[methName] or @classDataMembers[methName]
+    return "#{this}." if typeofClassMember(methName) != 0
     return ""
   end
 
