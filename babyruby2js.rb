@@ -639,8 +639,8 @@ class RubyToJs
         incr = "#{ndx} += #{stepVar}"
       end
     when :times
-      v1 = 1
-      v2 = exp(n.children[0])
+      v1 = 0
+      test = "#{ndx} < #{exp(n.children[0])}"
     when :each, :reverse_each
       item = ndx
       ndx = "#{item}_ndx"
