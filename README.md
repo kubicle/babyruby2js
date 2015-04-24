@@ -18,12 +18,11 @@ ruby ../babyruby2js.rb --src=. --target=js-out --debug=./test1.rb
 - if x = f() changed into if (x = f()) not liked by JSHint; but if (x=f()) is OK
 - s << str is replaced by s += str (with error if s is a parameter)
 - << not handled on arrays (use push instead)
+- Set class not handled (esp. Set#each wrongly translated into array-style for-loop)
 - chop! and other mutable string methods
 - ranges (only [n..m] and [n...m] supported on strings and arrays)
 - slice on arrays (slice on string is OK)
-- local var declared in "then" or "else" stmt but used after the "if" block
-- 2 loops using same var for index => dupe decl in JS
-- self instead of this (we could detect we are in a cb block)
+- local var declared in "then" or "else" stmt but used after the "if" block (JSHint complains but code runs OK)
 - method calls with no params can be data members (but an error is logged)
 - object.rw_attrib=(exp); the method is "rw_attrib=" and it works by chance, no issue...
 - break(value)
