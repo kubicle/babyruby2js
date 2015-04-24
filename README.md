@@ -12,7 +12,6 @@ ruby ../babyruby2js.rb --src=. --target=js-out --debug=./test1.rb
 
 
 ## Not handled:
-- generated "require" need review
 - constants added to main class need to be "required" at least once
 - standard method names are tranlated without type-check (e.g. size => length)
 - next & return not translated right in callbacks
@@ -37,4 +36,3 @@ ruby ../babyruby2js.rb --src=. --target=js-out --debug=./test1.rb
 - for the reason above, we leave find_index untranslated
 - negative index on arrays does not "loop back" from last item
 - only 1 class exported per file
-- call to super (parent class construction) does not pass the current parameters
