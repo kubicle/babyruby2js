@@ -492,18 +492,18 @@ class RubyToJs
 
   def this
     return "this" if !@insideBlockFunc
-    if !@localVars[:self]
-      @localVars[:self] = true
-      (@blocks.count - 1).downto(0) do |i|
-        block = @blocks[i]
-        block[0][:self] = true
-        if !block[2]
-          block[1].push("self = this")
-          break
-        end
-      end
+    return "self" if @localVars[:self] # already declared above here
+    @localVars[:self] = true
+    # in all the blocks above...
+    (@blocks.count - 1).downto(0) do |i|
+      block = @blocks[i]
+      block[0][:self] = true # 0=localVars
+      next if block[2] # 2=insideBlockFunc
+      # the block on top declares "self"
+      block[1].push("self = this") # 1=stmtDecl
+      return "self"
     end
-    return "self"
+    raise "Invalid state - self"
   end
 
   def enterBlock(type=:stmt)
@@ -704,6 +704,7 @@ class RubyToJs
     return "" if symbol == :initialize and !doInitialize
     jsname = jsName(symbol)
     enterMethod(symbol)
+    enterBlock(:meth)
     after = ";"
     if symbol == :initialize
       proto, after = newClassConstructor(n)
@@ -718,7 +719,7 @@ class RubyToJs
     @hasYield = false
     @indent += 1
     defaultValues = methodDefaultArgs(args)
-    body = "#{enterBlock(:meth)}#{exitBlock(stmt(n.children[i+2],true))}"
+    body = "#{exitBlock(stmt(n.children[i+2],true))}"
     @indent -= 1
     # if callback was called in body we need to add it as parameter
     proto << (args.children.length ? ", cb" : "cb") if @hasYield
@@ -762,8 +763,8 @@ class RubyToJs
     return asLoop if asLoop
     # Ruby: @grid.to_text(false,","){ |s| ... }
     # => (block (send (ivar :@grid) :to_text (false) (str ",")) (args (arg :s)) ...
-    func = "function (#{methodArgs(args)}) {#{genCom('D',args)}#{crb}" +
-      enterBlock(:func) + exitBlock(stmt(code, true)) + "#{cre}}"
+    func = "#{enterBlock(:func)}function (#{methodArgs(args)}) {#{genCom('D',args)}#{crb}" +
+      exitBlock(stmt(code, true)) + "#{cre}}"
     return "#{methodCall(method, mustReturn, func)}#{semi}"
   end
 
