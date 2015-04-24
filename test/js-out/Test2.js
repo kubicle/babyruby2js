@@ -18,7 +18,7 @@ Obj.prototype.toString = function () {
 };
 
 Obj.prototype.func2 = function () {
-    for (var i = 1; i <= numTournaments(); i++) { // TODO: Find a way to appreciate the progress
+    for (var i = 0; i < numTournaments(); i++) { // TODO: Find a way to appreciate the progress
         reproduction();
         control();
     }
@@ -69,13 +69,13 @@ main.prototype.testLoops = function () {
     for (i3 = 0, _stepi3 = x; (10 - i3) * _stepi3 > 0; i3 += _stepi3) {
         console.log(i3);
     }
-    for (var j = 1; j <= 3; j++) {
+    for (var j = 0; j < 3; j++) {
         console.log(j);
     }
-    for (j = 1; j <= 3; j++) {
+    for (j = 0; j < 3; j++) {
         console.log(j);
     }
-    for (var _i = 1; _i <= 3; _i++) {
+    for (var _i = 0; _i < 3; _i++) {
         console.log(x);
     }
     for (var k in x) {

@@ -21,7 +21,7 @@ module.exports = InfluenceMap;
 InfluenceMap.prototype.clear = function () {
     for (var j = 1; j <= this.size; j++) {
         for (var i = 1; i <= this.size; i++) {
-            for (var c = 1; c <= 2; c++) {
+            for (var c = 0; c < 2; c++) {
                 this.map[j][i][c] = 0;
             }
         }
@@ -64,7 +64,7 @@ InfluenceMap.prototype.buildMap = function () {
 };
 
 InfluenceMap.prototype.debugDump = function () {
-    for (var c = 1; c <= 2; c++) {
+    for (var c = 0; c < 2; c++) {
         console.log('Influence map for ' + Grid.COLOR_NAMES[c] + ':');
         for (var j = this.size; j >= 1; j--) {
             console.log('' + '%2d'.format(j));
