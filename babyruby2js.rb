@@ -452,6 +452,7 @@ class RubyToJs
 
   def superCall(args, semi, ret)
     method = @curMethod == :initialize ? "" : ".prototype.#{jsName(@curMethod)}"
+    ret = "" if @curMethod == :initialize
     if args.length > 0
       params = ", " + args.map{|p| exp(p)}.join(", ")
     elsif @parameters.length > 0
