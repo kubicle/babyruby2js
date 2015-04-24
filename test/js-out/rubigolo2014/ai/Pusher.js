@@ -10,7 +10,7 @@ var Heuristic = require('./Heuristic');
 
 /** @class */
 function Pusher(player) {
-    Heuristic.call(this);
+    Heuristic.call(this, player);
     this.allyCoeff = this.getGene('ally-infl', 0.1, 0.01, 4.0);
     this.enemyCoeff = this.getGene('enemy-infl', 0.4, 0.01, 4.0);
 }

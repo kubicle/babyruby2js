@@ -452,7 +452,13 @@ class RubyToJs
 
   def superCall(args, semi, ret)
     method = @curMethod == :initialize ? "" : ".prototype.#{jsName(@curMethod)}"
-    params = args.length>0 ? ", " + args.map{|p| exp(p)}.join(", ") : ""
+    if args.length > 0
+      params = ", " + args.map{|p| exp(p)}.join(", ")
+    elsif @parameters.length > 0
+      params = ", " + @parameters.map{|p| jsName(p)}.join(", ")
+    else
+      params = ""
+    end
     return "#{ret}#{@curClass[:parent]}#{method}.call(#{this}#{params})#{semi}"
   end
 
@@ -668,7 +674,7 @@ class RubyToJs
   end
 
   def enterMethod(methName)
-    @parameters = {}
+    @parameters = []
     @localVars = {}
     @insideBlockFunc = false
     @curMethod = methName
@@ -726,7 +732,8 @@ class RubyToJs
     n.children.each do |a|
       vname = a.children[0]
       jsname = jsName(vname)
-      @localVars[vname] = @parameters[vname] = true
+      @localVars[vname] = true
+      @parameters.push(vname)
       storeComments(a)
       break if a == n.children.last # for last param we don't want a "," and we want to leave its comments
       res << "#{jsname}, #{genCom('P')}"
@@ -954,7 +961,7 @@ class RubyToJs
     when :<<
       lvalue = exp(arg0)
       res = "#{lvalue} += #{exp(n.children[2])}"
-      res += " + error_infinf_on_parameter('#{lvalue}')" if @parameters[lvalue]
+      res += " + error_infinf_on_parameter('#{lvalue}')" if @parameters.find_index(lvalue)
       return res
     when :[]
       arg1 = n.children[2]
