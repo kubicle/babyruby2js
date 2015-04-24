@@ -41,7 +41,7 @@ TWO_PARAM_FUNC = {
 }
 
 STD_CLASSES = {
-  :String => "String", :Array => "Array",
+  :Object => "Object", :String => "String", :Array => "Array",
   :Fixnum => "'Fixnum'", :Float => "'Float'",
   :Minitest => "main.TestCase"
 }
