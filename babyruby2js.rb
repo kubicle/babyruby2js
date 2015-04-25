@@ -32,7 +32,7 @@ ONE_PARAM_FUNC = {
   :split => "split", :chomp => "chomp", :push => "push",
   :start_with? => "startWith", :end_with? => "endWith",
   :join => "join", :count => "count",
-  :find => "some",
+  :find => "find",
   :is_a? => "", :instance_of? => "",
   :slice => "",
   :rand => "", :round => "",
