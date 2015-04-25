@@ -581,7 +581,7 @@ class RubyToJs
     return "#{@class}.#{cname}" if @classConstants[cname]
     # nothing specified so we look in main class
     if !@classes[MAIN_CLASS][:constants][cname]
-      logError("W", 2, "Unknown #{isConst ? 'constant' : 'class'} supposed to be attached to #{MAIN_CLASS}: #{cname}")
+      logError("W", 2, "unknown #{isConst ? 'constant' : 'class'} supposed to be attached to #{MAIN_CLASS}: #{cname}")
     end
     return "#{mainClass}.#{cname}"
   end
@@ -600,7 +600,11 @@ class RubyToJs
         return "#{@class}.#{vname[2..-1]}"
       end
       vname = vname[1..-1]
-      @classDataMembers[symbol[1..-1].to_sym] = true
+      varSym = symbol[1..-1].to_sym
+      if !@classDataMembers[varSym] # first time we see this data member?
+        logError("E", 6, "data overwrites method: #{vname}") if @classMethods[varSym] == vname
+        @classDataMembers[varSym] = vname
+      end
       return "#{this}.#{vname}"
     when "$"
       return "#{mainClass}.#{vname[1..-1]}"
@@ -679,9 +683,15 @@ class RubyToJs
     @localVars = {}
     @insideBlockFunc = false
     @curMethod = methName
-    @classMethods[methName] = true
+    jsname = jsName(methName)
+    if @classDataMembers[methName] == jsname
+      jsname = "_" + jsname if @private
+      logError("E", 5, "both data and method: #{methName}") if !@private
+    end
+    @classMethods[methName] = jsname
     @publicMethods[methName] = @class if !@private
     mainClass if @class == MAIN_CLASS and methName != :"" # identify dependency on class "main"
+    return jsname
   end
 
   def newClassConstructor(n)
@@ -703,8 +713,7 @@ class RubyToJs
     i = isStatic ? 1 : 0
     symbol = n.children[i]
     return "" if symbol == :initialize and !doInitialize
-    jsname = jsName(symbol)
-    enterMethod(symbol)
+    jsname = enterMethod(symbol)
     enterBlock(:meth)
     after = ";"
     if symbol == :initialize
@@ -805,7 +814,7 @@ class RubyToJs
       else
         cl = @classes[className]
         file = cl ? relative_path(@rubyFilePath, cl[:directory]) : "./"
-        logError("E", 3, "#{className} unknown class") if !cl
+        logError("E", 3, "unknown class: #{className}") if !cl
         requ = "var #{className} = require('#{file}#{className}')"
       end
       requ = @replacements[requ] if @replacements[requ]
@@ -957,7 +966,7 @@ class RubyToJs
     arg0 = n.children[0]
     symbol = n.children[1]
     num_param = n.children.length - 2
-    objAndMeth = jsname = nil
+    objAndMeth = nil
 
     case symbol
     when :<<
@@ -994,20 +1003,25 @@ class RubyToJs
       @private = false
       return "//public"
     when :require, :require_relative then return genRequire(n.children[2], symbol == :require)
-    when :each # we get here only if each could not be converted to a for loop earlier
-      jsname = "forEach"
+    when :each # see also methodAsLoop
+      objAndMeth = "#{ret}#{exp(arg0)}.forEach"
     when :puts, :print, :p
       objAndMeth, ret = "console.log", "" if arg0==nil
     when :call then objAndMeth = "#{exp(arg0)}"
     end # else = user method call
 
-    isSpecial = objAndMeth!=nil || jsname!=nil
-    jsname = jsName(symbol) if !jsname
-    objAndMeth = "#{objScope(arg0, symbol)}#{jsname}" if !objAndMeth
+    if objAndMeth
+      isSpecial = true
+    else
+      jsname = jsName(symbol)
+      methName = isMethod(symbol, num_param + (block ? 1 : 0), jsname)
+      jsname = methName if methName
+      objAndMeth = "#{objScope(arg0, symbol)}#{jsname}"
+    end
     
-    #add parameters to method
+    #add parameters to method "obj.name"
     params = genMethParam(n, block)
-    params = "(#{params})" if isSpecial or isMethod(symbol, num_param + (block ? 1 : 0))
+    params = "(#{params})" if isSpecial or methName # all "special ones" here are methods
     return "#{ret}#{objAndMeth}#{params}"
   end
 
@@ -1019,22 +1033,23 @@ class RubyToJs
 
   # This decides if we put "()" or not for a method call that could be a data accessor too
   # NB:in doubt, () is safer because of runtime error "not a function"
-  def isMethod(methName, num_param)
-    return true if @classMethods[methName] # we could compare the # of arguments
-    return false if num_param == 0 and @classDataMembers[methName]
+  # Returns the jsname that should be used (or nil if not a method)
+  def isMethod(methName, num_param, jsname)
+    return @classMethods[methName] if @classMethods[methName] # we could compare the # of arguments
+    return nil if num_param == 0 and @classDataMembers[methName]
     isMeth = @publicMethods[methName]
     isVar = num_param == 0 ? @publicVars[methName] : false
-    return true if isMeth and !isVar
-    return false if isVar and !isMeth
+    return jsname if isMeth and !isVar
+    return nil if isVar and !isMeth
     
-    return true if !@showErrors # in doubt use "()" is safer
+    return jsname if !@showErrors # in doubt use "()" is safer
     if isVar and isMeth
-      logError("E", 1, "both variable and method: #{methName}")
+      logError("E", 1, "both variable and method exist: #{methName}")
     elsif !@unknownMethods[methName]
-      logError("E", 2, "unknown method #{methName}(#{num_param>0 ? '...' : ''})")
+      logError("E", 2, "unknown method: #{methName}(#{num_param>0 ? '...' : ''})")
       @unknownMethods[methName] = true # so we show it only once per file
     end
-    return true
+    return jsname
   end
 
   def typeofClassMember(name)
