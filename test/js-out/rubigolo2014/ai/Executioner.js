@@ -40,3 +40,4 @@ Executioner.prototype.evalMove = function (i, j) {
     }
     return threat + saving;
 };
+

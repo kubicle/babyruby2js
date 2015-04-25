@@ -262,3 +262,4 @@ GameLogic.prototype.sgfToGame = function (game) {
     this.komi = reader.komi;
     return reader.toMoveList();
 };
+

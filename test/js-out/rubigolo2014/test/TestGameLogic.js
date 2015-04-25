@@ -37,3 +37,4 @@ TestGameLogic.prototype.testHandicap = function () {
     this.game.loadMoves('hand:6,f3');
     return assertEqual(img, this.goban.image());
 };
+

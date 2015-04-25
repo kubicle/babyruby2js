@@ -152,3 +152,4 @@ Hunter.prototype.escapingAtariIsCaught = function (stone, level) {
     }
     return (this.evalMove(e1.i, e1.j, level + 1) > 0 || this.evalMove(e2.i, e2.j, level + 1) > 0);
 };
+

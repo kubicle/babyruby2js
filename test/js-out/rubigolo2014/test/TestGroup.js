@@ -308,3 +308,4 @@ TestGroup.prototype.testUndo3 = function () {
     assertEqual(1, b1.lives);
     return assertEqual(5, b2.lives);
 };
+

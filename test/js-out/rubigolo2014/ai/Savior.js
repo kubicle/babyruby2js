@@ -76,3 +76,4 @@ Savior.prototype.evalEscape = function (i, j, stone) {
     }
     return threat;
 };
+

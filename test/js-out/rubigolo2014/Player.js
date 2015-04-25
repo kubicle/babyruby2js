@@ -13,3 +13,4 @@ module.exports = Player;
 Player.prototype.setColor = function (color) {
     this.color = color;
 };
+

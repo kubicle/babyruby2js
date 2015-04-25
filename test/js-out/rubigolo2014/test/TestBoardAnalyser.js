@@ -88,3 +88,4 @@ TestBoardAnalyser.prototype.testBigGame2 = function () {
     assertEqual([11 + 3, 6 + 3], this.boan.prisoners);
     return assertEqual([44, 56], this.boan.scores);
 };
+

@@ -80,3 +80,4 @@ InfluenceMap.prototype.debugDump = function () {
         console.log('\n');
     }
 };
+

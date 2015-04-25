@@ -96,3 +96,4 @@ TestStone.prototype.testKo = function () {
     Stone.playAt(this.goban, 1, 1, main.WHITE); // white takes the ko
     return assertEqual(false, Stone.validMove(this.goban, 1, 2, main.BLACK)); // and black cannot take it now
 };
+

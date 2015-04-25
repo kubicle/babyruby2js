@@ -47,3 +47,4 @@ NoEasyPrisoner.prototype.evalMove = function (i, j) {
     Stone.undo(this.goban);
     return score;
 };
+

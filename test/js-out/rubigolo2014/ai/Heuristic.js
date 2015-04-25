@@ -41,3 +41,4 @@ Heuristic.prototype.getGene = function (name, defVal, lowLimit, highLimit) {
     if (highLimit === undefined) highLimit = null;
     return this.player.genes.get(this.constructor.name + '-' + name, defVal, lowLimit, highLimit);
 };
+

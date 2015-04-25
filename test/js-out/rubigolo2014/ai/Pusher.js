@@ -30,3 +30,4 @@ Pusher.prototype.evalMove = function (i, j) {
     }
     return score;
 };
+

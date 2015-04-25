@@ -13,3 +13,4 @@ var NoEasyPrisoner = require('./NoEasyPrisoner');
 Heuristic.allHeuristics = function () {
     return [Spacer, Executioner, Savior, Hunter, Connector, Pusher, NoEasyPrisoner];
 };
+

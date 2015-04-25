@@ -61,3 +61,4 @@ Spacer.prototype.distanceFromBorder = function (n) {
         return this.size - n;
     }
 };
+

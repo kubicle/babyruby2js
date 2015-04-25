@@ -76,3 +76,4 @@ Connector.prototype.evalMove = function (i, j) {
     }
     return _eval;
 };
+

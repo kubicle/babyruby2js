@@ -2,3 +2,4 @@
 'use strict';
 
 var Foo8 = require('./Foo8');
+

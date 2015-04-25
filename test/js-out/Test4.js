@@ -10,3 +10,4 @@ main.prototype.initColor = function () {
         this.color = this.player.color;
     }
 };
+

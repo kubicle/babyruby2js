@@ -89,3 +89,4 @@ TestScoreAnalyser.prototype.testScoreDiffToS = function () {
     assertEqual('black wins by 4 points', this.sa.scoreDiffToS(4));
     return assertEqual('Tie game', this.sa.scoreDiffToS(0));
 };
+

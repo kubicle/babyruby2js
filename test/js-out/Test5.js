@@ -3,3 +3,4 @@
 
 var Foo5 = require('./Foo5');
 // foo
+

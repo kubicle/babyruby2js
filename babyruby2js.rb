@@ -158,7 +158,7 @@ class RubyToJs
     trackMissingComments(comments, srcFile.source)
 
     intro = "//Translated from #{@rubyFile} using babyruby2js\n'use strict';\n\n"
-    return doReplacements(intro + genAddedRequire() + code + @errors)
+    return doReplacements(intro + genAddedRequire() + code + @errors) + "\n"
   end
 
   def logError(level, code, msg)

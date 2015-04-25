@@ -83,3 +83,4 @@ TestZoneFiller.prototype.testFill3 = function () {
     this.filler.fillWithColor(5, 5, main.EMPTY, TestZoneFiller.x);
     return assertEqual('+++OX,+++OO,+O+++,++OO+,+O+O+', this.grid.image());
 };
+

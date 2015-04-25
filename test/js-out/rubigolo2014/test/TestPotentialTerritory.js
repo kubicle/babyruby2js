@@ -90,3 +90,4 @@ TestPotentialTerritory.prototype.testNoSuicideWhileEvaluating = function () {
     this.game.loadMoves('d4,d2,e3,b4,e1,c5,d6,d5,c3,e5,d3,b3,b2,c2,a2,e2,f1,f2,b6,c6,f6,e6,f4,d7,f5,f3');
     return this.ter.guessTerritories();
 };
+

@@ -151,3 +151,4 @@ Ai1Player.prototype.evalMove = function (i, j, bestScore) {
     }
     return score;
 };
+
