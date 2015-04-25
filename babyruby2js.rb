@@ -858,7 +858,7 @@ class RubyToJs
     return className, path, fname+".rb"
   end
 
-  # e.g. "play_at!" => "playAt"
+  # e.g. :play_at! => "playAt", :@_all_enemies => "_allEnemies"
   def jsName(rubyName)
     renamed = RENAMED_WORDS[rubyName]
     return renamed if renamed
@@ -866,7 +866,9 @@ class RubyToJs
     name = name.chomp("?").chomp("!")
     return name if !@camelCase
     # NB: we want to "preserve" a leading underscore hence using split("_") is awkward
-    pos = 1
+    pos = 0
+    while name[pos] == "@" do pos += 1 end
+    pos += 1 # skip 1st char (or 1st after @)
     while (pos = name.index("_", pos)) do
       name = name[0..pos-1] + name[pos+1..-1].capitalize
     end
