@@ -7,7 +7,10 @@ require_relative 'associator'
 RANGE_FUNC = { :irange => "range", :erange => "slice" }
 
 # Names renamed "brutaly" (can include reserved JS keywords)
-RENAMED_WORDS = { :to_s => "toString", :eval => "_eval", :void => "_void" }
+RENAMED_WORDS = {
+  :to_s => "toString",
+  :eval => "_eval", :void => "_void"
+}
 
 # Functions for which translation is declared as "" here will be
 # translated by #specialStdMethodCall().
@@ -39,6 +42,13 @@ TWO_PARAM_FUNC = {
   :assert_equal => "assertEqual", :between? => "between",
   :sub => "replace",
   :gsub => "", :slice => "", :[] => ""
+}
+THREE_PARAM_FUNC = {
+  :assert_equal => "assertEqual",
+  :assert_in_delta => "main.assertInDelta"
+}
+FOUR_PARAM_FUNC = {
+  :assert_in_delta => "main.assertInDelta"
 }
 
 STD_CLASSES = {
@@ -944,10 +954,14 @@ class RubyToJs
   end
 
   def getStdMethodInfo(symbol, num_param)
-    return NO_PARAM_FUNC[symbol] if num_param == 0
-    return ONE_PARAM_FUNC[symbol] if num_param == 1
-    return TWO_PARAM_FUNC[symbol] if num_param == 2
-    return nil
+    case num_param
+    when 0 then return NO_PARAM_FUNC[symbol]
+    when 1 then return ONE_PARAM_FUNC[symbol]
+    when 2 then return TWO_PARAM_FUNC[symbol]
+    when 3 then return THREE_PARAM_FUNC[symbol]
+    when 4 then return FOUR_PARAM_FUNC[symbol]
+    else return nil
+    end
   end
 
   def stdMethodCall(n, ret, block)
