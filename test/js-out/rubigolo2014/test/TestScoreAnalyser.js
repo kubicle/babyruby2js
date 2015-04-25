@@ -11,7 +11,7 @@ var ScoreAnalyser = require('../ScoreAnalyser');
 
 /** @class */
 function TestScoreAnalyser(testName) {
-    return main.TestCase.call(this, testName);
+    main.TestCase.call(this, testName);
 }
 inherits(TestScoreAnalyser, main.TestCase);
 module.exports = main.tests.add(TestScoreAnalyser);

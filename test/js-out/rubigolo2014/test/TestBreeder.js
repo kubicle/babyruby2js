@@ -9,7 +9,7 @@ var Breeder = require('../Breeder');
 
 /** @class */
 function TestBreeder(testName) {
-    return main.TestCase.call(this, testName);
+    main.TestCase.call(this, testName);
 }
 inherits(TestBreeder, main.TestCase);
 module.exports = main.tests.add(TestBreeder);
@@ -23,4 +23,4 @@ TestBreeder.prototype.testBwBalance = function () {
     return assertInEpsilon(numWins, numGames / 2, tolerance);
 };
 
-// E02: unknown method assert_in_epsilon(...)
+// E02: unknown method: assert_in_epsilon(...)

@@ -11,7 +11,7 @@ var PotentialTerritory = require('../PotentialTerritory');
 /** @class NB: for debugging think of using analyser.debug_dump
  */
 function TestPotentialTerritory(testName) {
-    return main.TestCase.call(this, testName);
+    main.TestCase.call(this, testName);
 }
 inherits(TestPotentialTerritory, main.TestCase);
 module.exports = main.tests.add(TestPotentialTerritory);
