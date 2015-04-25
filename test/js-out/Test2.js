@@ -83,5 +83,5 @@ main.prototype.testLoops = function () {
     }
 };
 
-// E02: unknown method num_tournaments()
+// E02: unknown method: num_tournaments()
 // W03: isA('Float',n) is true for all numbers

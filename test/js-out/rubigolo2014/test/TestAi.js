@@ -329,5 +329,5 @@ TestAi.prototype.xtestSeesAttackNoGood = function () {
     return this.checkEval('c5', main.BLACK, 0); // silly move
 };
 
-// E02: unknown method assert_in_delta(...)
-// E02: unknown method throw(...)
+// E02: unknown method: assert_in_delta(...)
+// E02: unknown method: throw(...)

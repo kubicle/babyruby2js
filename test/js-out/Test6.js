@@ -4,4 +4,4 @@
 var main = require('./main');
 // foo
 main.Encoding.UTF_8;
-// W02: Unknown class supposed to be attached to main: Encoding
+// W02: unknown class supposed to be attached to main: Encoding

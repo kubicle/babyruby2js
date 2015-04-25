@@ -228,4 +228,4 @@ PotentialTerritory.prototype.connectToBorders = function (yx) {
     }
 };
 
-// E02: unknown method sprintf(...)
+// E02: unknown method: sprintf(...)

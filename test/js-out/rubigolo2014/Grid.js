@@ -189,4 +189,4 @@ Grid.xLabel = function (i) {
 };
 
 // E04: user method hidden by standard one: size
-// E02: unknown method index(...)
+// E02: unknown method: index(...)

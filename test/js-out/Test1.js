@@ -38,8 +38,8 @@ Test1.prototype.test2 = function () {
     return f1(); // bug1.1 // bug1.2
 };
  // bug1.3
-// E02: unknown method x()
-// E02: unknown method block_fn(...)
-// E02: unknown method f1()
-// E02: unknown method c()
-// E02: unknown method f3(...)
+// E02: unknown method: x()
+// E02: unknown method: block_fn(...)
+// E02: unknown method: f1()
+// E02: unknown method: f3(...)
+// E02: unknown method: c()

@@ -330,6 +330,6 @@ BoardAnalyser.prototype.groupLiveliness = function (g) {
 };
 
 // E04: user method hidden by standard one: size
-// W02: Unknown class supposed to be attached to main: Set
-// E02: unknown method add(...)
-// E02: unknown method find_index(...)
+// W02: unknown class supposed to be attached to main: Set
+// E02: unknown method: add(...)
+// E02: unknown method: find_index(...)

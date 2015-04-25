@@ -167,4 +167,4 @@ Goban.prototype.previousStone = function () {
 };
 
 // E04: user method hidden by standard one: size
-// E02: unknown method concat(...)
+// E02: unknown method: concat(...)

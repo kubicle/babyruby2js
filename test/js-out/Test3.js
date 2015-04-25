@@ -31,8 +31,8 @@ main.prototype.foo = function () {
     }
 };
 
-// E02: unknown method attr_accessor(...)
-// E02: unknown method x()
+// E02: unknown method: attr_accessor(...)
+// E02: unknown method: x()
 // W01: lost comment: #!/usr/bin/env ruby <- line 1: [???]
 // W01: lost comment: # coding: utf-8 <- line 2: [???]
 // W01: lost comment: #trailing comment after func foo <- line 33: [???]
