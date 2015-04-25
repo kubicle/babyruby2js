@@ -29,6 +29,7 @@ ONE_PARAM_FUNC = {
   :split => "split", :chomp => "chomp", :push => "push",
   :start_with? => "startWith", :end_with? => "endWith",
   :join => "join", :count => "count",
+  :find => "some",
   :is_a? => "", :instance_of? => "",
   :slice => "",
   :rand => "", :round => "",
@@ -952,7 +953,7 @@ class RubyToJs
   def stdMethodCall(n, ret, block)
     arg0 = n.children[0]
     symbol = n.children[1]
-    num_param = n.children.length - 2
+    num_param = n.children.length - 2 + (block ? 1 : 0)
     func = getStdMethodInfo(symbol, num_param)
     return nil if !func
     return specialStdMethodCall(n, ret, block) if func == ""
