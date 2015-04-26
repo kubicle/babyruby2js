@@ -33,6 +33,7 @@ ONE_PARAM_FUNC = {
   :start_with? => "startWith", :end_with? => "endWith",
   :join => "join", :count => "count",
   :find => "find",
+  :debug => "debug", :info => "info", :warn => "warn", :error => "error", :fatal => "fatal",
   :is_a? => "", :instance_of? => "",
   :slice => "",
   :rand => "", :round => "",
@@ -54,7 +55,7 @@ FOUR_PARAM_FUNC = {
 STD_CLASSES = {
   :Object => "Object", :String => "String", :Array => "Array",
   :Fixnum => "'Fixnum'", :Float => "'Float'",
-  :Minitest => "main.TestCase"
+  :Minitest => "main.TestCase", :Logger => "main.Logger"
 }
 
 MAIN_CLASS = :main
