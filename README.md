@@ -1,6 +1,8 @@
 # babyruby2js
-Basic translator from Ruby to Javascript
-See much more complete/evolved translator at https://github.com/rubys/ruby2js
+Basic translator from Ruby to Javascript.
+Idea is to get the generated JS to be the most "readable" as possible and conform to usual style. I used babyruby2js to translate my own project (rubigolo) from Ruby to JavaScript. This is a 1-way trip and the generated JS will become the new base code - which also explains why I cared about some details like code comments, usually left behind by most translators.
+
+See also, a more complete/evolved translator at https://github.com/rubys/ruby2js
 
 ## Run the test:
 cd .\test
@@ -36,3 +38,4 @@ ruby ../babyruby2js.rb --src=. --target=js-out --debug=./test1.rb
 - negative index on arrays does not "loop back" from last item
 - only 1 class exported per file
 - JS computations on Date.now() are in ms. They are in seconds (float) with Ruby Time.now
+- ...plus anything I did not notice yet...
