@@ -35,3 +35,4 @@ ruby ../babyruby2js.rb --src=. --target=js-out --debug=./test1.rb
 - for the reason above, we leave find_index untranslated
 - negative index on arrays does not "loop back" from last item
 - only 1 class exported per file
+- JS computations on Date.now() are in ms. They are in seconds (float) with Ruby Time.now
