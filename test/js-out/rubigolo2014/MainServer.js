@@ -391,7 +391,6 @@ MainServer.prototype.webDisplay = function (goban, aiPlayed, question) {
 
 var server = new MainServer();
 server.start();
-// E02: unknown method: info(...)
 // W02: unknown class supposed to be attached to main: TCPServer
 // E02: unknown method: accept()
 // E02: unknown method: recv_nonblock(...)

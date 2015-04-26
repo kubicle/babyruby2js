@@ -188,5 +188,4 @@ SgfReader.prototype.error = function (reason, t) {
     throw new Error('Syntax error: \'' + reason + '\' at ...' + t.substr(0, 20) + '...');
 };
 
-// E02: unknown method: info(...)
 // E02: unknown method: index(...)

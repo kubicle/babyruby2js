@@ -2,7 +2,6 @@
 'use strict';
 
 var main = require('../../main');
-var Logger = require('../Logger');
 var inherits = require('util').inherits;
 var Grid = require('../Grid');
 var Stone = require('../Stone');
@@ -11,7 +10,7 @@ var Goban = require('../Goban');
 var TimeKeeper = require('../TimeKeeper');
 var Logging = require('../Logging');
 main.debug = false; // if true it takes forever...
-main.log.level=(Logger.ERROR);
+main.log.level=(main.Logger.ERROR);
 main.count = 0;
 
 /** @class */

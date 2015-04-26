@@ -28,9 +28,9 @@ Logger.prototype.debug = function (msg) {
     console.log(msg);
 };
 
-main.log = new Logger(main.STDOUT);
+main.log = new main.Logger(main.STDOUT);
 // change $log.level to Logger::DEBUG, etc. as you need
-main.log.level=(Logger.DEBUG);
+main.log.level=(main.Logger.DEBUG);
 // change $debug to true to see all the debug logs
 // NB: note this slows down everything if $debug is true even if the log level is not DEBUG
 main.debug = true;
