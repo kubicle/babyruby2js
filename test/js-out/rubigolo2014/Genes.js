@@ -19,7 +19,7 @@ Genes.SMALL_MUTATION_AMOUNT = 0.05; // e.g. 0.05 -> plus or minus 5%
 Genes.LOW = 0;
 Genes.HIGH = 1;
 Genes.prototype.clone = function () {
-    return new Genes(this.map.clone(), this.limits.clone());
+    return new Genes(main.clone(this.map), main.clone(this.limits));
 };
 
 Genes.prototype.setLimits = function (limits) {
@@ -159,6 +159,7 @@ Genes.prototype.mutateAll = function () {
     return this;
 };
 
+// E04: user method hidden by standard one: clone
 // E02: unknown method: chomp!(...)
 // E02: unknown method: dump(...)
 // W02: unknown constant supposed to be attached to main: YAML

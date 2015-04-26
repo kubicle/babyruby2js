@@ -34,11 +34,11 @@ Breeder.WIDE_MUTATION_RATE = 0.1; // how often do we "widely" mutate
 Breeder.KOMI = 4.5;
 Breeder.TOO_SMALL_SCORE_DIFF = 3; // if final score is less that this, see it as a tie game
 Breeder.prototype.firstGeneration = function () {
-    this.controlGenes = this.players[0].genes.clone();
+    this.controlGenes = main.clone(this.players[0].genes);
     this.generation = [];
     this.newGeneration = [];
     for (var i = 0; i < this.genSize; i++) {
-        this.generation.push(this.players[0].genes.clone().mutateAll());
+        this.generation.push(main.clone(this.players[0].genes).mutateAll());
         this.newGeneration.push(new Genes());
     }
     this.scoreDiff = [];

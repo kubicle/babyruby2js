@@ -25,7 +25,7 @@ NO_PARAM_FUNC = {
   :first => "", :last => "", :length => "", :size => "", :keys => "",
   :chr => "", :ord => "", :to_i => "", :to_f => "",
   :rand => "", :round => "",
-  :abs => "", :max => "", :now => "",
+  :abs => "", :max => "", :now => "", :clone => "",
   :raise => "", :backtrace => "", :message => ""
 }
 ONE_PARAM_FUNC = {
@@ -949,6 +949,7 @@ class RubyToJs
       logError("W", 3, "isA('Float',n) is true for all numbers") if klass.type==:const and klass.children[1]==:Float
       return "#{ret}#{mainClass}.isA(#{exp(klass)}, #{exp(arg0)})"
     when :instance_of? then return "#{ret}#{mainClass}.instanceOf(#{exp(n.children[2])}, #{exp(arg0)})"
+    when :clone then return "#{ret}#{mainClass}.clone(#{exp(arg0)})"
     else
       return nil
     end
